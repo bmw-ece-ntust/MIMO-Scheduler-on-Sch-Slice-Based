@@ -97,6 +97,66 @@
 
 typedef enum
 {
+   DOT5_DENSITY,
+   ONE_DENSITY,
+   THREE_DENSITY
+}csiRsDensity;
+
+typedef enum
+{
+   NO_CDM,
+   FD_CDM2,
+   CDM4_FD2_TD2,
+   CDM8_FD2_TD4
+}csiRsCdmType;
+
+typedef enum
+{
+   P1,
+   P2,
+   P4,
+   P8,
+   P12,
+   P16,
+   P24,
+   P32
+}csiRsNrAntPortsType;
+
+typedef enum
+{
+   ROW1,
+   ROW2,
+   ROW4,
+   OTHER
+}freqDomainAlloc;
+
+typedef enum
+{
+   DBMIN3,
+   DB0,
+   DB3,
+   DB6
+}powerControlOffsetSSType;
+
+typedef enum
+{
+   SLOTS4,
+   SLOTS5,
+   SLOTS8,
+   SLOTS10,
+   SLOTS16,
+   SLOTS20,
+   SLOTS32,
+   SLOTS40,
+   SLOTS64,
+   SLOTS80,
+   SLOTS160,
+   SLOTS320,
+   SLOTS640
+}ResourcePeriodicityAndOffsetChoice;
+
+typedef enum
+{
    MAC_DU_APP_RSP_NOK,
    MAC_DU_APP_RSP_OK
 }MacRsp;
@@ -1344,7 +1404,44 @@ typedef struct bwpRelInfo
 {
    uint8_t bwpId;
 }BwpRelInfo;
+//===========CSIRS WORKSPACE=================//
 
+typedef struct freqOccupation
+{
+   uint8_t  startingRB;
+   uint8_t  numberOfRBs;
+}freqOccupation;
+
+typedef struct csiRsResourceMapping
+{
+   freqDomainAlloc                  freqDomainAllocation;
+   uint8_t                          bitString;
+   csiRsNrAntPortsType              nrOfPorts;
+   uint8_t                          firstOFDMSymbolInTimeDomain;
+   uint8_t                          firstOFDMSymbolInTimeDomain2;
+   csiRsCdmType                     cdmType;
+   csiRsDensity                     density;
+   uint8_t                          evenOddDensity;
+   freqOccupation                   freqBand;
+}CsiRsResourceMapping;
+
+typedef struct csiResourcePeriodicityAndOffset
+{
+   ResourcePeriodicityAndOffsetChoice choice;
+   uint8_t                            offset;
+}CsiResourcePeriodicityAndOffset;
+
+typedef struct nzpCsiRsResource
+{
+   uint8_t                          nzpCsiRsResourceId;
+   CsiRsResourceMapping             resourceMapping;
+   int                              powerControlOffset;
+   powerControlOffsetSSType         powerControlOffsetSS;
+   uint8_t                          scramblingId,
+   CsiResourcePeriodicityAndOffset  periodicityAndOffset;
+}NzpCsiRsResource;
+
+//==========================================//
 /* Serving cell Re-configuration */
 typedef struct servCellRecfgInfo
 {
