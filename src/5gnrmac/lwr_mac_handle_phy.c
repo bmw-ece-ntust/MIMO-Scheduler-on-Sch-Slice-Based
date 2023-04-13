@@ -374,7 +374,7 @@ uint8_t procRxDataInd(fapi_rx_data_indication_t  *fapiRxDataInd)
  * ****************************************************************/
 uint8_t fillUciIndPucchF0F1(UciPucchF0F1 *pduInfo, fapi_uci_o_pucch_f0f1_t *fapiPduInfo)
 {
-
+   // JOJO was here
    uint8_t harqIdx;
    uint8_t ret = ROK;
    
