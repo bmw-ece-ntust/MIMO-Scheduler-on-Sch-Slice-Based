@@ -1008,7 +1008,7 @@ S16 l1HdlTxDataReq(uint16_t msgLen, void *msg)
    return ROK;
 }
 
-#ifdef INTEL_FAPI
+//#ifdef INTEL_FAPI
 /*******************************************************************
  *
  * @brief Fills Uci Ind Pdu Info carried on Pucch Format 0/Format 1
@@ -1026,6 +1026,11 @@ S16 l1HdlTxDataReq(uint16_t msgLen, void *msg)
  *         RFAILED - failure
  *
  * ****************************************************************/
+uint8_t fillPucchF2F3F4PduInfo(fapi_uci_o_pucch_f2f3f4_t *pduInfo, fapi_ul_pucch_pdu_t pucchPdu)
+{
+   return ROK;
+}
+
 uint8_t fillPucchF0F1PduInfo(fapi_uci_o_pucch_f0f1_t *pduInfo, fapi_ul_pucch_pdu_t pucchPdu)
 {
    uint8_t idx = 0;
@@ -1124,6 +1129,13 @@ uint8_t fillUciPduInfo(fapi_uci_pdu_info_t *uciPdu, fapi_ul_pucch_pdu_t pucchPdu
          }
          break;
       case UCI_IND_PUCCH_F2F3F4:
+         {
+            fapi_uci_o_pucch_f2f3f4_t *pduInfo = NULLP;
+
+            pduInfo = &uciPdu->uci.uciPucchF2F3F4;
+            ret = fillPucchF2F3F4PduInfo(pduInfo, pucchPdu);
+            uciPdu->pduSize = sizeof(fapi_uci_o_pucch_f2f3f4_t);
+         }
          break;
       default:
          DU_LOG("\nERROR  -->  PHY_STUB: Invalid Pdu Type %d", uciPdu->pduType);
@@ -1186,7 +1198,7 @@ uint8_t l1BuildAndSendUciInd(uint16_t slot, uint16_t sfn, fapi_ul_pucch_pdu_t pu
    MAC_FREE(uciInd, sizeof(fapi_uci_indication_t));
    return ret;
 }
-#endif
+//#endif
 
 /*******************************************************************
  *

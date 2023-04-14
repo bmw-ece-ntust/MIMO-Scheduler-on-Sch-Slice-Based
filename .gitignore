@@ -1,3 +1,4 @@
 # documentation
 .tox
 docs/_build/
+bin
