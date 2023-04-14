@@ -1,4 +1,5 @@
 # documentation
 .tox
 docs/_build/
+build/odu/obj
 bin
