@@ -2,5 +2,7 @@
 .tox
 docs/_build/
 build/odu/obj
+build/odu/lib
+build/odu/bin
 libs
 bin
