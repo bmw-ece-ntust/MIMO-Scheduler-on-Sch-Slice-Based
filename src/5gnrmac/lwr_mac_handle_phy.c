@@ -375,7 +375,21 @@ uint8_t procRxDataInd(fapi_rx_data_indication_t  *fapiRxDataInd)
 uint8_t fillUciIndPucchF2F3F4(UciPucchF2F3F4 *pduInfo, fapi_uci_o_pucch_f2f3f4_t *fapiPduInfo)
 {
    uint8_t ret = ROK;
-    return ret;
+   pduInfo->crnti = fapiPduInfo->rnti;
+   pduInfo->handle = fapiPduInfo->handle;
+   pduInfo->num_uci_bits = fapiPduInfo->num_uci_bits;
+   pduInfo->pduBitmap = fapiPduInfo->pduBitmap;
+   pduInfo->pucchFormat = fapiPduInfo->pucchFormat;
+   pduInfo->rssi = fapiPduInfo->rssi;
+   pduInfo->timingAdvance = fapiPduInfo->timingAdvance;
+   for(int i=0;i<MAX_UCI_BIT_PER_TTI_IN_BYTES;i++)
+   {
+      pduInfo->uciBits[i] = fapiPduInfo->uciBits[i];
+   }
+   
+   pduInfo->ul_cqi = fapiPduInfo->ul_cqi;
+
+   return ret;
 }
 
 uint8_t fillUciIndPucchF0F1(UciPucchF0F1 *pduInfo, fapi_uci_o_pucch_f0f1_t *fapiPduInfo)

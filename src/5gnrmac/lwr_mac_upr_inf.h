@@ -38,6 +38,8 @@
 #define UCI_IND_PUCCH_F2F3F4 2   /* UCI Indication carried on PUCCH Format 2, 3, 4 */
 #define SR_PDU_BITMASK    1      /* Bit Mask for SR_PDU */
 #define HARQ_PDU_BITMASK  2      /* Bit Mask for HARQ PDU */
+#define CSI_PART1_PDU_BITMASK 4
+#define CSI_PART2_PDU_BITMASK 8
 #define SR_NOT_DETECTED   0      /* SR not detected */
 #define SR_DETECTED       1      /* SR detected */
 #define CONFDC_LEVEL_GOOD 0      /* Confidence Level HARQ/SR */

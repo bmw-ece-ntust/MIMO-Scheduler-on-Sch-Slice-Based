@@ -130,8 +130,19 @@ uint8_t sendDlCqiIndMacToSch(SchDlCqiInd *dlCqiInd)
 {
    Pst pst;
 
+   
+   memset(&pst, 0, sizeof(Pst));
    FILL_PST_MAC_TO_SCH(pst, EVENT_DL_CQI_TO_SCH);
    return(SchMessageRouter(&pst, (void *)dlCqiInd));
+}
+
+
+uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciPucchF2F3F4 *pucchF2F3F4)
+{
+   uint8_t ret = ROK;
+
+
+   return ret;
 }
 
 /*******************************************************************
@@ -876,6 +887,30 @@ uint8_t FapiMacUciInd(Pst *pst, UciInd *macUciInd)
             }
                break;
             case UCI_IND_PUCCH_F2F3F4:
+               {
+                  if(macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4.pduBitmap & SR_PDU_BITMASK)
+                  {
+                     // TODO: so far PUCCH format 2/3/4 does not support SR payload
+                     DU_LOG("\nERROR  -->  MAC: SR not yet support for PUCCH format 2/3/4");
+                  }
+                  if(macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4.pduBitmap & HARQ_PDU_BITMASK)
+                  {
+                     // TODO: so far PUCCH format 2/3/4 does not support HARQ payload
+                     DU_LOG("\nERROR  -->  MAC: HARQ not yet support for PUCCH format 2/3/4");
+                  }
+                  if(macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4.pduBitmap & CSI_PART1_PDU_BITMASK)
+                  {
+                     DU_LOG("\nDEBUG  -->  MAC : Received CSI Report UCI indication");
+                     SchDlCqiInd *CSIReport = NULLP;
+                     ret = extractCSIReport(CSIReport, &macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4);
+                     ret = sendDlCqiIndMacToSch(CSIReport);
+                  }
+                  if(macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4.pduBitmap & CSI_PART2_PDU_BITMASK)
+                  {
+                     // TODO: handle CSI Report payload part2
+                     DU_LOG("\nERROR  -->  MAC: CSI Report payload2 not yet support for PUCCH format 2/3/4");
+                  }
+               }
                break;
             default:
                DU_LOG("\nERROR  -->  MAC: Invalid Pdu Type %d at FapiMacUciInd", macUciInd->pdus[pduIdx].pduType);

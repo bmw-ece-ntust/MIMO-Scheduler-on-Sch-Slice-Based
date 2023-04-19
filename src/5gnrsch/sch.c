@@ -2358,6 +2358,8 @@ uint8_t SchProcDlCqiInd(Pst *pst, SchDlCqiInd *dlCqiInd)
    SchCellCb *cell = NULLP;
    Inst  inst = pst->dstInst-SCH_INST_START;   
 
+   DU_LOG("\nDEBUG  -->  SCH : JOJO was here!");
+
    if(!dlCqiInd)
    {
       DU_LOG("\nERROR  -->  SCH : SchProcDlCqiInd(): CQI Ind is empty");

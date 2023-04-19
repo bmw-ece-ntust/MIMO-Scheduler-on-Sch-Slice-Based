@@ -1028,6 +1028,26 @@ S16 l1HdlTxDataReq(uint16_t msgLen, void *msg)
  * ****************************************************************/
 uint8_t fillPucchF2F3F4PduInfo(fapi_uci_o_pucch_f2f3f4_t *pduInfo, fapi_ul_pucch_pdu_t pucchPdu)
 {
+   uint8_t dummyPduBitmap = 0b0100; // first bit: scheduling request, second bit: HARQ handling, third bit: CSI Report 1, fourth bit: CSI Report 2
+
+   pduInfo->handle = pucchPdu.handle;
+   pduInfo->pduBitmap = dummyPduBitmap;  //hardcoded for CSI Report
+
+   pduInfo->pad = 0;
+   pduInfo->pucchFormat = pucchPdu.formatType;
+   pduInfo->ul_cqi = 0;
+   pduInfo->rnti = pucchPdu.rnti;
+   pduInfo->timingAdvance = 0;
+   pduInfo->rssi = 0;
+   pduInfo->pad = 0;
+
+   // JOJO, assume CRI = , Layers = , RI = , PMI = , CQI = 
+   pduInfo->num_uci_bits = 2*8;
+   for(int i=0;i<MAX_UCI_BIT_PER_TTI_IN_BYTES;i++)
+   {
+      pduInfo->uciBits[i] = 0b11111111;
+   }
+
    return ROK;
 }
 
@@ -1114,7 +1134,20 @@ uint8_t fillUciPduInfo(fapi_uci_pdu_info_t *uciPdu, fapi_ul_pucch_pdu_t pucchPdu
    /*TODO: The pduType is hardcoded here to support 
      UCI Ind for PUCCH forat0/format1. This is to be
      modified when we get SR form UE */
-   uciPdu->pduType = UCI_IND_PUCCH_F0F1;
+   if(pucchPdu.formatType == 0 || pucchPdu.formatType == 1)
+    {
+        uciPdu->pduType = UCI_IND_PUCCH_F0F1;
+    }
+    else if(pucchPdu.formatType == 2 || pucchPdu.formatType == 3 || pucchPdu.formatType == 4)
+    {
+        uciPdu->pduType = UCI_IND_PUCCH_F2F3F4;
+    }
+    else
+    {
+        DU_LOG("\nERROR  -->  PHY_STUB: Invalid PUCCH Format Type %d", pucchPdu.formatType);
+    }
+
+   uciPdu->pduType = UCI_IND_PUCCH_F2F3F4;
    switch(uciPdu->pduType)
    {
       case UCI_IND_PUSCH:
