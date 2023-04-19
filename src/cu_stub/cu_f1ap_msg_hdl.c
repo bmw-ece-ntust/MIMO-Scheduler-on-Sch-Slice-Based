@@ -4596,11 +4596,11 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    *(pucchCfg->format1->choice.setup->nrofSlots) = PUCCH_FormatConfig__nrofSlots_n4;
 
    //PUCCH Format 2
-   CU_ALLOC(pucchCfg->format1, sizeof(struct PUCCH_Config__format2));
-   pucchCfg->format1->present = PUCCH_Config__format2_PR_setup;
-   CU_ALLOC(pucchCfg->format1->choice.setup, sizeof(PUCCH_FormatConfig_t));
-   CU_ALLOC(pucchCfg->format1->choice.setup->nrofSlots, sizeof(long));
-   *(pucchCfg->format1->choice.setup->nrofSlots) = PUCCH_FormatConfig__nrofSlots_n4;
+   CU_ALLOC(pucchCfg->format2, sizeof(struct PUCCH_Config__format2));
+   pucchCfg->format2->present = PUCCH_Config__format2_PR_setup;
+   CU_ALLOC(pucchCfg->format2->choice.setup, sizeof(PUCCH_FormatConfig_t));
+   CU_ALLOC(pucchCfg->format2->choice.setup->nrofSlots, sizeof(long));
+   *(pucchCfg->format2->choice.setup->nrofSlots) = PUCCH_FormatConfig__nrofSlots_n4;
 
    //DL DATA TO UL ACK
    CU_ALLOC(pucchCfg->dl_DataToUL_ACK, sizeof(struct PUCCH_Config__dl_DataToUL_ACK));
