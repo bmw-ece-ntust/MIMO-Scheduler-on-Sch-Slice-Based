@@ -1109,6 +1109,7 @@ uint8_t fillUciPduInfo(fapi_uci_pdu_info_t *uciPdu, fapi_ul_pucch_pdu_t pucchPdu
    /*TODO: The pduType is hardcoded here to support 
      UCI Ind for PUCCH forat0/format1. This is to be
      modified when we get SR form UE */
+   DU_LOG("\nAKMAL --> RECEIVED PUCCH PDU TYPE = %d",uciPdu->pduType);
    uciPdu->pduType = UCI_IND_PUCCH_F0F1;
    switch(uciPdu->pduType)
    {
