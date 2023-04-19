@@ -1124,6 +1124,9 @@ uint8_t fillUciPduInfo(fapi_uci_pdu_info_t *uciPdu, fapi_ul_pucch_pdu_t pucchPdu
          }
          break;
       case UCI_IND_PUCCH_F2F3F4:
+         {
+            DU_LOG("\nAKMAL --> RECEIVED PUCCH PDU FORMAT 2,3,4");
+         }
          break;
       default:
          DU_LOG("\nERROR  -->  PHY_STUB: Invalid Pdu Type %d", uciPdu->pduType);
