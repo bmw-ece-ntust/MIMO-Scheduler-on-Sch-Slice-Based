@@ -220,7 +220,7 @@ typedef enum
 }SchCsiResourceType;
 
 typedef enum{
-   SCH_NONE,
+   SCH_NONE_REPORT,
    SCH_CRI_RI_PMI_CQI,
    SCH_CRI_RI_I1,
    SCH_CRI_RI_I1_CQI,
