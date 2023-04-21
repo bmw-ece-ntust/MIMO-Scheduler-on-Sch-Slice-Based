@@ -2390,19 +2390,23 @@ uint8_t SchProcDlCqiInd(Pst *pst, SchDlCqiInd *dlCqiInd)
                if(dlCqiInd->dlCqiRpt.reportType & 0x01)
                {
                   DU_LOG("\nThe value of CRI: %d", dlCqiInd->dlCqiRpt.cri);
-                  // TODO: store CSI parameters in UE data structure
+                  ueCb->ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.csiRprtCfgToAddModList->reportResult.cri_ri_li_pmi_cqi_report.cri = dlCqiInd->dlCqiRpt.cri;
                }
                if((dlCqiInd->dlCqiRpt.reportType >> 1) & 0x01)
                {
                   DU_LOG("\nThe value of RI: %d", dlCqiInd->dlCqiRpt.ri);
+                  ueCb->ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.csiRprtCfgToAddModList->reportResult.cri_ri_li_pmi_cqi_report.ri = dlCqiInd->dlCqiRpt.ri;
                }
                if((dlCqiInd->dlCqiRpt.reportType >> 2) & 0x01)
                {
                   DU_LOG("\nThe value of PMI: %d", dlCqiInd->dlCqiRpt.pmi);
+                  ueCb->ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.csiRprtCfgToAddModList->reportResult.cri_ri_li_pmi_cqi_report.pmi_x1 = dlCqiInd->dlCqiRpt.pmi;
+                  ueCb->ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.csiRprtCfgToAddModList->reportResult.cri_ri_li_pmi_cqi_report.pmi_x2 = dlCqiInd->dlCqiRpt.pmi;
                }
                if((dlCqiInd->dlCqiRpt.reportType >> 3) & 0x01)
                {
                   DU_LOG("\nThe value of CQI: %d", dlCqiInd->dlCqiRpt.cqi);
+                  ueCb->ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.csiRprtCfgToAddModList->reportResult.cri_ri_li_pmi_cqi_report.wb_cqi_1tb = dlCqiInd->dlCqiRpt.cqi;
                }
             }
          }

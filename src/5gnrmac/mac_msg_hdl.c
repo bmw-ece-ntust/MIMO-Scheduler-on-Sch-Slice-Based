@@ -135,21 +135,82 @@ uint8_t sendDlCqiIndMacToSch(SchDlCqiInd *dlCqiInd)
    return(SchMessageRouter(&pst, (void *)dlCqiInd));
 }
 
+uint16_t computeRIBitLength()
+{
+   uint16_t bitlen = 0;
+
+   return bitlen;
+}
+
+uint16_t computePMIBitLength()
+{
+   uint16_t bitlen = 0;
+
+   return bitlen;
+}
+
+uint16_t computeCQIBitLength()
+{
+   uint16_t bitlen = 0;
+
+   return bitlen;
+}
+
+uint8_t pickandreverse_bits(uint8_t *payload, uint16_t bitlen, uint8_t start_bit) {
+  uint8_t rev_bits = 0;
+  for (int i=0; i<bitlen; i++)
+    rev_bits |= ((payload[(start_bit+i)/8]>>((start_bit+i)%8))&0x01)<<(bitlen-i-1);
+  return rev_bits;
+}
+
+uint16_t evaluateCRIReport()
+{
+    uint16_t CRI = 1;
+
+    return CRI;
+}
+
+uint16_t evaluateRIReport()
+{
+    uint16_t RI = 2;
+
+    return RI;
+}
+
+uint16_t evaluatePMIReport()
+{
+    uint16_t PMI = 3;
+
+    return PMI;
+}
+
+uint16_t evaluateCQIReport()
+{
+    uint16_t CQI = 4;
+
+    return CQI;
+}
 
 uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciInd *macUciInd, UciPucchF2F3F4 *uciPucchF2F3F4)
 {
    uint8_t ret = ROK;
    uint16_t cellIdx = 0;
+   uint16_t ueId = 0;
+   MacUeCb *ueCb = NULLP;
 
    GET_CELL_IDX(macUciInd->cellId, cellIdx);
    dlCqiInd->cellId = macCb.macCell[cellIdx]->cellId;
+   
    dlCqiInd->crnti = uciPucchF2F3F4->crnti;
+   GET_UE_ID(dlCqiInd->crnti, ueId);
+   ueCb = &macCb.macCell[cellIdx]->ueCb[ueId-1];
+   // ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->codebookConfig.codebookType;
    
    dlCqiInd->dlCqiRpt.reportType = 0b1111;
-   dlCqiInd->dlCqiRpt.cri = 1;
-   dlCqiInd->dlCqiRpt.ri = 2;
-   dlCqiInd->dlCqiRpt.pmi = 3;
-   dlCqiInd->dlCqiRpt.cqi = 4;
+   dlCqiInd->dlCqiRpt.cri = evaluateCRIReport();
+   dlCqiInd->dlCqiRpt.ri = evaluateRIReport();
+   dlCqiInd->dlCqiRpt.pmi = evaluatePMIReport();
+   dlCqiInd->dlCqiRpt.cqi = evaluateCQIReport();
 
    return ret;
 }

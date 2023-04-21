@@ -2035,7 +2035,7 @@ typedef struct schCsiReportContent{
    uint8_t     ri_restriction_bit;  
 }SchCsiReportContent;
 
-typedef struct sch_cri_ri_li_pmi_cqi{
+typedef struct sch_cri_ri_li_pmi_cqi_report{
    uint16_t cri;
    uint16_t ri;
    uint16_t li;
@@ -2045,10 +2045,10 @@ typedef struct sch_cri_ri_li_pmi_cqi{
    uint16_t wb_cqi_2tb;
    uint16_t cqi_table;
    uint16_t csi_report_id;
-}SCH_CRI_RI_LI_PMI_CQI;
+}SCH_CRI_RI_LI_PMI_CQI_REPORT;
 
 typedef struct schCsiReportResult{
-   SCH_CRI_RI_LI_PMI_CQI cri_ri_li_pmi_cqi_report;
+   SCH_CRI_RI_LI_PMI_CQI_REPORT cri_ri_li_pmi_cqi_report;
 }SchCsiReportResult;
 
 typedef struct schCsiReportConfig

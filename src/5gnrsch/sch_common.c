@@ -799,6 +799,16 @@ uint16_t schAllocPucchResource(SchCellCb *cell, SlotTimingInfo pucchTime, uint16
  *         RFAILED - failure
  *
  * ****************************************************************/
+uint16_t getNumberOfLayer(SchUeCb *ueCb)
+{
+   uint16_t RI = 1;
+   
+   RI = ueCb->ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.csiRprtCfgToAddModList->reportResult.cri_ri_li_pmi_cqi_report.ri;
+   DU_LOG("\nDEBUG  -->  SCH : RI for PDSCH is %d", RI);
+
+   return RI;
+}
+
 uint8_t schDlRsrcAllocDlMsg(SchCellCb *cell, SlotTimingInfo slotTime, uint16_t crnti,
                 uint32_t tbSize, DlMsgSchInfo *dlMsgAlloc, uint16_t startPRB, uint8_t pdschStartSymbol,
                 uint8_t pdschNumSymbols, bool isRetx, SchDlHqProcCb *hqP)
@@ -881,7 +891,7 @@ uint8_t schDlRsrcAllocDlMsg(SchCellCb *cell, SlotTimingInfo slotTime, uint16_t c
       pdsch->codeword[cwCount].tbSize = tbSize;
    }
    pdsch->dataScramblingId = cell->cellCfg.phyCellId;
-   pdsch->numLayers = 1;
+   pdsch->numLayers = getNumberOfLayer(&ueCb);
    pdsch->transmissionScheme = 0;
    pdsch->refPoint = 0;
    pdsch->dmrs.dlDmrsSymbPos = DL_DMRS_SYMBOL_POS; 
