@@ -190,6 +190,18 @@ typedef enum
    SEMIPERSISTENT,
    PERIODIC
 }CsiResourceType;
+
+typedef enum{
+   NONE,
+   CRI_RI_PMI_CQI,
+   CRI_RI_I1,
+   CRI_RI_I1_CQI,
+   CRI_RI_CQI,
+   CRI_RSRP,
+   SSB_INDEX_RSRP,
+   CRI_RI_LI_PMI_CQI
+}ReportQuantity;
+
 /* End of CSI-RS Configuration */
 
 typedef enum
@@ -1490,12 +1502,59 @@ typedef struct periodicCsiReportConfig
    PucchCsiResource                    pucchCsiRsrcList[MAX_NUM_PUCCH_RESRC];
 }PeriodicCsiReportConfig;
 
+typedef struct twoPorts{
+   
+}TwoPorts;
+
+typedef struct moreThanTwoPorts{
+   
+}MoreThanTwoPorts;
+
+typedef struct singlePanel{
+   union{
+      bool              isTwoPort;
+      TwoPorts          twoPort;
+      bool              isMoreThanTwoPort;
+      MoreThanTwoPorts  moreThanTwoPort;
+   }nrOfAntennaPorts;
+   uint8_t     ri_restriction_bit;
+}SinglePanel;
+typedef struct codebookType1{
+   union{
+      //Currently only support single panel
+      bool        isSinglePanel;
+      SinglePanel singlePanel;
+   }subType;
+}CodebookType1;
+
+typedef struct codebookConfig{
+   union{
+      // Currently only support codebook type 1
+      bool           isType1;
+      CodebookType1  type1;
+   }codebookType;
+}CodebookConfig;
+
+typedef struct csiReportContent{
+   uint8_t     cri_bitlen;
+   uint8_t     ri_bitlen;
+   uint8_t     pmi_bitlen;
+   uint8_t     cqi_bitlen;
+   uint8_t     ri_restriction_bit;  
+}CsiReportContent;
 typedef struct csiReportConfig
 {
    uint8_t                 reportConfigId;
    CsiResourceType         reportConfigType;
    // Currently, only periodic reporting is supported
-   PeriodicCsiReportConfig periodicReportInfo;
+   union{
+      PeriodicCsiReportConfig periodicReportInfo;
+      /*TODO : Add other reporting type*/
+   }reportConfig;
+   
+   ReportQuantity          reportQuantity;
+   CodebookConfig          codebookConfig;
+   CsiReportContent        reportContent;   
 }CsiReportConfig;
 
 /* CSI Measurement Config */

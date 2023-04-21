@@ -218,6 +218,18 @@ typedef enum
    SCH_SEMIPERSISTENT,
    SCH_PERIODIC
 }SchCsiResourceType;
+
+typedef enum{
+   SCH_NONE,
+   SCH_CRI_RI_PMI_CQI,
+   SCH_CRI_RI_I1,
+   SCH_CRI_RI_I1_CQI,
+   SCH_CRI_RI_CQI,
+   SCH_CRI_RSRP,
+   SCH_SSB_INDEX_RSRP,
+   SCH_CRI_RI_LI_PMI_CQI
+}SchReportQuantity;
+
 /* End of CSI-RS Configuration */
 
 typedef enum
@@ -1981,12 +1993,61 @@ typedef struct schPeriodicCsiReportConfig
    SchPucchCsiResource                    pucchCsiRsrcList[MAX_NUM_PUCCH_RESRC];
 }SchPeriodicCsiReportConfig;
 
+typedef struct schTwoPorts{
+   
+}SchTwoPorts;
+
+typedef struct schMoreThanTwoPorts{
+   
+}SchMoreThanTwoPorts;
+
+typedef struct schSinglePanel{
+   union{
+      bool                 isTwoPort;
+      SchTwoPorts          twoPort;
+      bool                 isMoreThanTwoPort;
+      SchMoreThanTwoPorts  moreThanTwoPort;
+   }nrOfAntennaPorts;
+   uint8_t     ri_restriction_bit;
+}SchSinglePanel;
+
+typedef struct SchCodebookType1{
+   union{
+      //Currently only support single panel
+      bool           isSinglePanel;
+      SchSinglePanel singlePanel;
+   }subType;
+}SchCodebookType1;
+
+typedef struct schCodebookConfig{
+   union{
+      // Currently only support codebook type 1
+      bool              isType1;
+      SchCodebookType1  type1;
+   }codebookType;
+}SchCodebookConfig;
+
+typedef struct schCsiReportContent{
+   uint8_t     cri_bitlen;
+   uint8_t     ri_bitlen;
+   uint8_t     pmi_bitlen;
+   uint8_t     cqi_bitlen;
+   uint8_t     ri_restriction_bit;  
+}SchCsiReportContent;
+
 typedef struct schCsiReportConfig
 {
-   uint8_t                 reportConfigId;
-   SchCsiResourceType         reportConfigType;
+   uint8_t                       reportConfigId;
+   SchCsiResourceType            reportConfigType;
    // Currently, only periodic reporting is supported
-   SchPeriodicCsiReportConfig periodicReportInfo;
+   union{
+      SchPeriodicCsiReportConfig periodicReportInfo;
+      /*TODO : Add other reporting type*/
+   }reportConfig;
+
+    SchReportQuantity            reportQuantity;
+    SchCodebookConfig            codebookConfig;
+    SchCsiReportContent          reportContent;
 }SchCsiReportConfig;
 
 /* CSI Measurement Config */
