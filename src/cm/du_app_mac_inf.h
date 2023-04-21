@@ -1559,6 +1559,7 @@ typedef struct csiReportResult{
    CRI_RI_LI_PMI_CQI cri_ri_li_pmi_cqi_report;
 }CsiReportResult;
 
+
 typedef struct csiReportConfig
 {
    uint8_t                 reportConfigId;
