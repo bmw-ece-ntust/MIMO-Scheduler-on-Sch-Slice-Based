@@ -141,82 +141,82 @@
 /* CSI-RS Configuration */
 typedef enum
 {
-   DOT5_DENSITY,
-   ONE_DENSITY,
-   THREE_DENSITY
+   SCH_DOT5_DENSITY,
+   SCH_ONE_DENSITY,
+   SCH_THREE_DENSITY
 }SchCsiRsDensity;
 
 typedef enum
 {
-   NO_CDM,
-   FD_CDM2,
-   CDM4_FD2_TD2,
-   CDM8_FD2_TD4
+   SCH_NO_CDM,
+   SCH_FD_CDM2,
+   SCH_CDM4_FD2_TD2,
+   SCH_CDM8_FD2_TD4
 }SchCsiRsCdmType;
 
 typedef enum
 {
-   P1,
-   P2,
-   P4,
-   P8,
-   P12,
-   P16,
-   P24,
-   P32
+   SCH_P1,
+   SCH_P2,
+   SCH_P4,
+   SCH_P8,
+   SCH_P12,
+   SCH_P16,
+   SCH_P24,
+   SCH_P32
 }SchCsiRsNrAntPortsType;
 
 typedef enum
 {
-   ROW1,
-   ROW2,
-   ROW4,
-   OTHER
+   SCH_ROW1,
+   SCH_ROW2,
+   SCH_ROW4,
+   SCH_OTHER
 }SchFreqDomainAlloc;
 
 typedef enum
 {
-   DBMIN3,
-   DB0,
-   DB3,
-   DB6
+   SCH_DBMIN3,
+   SCH_DB0,
+   SCH_DB3,
+   SCH_DB6
 }SchPowerControlOffsetSSType;
 
 typedef enum
 {
-   SLOTS4,
-   SLOTS5,
-   SLOTS8,
-   SLOTS10,
-   SLOTS16,
-   SLOTS20,
-   SLOTS32,
-   SLOTS40,
-   SLOTS64,
-   SLOTS80,
-   SLOTS160,
-   SLOTS320,
-   SLOTS640
+   SCH_SLOTS4,
+   SCH_SLOTS5,
+   SCH_SLOTS8,
+   SCH_SLOTS10,
+   SCH_SLOTS16,
+   SCH_SLOTS20,
+   SCH_SLOTS32,
+   SCH_SLOTS40,
+   SCH_SLOTS64,
+   SCH_SLOTS80,
+   SCH_SLOTS160,
+   SCH_SLOTS320,
+   SCH_SLOTS640
 }SchResourcePeriodicityAndOffsetChoice;
 
 typedef enum{
-   SLOT4,
-   SLOT5,
-   SLOT8,
-   SLOT10,
-   SLOT16,
-   SLOT20,
-   SLOT40,
-   SLOT80,
-   SLOT160,
-   SLOT320
+   SCH_SLOT4,
+   SCH_SLOT5,
+   SCH_SLOT8,
+   SCH_SLOT10,
+   SCH_SLOT16,
+   SCH_SLOT20,
+   SCH_SLOT40,
+   SCH_SLOT80,
+   SCH_SLOT160,
+   SCH_SLOT320
 }SchReportPeriodicityAndOffsetChoice;
 
 typedef enum
 {
-   APERIODIC,
-   SEMIPERSISTENT,
-   PERIODIC
+   SCH_APERIODIC,
+   SCH_SEMIPERSISTENT,
+   SCH_PERIODIC
 }SchCsiResourceType;
 /* End of CSI-RS Configuration */
 
@@ -1904,13 +1904,13 @@ typedef struct schBwpRelInfo
 }SchBwpRelInfo;
 
 /* CSI-RS Configuration */
-typedef struct freqOccupation
+typedef struct schFreqOccupation
 {
    uint8_t  startingRB;
    uint8_t  numberOfRBs;
 }SchFreqOccupation;
 
-typedef struct csiRsResourceMapping
+typedef struct schCsiRsResourceMapping
 {
    SchFreqDomainAlloc                  freqDomainAllocation;
    uint8_t                          bitString;
@@ -1923,13 +1923,13 @@ typedef struct csiRsResourceMapping
    SchFreqOccupation                   freqBand;
 }SchCsiRsResourceMapping;
 
-typedef struct csiResourcePeriodicityAndOffset
+typedef struct schCsiResourcePeriodicityAndOffset
 {
    SchResourcePeriodicityAndOffsetChoice choice;
    uint8_t                            offset;
 }SchCsiResourcePeriodicityAndOffset;
 
-typedef struct nzpCsiRsResource
+typedef struct schNzpCsiRsResource
 {
    uint8_t                          nzpCsiRsResourceId;
    SchCsiRsResourceMapping             resourceMapping;
@@ -1939,27 +1939,27 @@ typedef struct nzpCsiRsResource
    SchCsiResourcePeriodicityAndOffset  periodicityAndOffset;
 }SchNzpCsiRsResource;
 
-typedef struct nzpCsiRsResourceSet
+typedef struct schNzpCsiRsResourceSet
 {
    uint8_t  nzpCsiRsRsrcSetId;
    uint8_t  nzpCsiRsRsrcIdList[MAX_NUM_NZP_CSI_RS_RESOURCE];
 }SchNzpCsiRsResourceSet;
 
-typedef struct nzpCsiRsSsb
+typedef struct schNzpCsiRsSsb
 {
    uint8_t  nzpCsiRsRsrcSetIdList[MAX_NUM_NZP_CSI_RS_RESOURCE_SET];
    /*FUTURE WORKS*/
    /*CSI SSB RESOURCE SET LIST*/
 }SchNzpCsiRsSsb;
 
-typedef struct csiResourceSetList
+typedef struct schCsiResourceSetList
 {
    SchNzpCsiRsSsb    nzpCsiRsSsbResourceSetList;
    /*FUTURE WORKS*/
    /*CSI-IM ResourceSetList*/
 }SchCsiResourceSetList;
 
-typedef struct csiResourceConfig
+typedef struct schCsiResourceConfig
 {
    uint8_t              csiResourceConfigId;
    SchCsiResourceSetList   resourceSetList;
@@ -1969,19 +1969,19 @@ typedef struct csiResourceConfig
 
 
 /* CSI Report Config*/
-typedef struct pucchCsiResource
+typedef struct schPucchCsiResource
 {
    uint8_t  bwpId;
    uint8_t  rsrcId;
 }SchPucchCsiResource;
 
-typedef struct periodicCsiReportConfig
+typedef struct schPeriodicCsiReportConfig
 {
    SchReportPeriodicityAndOffsetChoice    reportSlotConfig;
    SchPucchCsiResource                    pucchCsiRsrcList[MAX_NUM_PUCCH_RESRC];
 }SchPeriodicCsiReportConfig;
 
-typedef struct csiReportConfig
+typedef struct schCsiReportConfig
 {
    uint8_t                 reportConfigId;
    SchCsiResourceType         reportConfigType;
@@ -1990,7 +1990,7 @@ typedef struct csiReportConfig
 }SchCsiReportConfig;
 
 /* CSI Measurement Config */
-typedef struct csiMeasConfig
+typedef struct schCsiMeasConfig
 {
    SchNzpCsiRsResource     nzpCsiRsRsrcToAddModList[MAX_NUM_NZP_CSI_RS_RESOURCE];
    SchNzpCsiRsResourceSet  nzpCsiRsRsrcSetToAddModList[MAX_NUM_NZP_CSI_RS_RESOURCE_SET];
