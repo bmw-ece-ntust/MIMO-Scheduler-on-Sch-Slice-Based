@@ -1412,37 +1412,6 @@ typedef struct beamFailRecoveryCfg
    uint8_t             msg1SubcSpacing;
 }BeamFailRecoveryCfg;
 
-/* Serving cell configuration */
-typedef struct servCellCfgInfo
-{
-   InitialDlBwp         initDlBwp;
-   RadioLinkConfig      radioLinkMonConfig;
-   uint8_t              numDlBwpToAdd;
-   DlBwpInfo            dlBwpToAddList[MAX_NUM_BWP];
-   uint8_t              firstActvDlBwpId;
-   uint8_t              defaultDlBwpId;
-   uint8_t              *bwpInactivityTmr;
-   PdschServCellCfg     pdschServCellCfg;
-   InitialUlBwp         initUlBwp;
-   CsiMeasConfig        csiMeasCfg;
-   BeamFailRecoveryCfg  beamFailureRecoveryCfg;
-   uint8_t              numUlBwpToAdd;
-   UlBwpInfo            ulBwpToAddList[MAX_NUM_BWP];
-   uint8_t              firstActvUlBwpId;
-}ServCellCfgInfo;
-
-/* Special cell configuration */
-typedef struct spCellCfg
-{
-   uint8_t           servCellIdx;
-   ServCellCfgInfo   servCellCfg;
-}SpCellCfg;
-
-typedef struct bwpRelInfo
-{
-   uint8_t bwpId;
-}BwpRelInfo;
-
 /* CSI-RS Configuration */
 typedef struct freqOccupation
 {
@@ -1537,6 +1506,37 @@ typedef struct csiMeasConfig
    CsiResourceConfig    csiRsrcCfgToAddModList[MAX_NUM_CSI_RESOURCE_CONFIG];
    CsiReportConfig      csiRprtCfgToAddModList[MAX_NUM_CSI_REPORT_CONFIG];
 }CsiMeasConfig;
+
+/* Serving cell configuration */
+typedef struct servCellCfgInfo
+{
+   InitialDlBwp         initDlBwp;
+   RadioLinkConfig      radioLinkMonConfig;
+   uint8_t              numDlBwpToAdd;
+   DlBwpInfo            dlBwpToAddList[MAX_NUM_BWP];
+   uint8_t              firstActvDlBwpId;
+   uint8_t              defaultDlBwpId;
+   uint8_t              *bwpInactivityTmr;
+   PdschServCellCfg     pdschServCellCfg;
+   InitialUlBwp         initUlBwp;
+   CsiMeasConfig        csiMeasCfg;
+   BeamFailRecoveryCfg  beamFailureRecoveryCfg;
+   uint8_t              numUlBwpToAdd;
+   UlBwpInfo            ulBwpToAddList[MAX_NUM_BWP];
+   uint8_t              firstActvUlBwpId;
+}ServCellCfgInfo;
+
+/* Special cell configuration */
+typedef struct spCellCfg
+{
+   uint8_t           servCellIdx;
+   ServCellCfgInfo   servCellCfg;
+}SpCellCfg;
+
+typedef struct bwpRelInfo
+{
+   uint8_t bwpId;
+}BwpRelInfo;
 
 /* Serving cell Re-configuration */
 typedef struct servCellRecfgInfo
