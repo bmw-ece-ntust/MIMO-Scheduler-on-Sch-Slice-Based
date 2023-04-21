@@ -192,7 +192,7 @@ typedef enum
 }CsiResourceType;
 
 typedef enum{
-   NONE,
+   NONE_REPORT,
    CRI_RI_PMI_CQI,
    CRI_RI_I1,
    CRI_RI_I1_CQI,
