@@ -189,7 +189,7 @@ typedef enum
    APERIODIC,
    SEMIPERSISTENT,
    PERIODIC
-}SchCsiResourceType;
+}CsiResourceType;
 /* End of CSI-RS Configuration */
 
 typedef enum
