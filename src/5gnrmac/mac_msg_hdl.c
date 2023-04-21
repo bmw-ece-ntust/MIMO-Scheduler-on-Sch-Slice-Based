@@ -129,7 +129,6 @@ uint8_t sendUlCqiIndMacToSch(SchUlCqiInd *ulCqiInd)
 uint8_t sendDlCqiIndMacToSch(SchDlCqiInd *dlCqiInd)
 {
    Pst pst;
-
    
    memset(&pst, 0, sizeof(Pst));
    FILL_PST_MAC_TO_SCH(pst, EVENT_DL_CQI_TO_SCH);
@@ -137,10 +136,20 @@ uint8_t sendDlCqiIndMacToSch(SchDlCqiInd *dlCqiInd)
 }
 
 
-uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciPucchF2F3F4 *pucchF2F3F4)
+uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciInd *macUciInd, UciPucchF2F3F4 *uciPucchF2F3F4)
 {
    uint8_t ret = ROK;
+   uint16_t cellIdx = 0;
 
+   GET_CELL_IDX(macUciInd->cellId, cellIdx);
+   dlCqiInd->cellId = macCb.macCell[cellIdx]->cellId;
+   dlCqiInd->crnti = uciPucchF2F3F4->crnti;
+   
+   dlCqiInd->dlCqiRpt.reportType = 0b1111;
+   dlCqiInd->dlCqiRpt.cri = 1;
+   dlCqiInd->dlCqiRpt.ri = 2;
+   dlCqiInd->dlCqiRpt.pmi = 3;
+   dlCqiInd->dlCqiRpt.cqi = 4;
 
    return ret;
 }
@@ -901,9 +910,15 @@ uint8_t FapiMacUciInd(Pst *pst, UciInd *macUciInd)
                   if(macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4.pduBitmap & CSI_PART1_PDU_BITMASK)
                   {
                      DU_LOG("\nDEBUG  -->  MAC : Received CSI Report UCI indication");
+                     
                      SchDlCqiInd *CSIReport = NULLP;
-                     ret = extractCSIReport(CSIReport, &macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4);
+                     MAC_ALLOC(CSIReport, sizeof(SchDlCqiInd));
+                     memset(CSIReport, 0, sizeof(SchDlCqiInd));
+                     memset(&CSIReport->dlCqiRpt, 0, sizeof(DlCqiReport));
+                     
+                     ret = extractCSIReport(CSIReport, macUciInd, &macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4);
                      ret = sendDlCqiIndMacToSch(CSIReport);
+                     MAC_FREE(CSIReport, sizeof(SchDlCqiInd));
                   }
                   if(macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4.pduBitmap & CSI_PART2_PDU_BITMASK)
                   {

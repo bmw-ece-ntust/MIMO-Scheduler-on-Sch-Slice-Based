@@ -2387,7 +2387,23 @@ uint8_t SchProcDlCqiInd(Pst *pst, SchDlCqiInd *dlCqiInd)
             }
             else
             {
-               /*TODO: complete the processing of DL CQI Ind*/ 
+               if(dlCqiInd->dlCqiRpt.reportType & 0x01)
+               {
+                  DU_LOG("\nThe value of CRI: %d", dlCqiInd->dlCqiRpt.cri);
+                  // TODO: store CSI parameters in UE data structure
+               }
+               if((dlCqiInd->dlCqiRpt.reportType >> 1) & 0x01)
+               {
+                  DU_LOG("\nThe value of RI: %d", dlCqiInd->dlCqiRpt.ri);
+               }
+               if((dlCqiInd->dlCqiRpt.reportType >> 2) & 0x01)
+               {
+                  DU_LOG("\nThe value of PMI: %d", dlCqiInd->dlCqiRpt.pmi);
+               }
+               if((dlCqiInd->dlCqiRpt.reportType >> 3) & 0x01)
+               {
+                  DU_LOG("\nThe value of CQI: %d", dlCqiInd->dlCqiRpt.cqi);
+               }
             }
          }
          else
