@@ -227,8 +227,24 @@ typedef enum{
    SCH_CRI_RI_CQI,
    SCH_CRI_RSRP,
    SCH_SSB_INDEX_RSRP,
-   SCH_CRI_RI_LI_PMI_CQI
+   SCH_RI_CRI_LI_PMI_CQI
 }SchReportQuantity;
+
+typedef enum{
+   SCH_TWO_ONE,
+   SCH_TWO_TWO,
+   SCH_FOUR_ONE,
+   SCH_THREE_TWO,
+   SCH_SIX_ONE,
+   SCH_FOUR_TWO,
+   SCH_EIGHT_ONE,
+   SCH_FOUR_THREE,
+   SCH_SIX_TWO,
+   SCH_TWELVE_ONE,
+   SCH_FOUR_GFOUR,
+   SCH_EIGHT_TWO,
+   SCH_SIXTEEN_ONE
+}SchMoreThanTwoOptions;
 
 /* End of CSI-RS Configuration */
 
@@ -1998,7 +2014,7 @@ typedef struct schTwoPorts{
 }SchTwoPorts;
 
 typedef struct schMoreThanTwoPorts{
-   
+   SchMoreThanTwoOptions      antennaConfig;
 }SchMoreThanTwoPorts;
 
 typedef struct schSinglePanel{
@@ -2030,8 +2046,9 @@ typedef struct schCodebookConfig{
 typedef struct schCsiReportContent{
    uint8_t     cri_bitlen;
    uint8_t     ri_bitlen;
-   uint8_t     pmi_bitlen;
-   uint8_t     cqi_bitlen;
+   uint8_t     pmi_x1_bitlen[8];
+   uint8_t     pmi_x2_bitlen[8];
+   uint8_t     cqi_bitlen[8];
    uint8_t     ri_restriction_bit;  
 }SchCsiReportContent;
 
