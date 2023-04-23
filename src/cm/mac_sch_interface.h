@@ -2032,6 +2032,7 @@ typedef struct SchCodebookType1{
       //Currently only support single panel
       bool           isSinglePanel;
       SchSinglePanel singlePanel;
+      uint8_t        codebook_mode;
    }subType;
 }SchCodebookType1;
 
@@ -2078,10 +2079,15 @@ typedef struct schCsiReportConfig
       /*TODO : Add other reporting type*/
    }reportConfig;
 
-    SchReportQuantity            reportQuantity;
-    SchCodebookConfig            codebookConfig;
-    SchCsiReportContent          reportContent;
-    SchCsiReportResult           reportResult;
+   SchReportQuantity            reportQuantity;
+   SchCodebookConfig            codebookConfig;
+   SchCsiReportContent          reportContent;
+
+   //Storing Report Result and config
+   SchCsiReportResult           reportResult;
+   uint8_t                 codebook_mode;
+   uint8_t                 N1;
+   uint8_t                 N2;
 }SchCsiReportConfig;
 
 /* CSI Measurement Config */

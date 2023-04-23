@@ -1541,6 +1541,7 @@ typedef struct codebookType1{
       bool        isSinglePanel;
       SinglePanel singlePanel;
    }subType;
+   uint8_t        codebook_mode;
 }CodebookType1;
 
 typedef struct codebookConfig{
@@ -1590,7 +1591,12 @@ typedef struct csiReportConfig
    ReportQuantity          reportQuantity;
    CodebookConfig          codebookConfig;
    CsiReportContent        reportContent;
-   CsiReportResult         reportResult;   
+   
+   // Storing report result and config
+   CsiReportResult         reportResult;
+   uint8_t                 codebook_mode;
+   uint8_t                 N1;
+   uint8_t                 N2;
 }CsiReportConfig;
 
 /* CSI Measurement Config */
