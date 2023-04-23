@@ -135,28 +135,114 @@ uint8_t sendDlCqiIndMacToSch(SchDlCqiInd *dlCqiInd)
    return(SchMessageRouter(&pst, (void *)dlCqiInd));
 }
 
-uint16_t computeRIBitLength()
+uint16_t computeCRIBitLength(uint16_t cellId, uint16_t ueId)
+{
+   uint16_t bitlen = 0;
+   uint8_t nb_resources = 1;
+   // the template of OAI source code: nb_resources = csi_MeasConfig->nzp_CSI_RS_ResourceSetToAddModList->list.array[csi_idx]->nzp_CSI_RS_Resources.list.count;
+   bitlen = ceil(log2(nb_resources));
+   DU_LOG("\nDEBUG  -->  MAC: the bit length of CRI is %d", bitlen);
+
+   return bitlen;
+}
+
+uint8_t computeNumberOfRIBitSet(uint8_t restriction_bit)
+{
+   uint8_t nb_of_bits_set = 0;
+   uint8_t mask = 0xff;
+
+   for(int index=7; (restriction_bit & mask) && (index>=0)  ; index--)
+   {
+      if (restriction_bit & (1<<index))
+      {
+         nb_of_bits_set++;
+      }
+      mask >>= 1;
+   }
+
+   return nb_of_bits_set;
+}
+
+uint16_t computeRIBitLength(uint16_t cellId, uint16_t ueId)
+{
+   uint16_t bitlen = 0;
+   MacUeCb *ueCb = &macCb.macCell[cellId]->ueCb[ueId-1];
+   CodebookConfig *codebookCfg = &ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->codebookConfig;
+   CsiReportContent *reportCntnt = &ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->reportConfig;
+   uint8_t restriction_bit, nb_allowed_ri = 0;
+   
+   // base on 38.212 table 6.3.1.1.2-3
+   // 1 antenna ports = 0, 2 antenna ports = 1, 4 antenna ports = 2, more than 4 antenna ports = 3
+   if(codebookCfg == NULL)
+   {
+      DU_LOG("\nDEBUG  -->  MAC: currently running on single antenna port.");
+      reportCntnt->ri_bitlen = 0;
+      return 0;
+   }
+
+   if(codebookCfg->codebookType.isType1)
+   {
+      if(codebookCfg->codebookType.type1.subType.isSinglePanel)
+      {
+         if(codebookCfg->codebookType.type1.subType.singlePanel.nrOfAntennaPorts.isTwoPort)
+         {
+            DU_LOG("\nDEBUG  -->  MAC: currently running on two antenna ports.");
+            restriction_bit = codebookCfg->codebookType.type1.subType.singlePanel.ri_restriction_bit;
+            nb_allowed_ri = computeNumberOfRIBitSet(restriction_bit);
+            bitlen = ceil(log2(nb_allowed_ri));
+
+            bitlen = bitlen<1?bitlen:1;
+            reportCntnt->ri_bitlen = bitlen;
+         }
+         else if(codebookCfg->codebookType.type1.subType.singlePanel.nrOfAntennaPorts.isMoreThanTwoPort)
+         {
+            DU_LOG("\nDEBUG  -->  MAC: currently running on four antenna ports.");
+            restriction_bit = codebookCfg->codebookType.type1.subType.singlePanel.ri_restriction_bit;
+            nb_allowed_ri = computeNumberOfRIBitSet(restriction_bit);
+            bitlen = ceil(log2(nb_allowed_ri));
+
+            bitlen = bitlen<1?bitlen:2;
+            reportCntnt->ri_bitlen = bitlen;
+         }
+         else
+         {
+            DU_LOG("\nDEBUG  -->  MAC: currently running on more than four antenna ports.");
+            restriction_bit = codebookCfg->codebookType.type1.subType.singlePanel.ri_restriction_bit;
+            nb_allowed_ri = computeNumberOfRIBitSet(restriction_bit);
+            bitlen = ceil(log2(nb_allowed_ri));
+
+            reportCntnt->ri_bitlen = bitlen;
+         }
+      }
+      else
+      {
+         DU_LOG("\nERROR  -->  MAC: only support codebook type I single panel.");
+      }
+   }
+   else
+   {
+      DU_LOG("\nERROR  -->  MAC: only support codebook type I.");
+   }
+
+   return bitlen;
+}
+
+uint16_t computePMIBitLength(uint16_t cellId, uint16_t ueId)
 {
    uint16_t bitlen = 0;
 
    return bitlen;
 }
 
-uint16_t computePMIBitLength()
+uint16_t computeCQIBitLength(uint16_t cellId, uint16_t ueId)
 {
    uint16_t bitlen = 0;
 
    return bitlen;
 }
 
-uint16_t computeCQIBitLength()
+uint8_t pickandreverse_bits(uint8_t *payload, uint16_t bitlen, uint8_t start_bit) 
 {
-   uint16_t bitlen = 0;
-
-   return bitlen;
-}
-
-uint8_t pickandreverse_bits(uint8_t *payload, uint16_t bitlen, uint8_t start_bit) {
   uint8_t rev_bits = 0;
   for (int i=0; i<bitlen; i++)
     rev_bits |= ((payload[(start_bit+i)/8]>>((start_bit+i)%8))&0x01)<<(bitlen-i-1);
@@ -194,9 +280,9 @@ uint16_t evaluateCQIReport()
 uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciInd *macUciInd, UciPucchF2F3F4 *uciPucchF2F3F4)
 {
    uint8_t ret = ROK;
-   uint16_t cellIdx = 0;
-   uint16_t ueId = 0;
+   uint16_t cellIdx = 0, ueId = 0;
    MacUeCb *ueCb = NULLP;
+   uint16_t CRIBitLength = 0, RIBitLength = 0, PMIBitLength = 0, CQIBitLength = 0;
 
    GET_CELL_IDX(macUciInd->cellId, cellIdx);
    dlCqiInd->cellId = macCb.macCell[cellIdx]->cellId;
@@ -204,8 +290,12 @@ uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciInd *macUciInd, UciPucchF2F3F
    dlCqiInd->crnti = uciPucchF2F3F4->crnti;
    GET_UE_ID(dlCqiInd->crnti, ueId);
    ueCb = &macCb.macCell[cellIdx]->ueCb[ueId-1];
-   // ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->codebookConfig.codebookType;
    
+   CRIBitLength = computeCRIBitLength(cellIdx, ueId);
+   RIBitLength = computeRIBitLength(cellIdx, ueId);
+   PMIBitLength = computePMIBitLength(cellIdx, ueId);
+   CQIBitLength = computeCQIBitLength(cellIdx, ueId);
+
    dlCqiInd->dlCqiRpt.reportType = 0b1111;
    dlCqiInd->dlCqiRpt.cri = evaluateCRIReport();
    dlCqiInd->dlCqiRpt.ri = evaluateRIReport();
