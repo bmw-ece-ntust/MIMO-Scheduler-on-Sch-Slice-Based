@@ -383,36 +383,51 @@ uint16_t computeCQIBitLength(uint16_t cellId, uint16_t ueId)
    return bitlen;
 }
 
-uint8_t pickandreverse_bits(uint8_t *payload, uint16_t bitlen, uint8_t start_bit, uint16_t cellId, uint16_t ueId) 
+uint8_t pickandreverse_bits(uint8_t *payload, uint16_t bitlen, int start_bit) 
 {
   uint8_t rev_bits = 0;
   for (int i=0; i<bitlen; i++)
-    rev_bits |= ((payload[(start_bit+i)/8]>>((start_bit+i)%8))&0x01)<<(bitlen-i-1);
+  {
+   rev_bits |= ((payload[(start_bit+i)/8]>>((start_bit+i)%8))&0x01)<<(bitlen-1-i);
+  }
+    
   return rev_bits;
 }
 
-uint16_t evaluateCRIReport(uint8_t *payload, uint8_t ri_bitlen, int cumul_bits, uint16_t cellId, uint16_t ueId)
+uint16_t evaluateCRIReport(uint8_t *payload, uint8_t cri_bitlen, int cumul_bits, uint16_t cellId, uint16_t ueId)
 {
-    uint16_t CRI = 1;
+   uint16_t CRI = pickandreverse_bits(payload, cri_bitlen, cumul_bits);
 
-    return CRI;
+   return CRI;
 }
 
 uint16_t evaluateRIReport(uint8_t *payload, uint8_t ri_bitlen, int cumul_bits, uint16_t cellId, uint16_t ueId)
 {
-    uint16_t RI = 2;
+   uint16_t RI = pickandreverse_bits(payload, ri_bitlen, cumul_bits);
+   MacUeCb *ueCb = &macCb.macCell[cellId]->ueCb[ueId-1];
+   CodebookConfig *codebookCfg = &ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->codebookConfig;
+   uint8_t restriction_bit = codebookCfg->codebookType.type1.subType.singlePanel.ri_restriction_bit;
 
-    return RI;
+   for(int i=0; i<8; i++)
+   {
+      if ((restriction_bit>>i)&0x01 && i==RI) 
+      { 
+         return RI;
+      }
+   }
+
+   DU_LOG("\nERROR  -->  MAC: RI is not qualified for RI restriction.");
+   return 0;
 }
 
-uint16_t evaluatePMIReport(uint8_t *payload, uint8_t ri_bitlen, int cumul_bits, uint16_t cellId, uint16_t ueId)
+uint16_t evaluatePMIReport(uint8_t *payload, uint8_t pmi_bitlen, int cumul_bits, uint16_t cellId, uint16_t ueId)
 {
     uint16_t PMI = 3;
 
     return PMI;
 }
 
-uint16_t evaluateCQIReport(uint8_t *payload, uint8_t ri_bitlen, int cumul_bits, uint16_t cellId, uint16_t ueId)
+uint16_t evaluateCQIReport(uint8_t *payload, uint8_t cqi_bitlen, int cumul_bits, uint16_t cellId, uint16_t ueId)
 {
     uint16_t CQI = 4;
 
@@ -439,10 +454,17 @@ uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciInd *macUciInd, UciPucchF2F3F
    // PMIBitLength = computePMIBitLength(cellIdx, ueId);
    // CQIBitLength = computeCQIBitLength(cellIdx, ueId);
 
+   // assume there is no zero padding
    dlCqiInd->dlCqiRpt.reportType = 0b1111;
    dlCqiInd->dlCqiRpt.cri = evaluateCRIReport(payload, CRIBitLength, cumul_bits, cellIdx, ueId);
+   cumul_bits += CRIBitLength;
+
    dlCqiInd->dlCqiRpt.ri = evaluateRIReport(payload, RIBitLength, cumul_bits, cellIdx, ueId);
+   cumul_bits += RIBitLength;
+   
    dlCqiInd->dlCqiRpt.pmi = evaluatePMIReport(payload, PMIBitLength, cumul_bits, cellIdx, ueId);
+   cumul_bits += PMIBitLength;
+   
    dlCqiInd->dlCqiRpt.cqi = evaluateCQIReport(payload, CQIBitLength, cumul_bits, cellIdx, ueId);
 
    return ret;
