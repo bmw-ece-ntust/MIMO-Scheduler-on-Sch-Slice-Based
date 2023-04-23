@@ -1998,7 +1998,8 @@ typedef struct schTwoPorts{
 }SchTwoPorts;
 
 typedef struct schMoreThanTwoPorts{
-   
+   bool     isN1N2TwoOne;
+   uint16_t n1N2TwoOne;
 }SchMoreThanTwoPorts;
 
 typedef struct schSinglePanel{

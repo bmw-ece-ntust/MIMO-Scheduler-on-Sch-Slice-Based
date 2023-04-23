@@ -1507,7 +1507,8 @@ typedef struct twoPorts{
 }TwoPorts;
 
 typedef struct moreThanTwoPorts{
-   
+   bool     isN1N2TwoOne;
+   uint16_t n1N2TwoOne;
 }MoreThanTwoPorts;
 
 typedef struct singlePanel{
