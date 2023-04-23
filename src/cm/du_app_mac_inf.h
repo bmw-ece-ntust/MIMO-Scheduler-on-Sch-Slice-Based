@@ -199,8 +199,24 @@ typedef enum{
    CRI_RI_CQI,
    CRI_RSRP,
    SSB_INDEX_RSRP,
-   CRI_RI_LI_PMI_CQI
+   RI_CRI_LI_PMI_CQI
 }ReportQuantity;
+
+typedef enum{
+   TWO_ONE,
+   TWO_TWO,
+   FOUR_ONE,
+   THREE_TWO,
+   SIX_ONE,
+   FOUR_TWO,
+   EIGHT_ONE,
+   FOUR_THREE,
+   SIX_TWO,
+   TWELVE_ONE,
+   FOUR_GFOUR,
+   EIGHT_TWO,
+   SIXTEEN_ONE
+}MoreThanTwoOptions;
 
 /* End of CSI-RS Configuration */
 
@@ -1507,8 +1523,7 @@ typedef struct twoPorts{
 }TwoPorts;
 
 typedef struct moreThanTwoPorts{
-   bool     isN1N2TwoOne;
-   uint16_t n1N2TwoOne;
+   MoreThanTwoOptions      antennaConfig;
 }MoreThanTwoPorts;
 
 typedef struct singlePanel{
@@ -1539,8 +1554,9 @@ typedef struct codebookConfig{
 typedef struct csiReportContent{
    uint8_t     cri_bitlen;
    uint8_t     ri_bitlen;
-   uint8_t     pmi_bitlen;
-   uint8_t     cqi_bitlen;
+   uint8_t     pmi_x1_bitlen[8];
+   uint8_t     pmi_x2_bitlen[8];
+   uint8_t     cqi_bitlen[8];
    uint8_t     ri_restriction_bit;  
 }CsiReportContent;
 
