@@ -4516,6 +4516,8 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    uint8_t rsrcIdx, rsrcSetIdx;
    PUCCH_ResourceSet_t *rsrcSet = NULLP;
    PUCCH_Resource_t *rsrc = NULLP;
+   asn_enc_rval_t encRetVal;
+
 
    //RESOURCE SET
    elementCnt = 2;
@@ -4569,6 +4571,7 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    //Resource 1
    rsrcIdx = 0;
    rsrc = pucchCfg->resourceToAddModList->list.array[rsrcIdx];
+
    rsrc->pucch_ResourceId = 1;
    rsrc->startingPRB = 0;
    rsrc->format.present = PUCCH_Resource__format_PR_format1; 
@@ -4577,9 +4580,28 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    rsrc->format.choice.format1->nrofSymbols = 4;
    rsrc->format.choice.format1->startingSymbolIndex = 0;
    rsrc->format.choice.format1->timeDomainOCC = 0;
+
+   // rsrc->pucch_ResourceId = 2;
+   // rsrc->startingPRB = 0;
+   // rsrc->format.present = PUCCH_Resource__format_PR_format2; 
+   // CU_ALLOC(rsrc->format.choice.format2, sizeof(PUCCH_format2_t));
+   // rsrc->format.choice.format2->nrofPRBs = 2;
+   // rsrc->format.choice.format2->nrofSymbols = 4;
+   // rsrc->format.choice.format2->startingSymbolIndex = 0;
+
    //Resource 2
    rsrcIdx = 1;
    rsrc = pucchCfg->resourceToAddModList->list.array[rsrcIdx];
+
+   // rsrc->pucch_ResourceId = 1;
+   // rsrc->startingPRB = 0;
+   // rsrc->format.present = PUCCH_Resource__format_PR_format1; 
+   // CU_ALLOC(rsrc->format.choice.format1, sizeof(PUCCH_format1_t));
+   // rsrc->format.choice.format1->initialCyclicShift = 0;
+   // rsrc->format.choice.format1->nrofSymbols = 4;
+   // rsrc->format.choice.format1->startingSymbolIndex = 0;
+   // rsrc->format.choice.format1->timeDomainOCC = 0;
+
    rsrc->pucch_ResourceId = 2;
    rsrc->startingPRB = 0;
    rsrc->format.present = PUCCH_Resource__format_PR_format2; 
@@ -4587,6 +4609,26 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    rsrc->format.choice.format2->nrofPRBs = 2;
    rsrc->format.choice.format2->nrofSymbols = 4;
    rsrc->format.choice.format2->startingSymbolIndex = 0;
+
+   memset(encBuf, 0, ENC_BUF_MAX_LEN);
+   encBufSize = 0;
+   encRetVal = uper_encode(&asn_DEF_PUCCH_Resource, 0, pucchCfg->resourceToAddModList->list.array[1], PrepFinalEncBuf, encBuf);
+   /* Encode results */
+   if (encRetVal.encoded == ENCODE_FAIL)
+   {
+      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode PUCCH RESOURCE (at %s)\n",
+               encRetVal.failed_type ? encRetVal.failed_type->name : "unknown");
+      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode PUCCH RESOURCE (at %s)\n",
+               encRetVal.failed_type ? encRetVal.failed_type->xml_tag : "unknown");
+      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode PUCCH RESOURCE (at %d)\n",
+               encRetVal.failed_type ? encRetVal.failed_type->tags_count : "unknown");
+      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode PUCCH RESOURCE (at %d)\n",
+               encRetVal.failed_type ? encRetVal.failed_type->elements_count : "unknown");
+   }
+   else
+   {
+      DU_LOG("\nDEBUG   -->  ENCODE UNIT TEST : Created APER encoded buffer for PUCCH RESOURCE\n");
+   }
 
    //PUCCH Format 1
    CU_ALLOC(pucchCfg->format1, sizeof(struct PUCCH_Config__format1));
@@ -5853,7 +5895,12 @@ void FreeBWPUlDedPucchCfg(struct BWP_UplinkDedicated__pucch_Config *ulBwpPucchCf
                for(rsrcIdx=0; rsrcIdx < pucchCfg->resourceToAddModList->list.count; rsrcIdx++)
                {
                   rsrc = pucchCfg->resourceToAddModList->list.array[rsrcIdx];
-                  CU_FREE(rsrc->format.choice.format1, sizeof(PUCCH_format1_t));
+                  if(rsrc->format.choice.format1){
+                     CU_FREE(rsrc->format.choice.format1, sizeof(PUCCH_format1_t));
+                  }else if(rsrc->format.choice.format2){
+                     CU_FREE(rsrc->format.choice.format2, sizeof(PUCCH_format2_t));
+                  }
+                  // CU_FREE(rsrc->format.choice.format1, sizeof(PUCCH_format1_t));
                   CU_FREE(pucchCfg->resourceToAddModList->list.array[rsrcIdx], sizeof(PUCCH_Resource_t));
                }
                CU_FREE(pucchCfg->resourceToAddModList->list.array, pucchCfg->resourceToAddModList->list.size);
@@ -5870,6 +5917,17 @@ void FreeBWPUlDedPucchCfg(struct BWP_UplinkDedicated__pucch_Config *ulBwpPucchCf
                CU_FREE(pucchCfg->format1->choice.setup, sizeof(PUCCH_FormatConfig_t));
             }
             CU_FREE(pucchCfg->format1, sizeof(struct PUCCH_Config__format1));
+         }
+
+         //PUCCH Format 2
+         if(pucchCfg->format2)
+         {
+            if(pucchCfg->format2->choice.setup)
+            {
+               CU_FREE(pucchCfg->format2->choice.setup->nrofSlots, sizeof(long));
+               CU_FREE(pucchCfg->format2->choice.setup, sizeof(PUCCH_FormatConfig_t));
+            }
+            CU_FREE(pucchCfg->format2, sizeof(struct PUCCH_Config__format2));
          }
 
          //DL DATA TO UL ACK
