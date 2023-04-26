@@ -242,8 +242,6 @@ uint16_t computePMIBitLength(uint16_t cellId, uint16_t ueId)
    CsiReportContent *reportCntnt = &ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->reportConfig;
    uint8_t restriction_bit = codebookCfg->codebookType.type1.subType.singlePanel.ri_restriction_bit;
 
-   // haven't considered PMI feedback so far
-   /*
    // check each number of layers one by one
    for(int i=0; i<8; i++) 
    {
@@ -324,7 +322,6 @@ uint16_t computePMIBitLength(uint16_t cellId, uint16_t ueId)
          }
       }
    }
-   */
    
    return bitlen;
 }
