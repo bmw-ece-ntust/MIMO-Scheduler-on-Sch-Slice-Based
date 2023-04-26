@@ -4571,22 +4571,22 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    rsrc = pucchCfg->resourceToAddModList->list.array[rsrcIdx];
    rsrc->pucch_ResourceId = 1;
    rsrc->startingPRB = 0;
-   rsrc->format.present = PUCCH_Resource__format_PR_format1; 
-   CU_ALLOC(rsrc->format.choice.format1, sizeof(PUCCH_format1_t));
-   rsrc->format.choice.format1->initialCyclicShift = 0;
-   rsrc->format.choice.format1->nrofSymbols = 4;
-   rsrc->format.choice.format1->startingSymbolIndex = 0;
-   rsrc->format.choice.format1->timeDomainOCC = 0;
+   rsrc->format.present = format_PR_format1; 
+   // CU_ALLOC(rsrc->format.choice.format1, sizeof(PUCCH_format1_t));
+   rsrc->format.choice.format1.initialCyclicShift = 0;
+   rsrc->format.choice.format1.nrofSymbols = 4;
+   rsrc->format.choice.format1.startingSymbolIndex = 0;
+   rsrc->format.choice.format1.timeDomainOCC = 0;
    //Resource 2
    rsrcIdx = 1;
    rsrc = pucchCfg->resourceToAddModList->list.array[rsrcIdx];
    rsrc->pucch_ResourceId = 2;
    rsrc->startingPRB = 0;
-   rsrc->format.present = PUCCH_Resource__format_PR_format2; 
-   CU_ALLOC(rsrc->format.choice.format2, sizeof(PUCCH_format2_t));
-   rsrc->format.choice.format2->nrofPRBs = 2;
-   rsrc->format.choice.format2->nrofSymbols = 4;
-   rsrc->format.choice.format2->startingSymbolIndex = 0;
+   rsrc->format.present = format_PR_format2; 
+   // CU_ALLOC(rsrc->format.choice.format2, sizeof(PUCCH_format2_t));
+   rsrc->format.choice.format2.nrofPRBs = 2;
+   rsrc->format.choice.format2.nrofSymbols = 4;
+   rsrc->format.choice.format2.startingSymbolIndex = 0;
 
    //PUCCH Format 1
    CU_ALLOC(pucchCfg->format1, sizeof(struct PUCCH_Config__format1));
@@ -5853,7 +5853,7 @@ void FreeBWPUlDedPucchCfg(struct BWP_UplinkDedicated__pucch_Config *ulBwpPucchCf
                for(rsrcIdx=0; rsrcIdx < pucchCfg->resourceToAddModList->list.count; rsrcIdx++)
                {
                   rsrc = pucchCfg->resourceToAddModList->list.array[rsrcIdx];
-                  CU_FREE(rsrc->format.choice.format1, sizeof(PUCCH_format1_t));
+                  // CU_FREE(rsrc->format.choice.format1, sizeof(PUCCH_format1_t));
                   CU_FREE(pucchCfg->resourceToAddModList->list.array[rsrcIdx], sizeof(PUCCH_Resource_t));
                }
                CU_FREE(pucchCfg->resourceToAddModList->list.array, pucchCfg->resourceToAddModList->list.size);
