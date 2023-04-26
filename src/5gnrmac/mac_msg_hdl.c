@@ -273,7 +273,7 @@ uint16_t computePMIBitLength(uint16_t cellId, uint16_t ueId)
                {
                   // more than two ports
                   int n1, n2, o1, o2, x1, x2;
-                  // Table 5.2.2.2.1-2 in 38.214 for supported configurations
+                  // Table 5.2.2.2.1-2 in 38.214 for supported configurations, and we only consider four antenna ports so far.
                   switch (codebookCfg->codebookType.type1.subType.singlePanel.nrOfAntennaPorts.moreThanTwoPort.antennaConfig)
                   {
                      case (TWO_ONE):
@@ -302,9 +302,155 @@ uint16_t computePMIBitLength(uint16_t cellId, uint16_t ueId)
                      }
                      break;
                      default:
-                        DU_LOG("\nERROR  -->  MAC: it doesn't support other antenna config. yet.");
+                        DU_LOG("\nERROR  -->  MAC: it doesn't support other antenna config. yet (we only consider 4 antenna ports).");
                      break;
                   }
+
+                  int rank = i+1;
+                  int codebook_mode = codebookCfg->codebookType.type1.codebook_mode;
+                  switch(rank) // the number of rank
+                  {
+                     case 1:
+                     {
+                        if(n2 > 1)
+                        {
+                           if(codebook_mode == 1)
+                           {
+                              x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2));
+                              x2 = 2;
+                           }
+                           else
+                           {
+                              x1 = ceil(log2(n1*o1/2)) + ceil(log2(n2*o2/2));
+                              x2 = 4;
+                           }
+                        }
+                        else
+                        {
+                           if(codebook_mode == 1)
+                           {
+                              x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2));
+                              x2 = 2;
+                           }
+                           else
+                           {
+                              x1 = ceil(log2(n1*o1/2));
+                              x2 = 4;
+                           }
+                        }
+                     }
+                     break;
+                     case 2:
+                     {
+                        if(n1*n2 == 2) 
+                        {
+                           if (codebook_mode == 1) 
+                           {
+                              x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2));
+                              x2 = 1;
+                           }
+                           else 
+                           {
+                              x1 = ceil(log2(n1*o1/2));
+                              x2 = 3;
+                           }
+                           x1 += 1;
+                        }
+                        else {
+                           if(n2>1) 
+                           {
+                              if (codebook_mode == 1) 
+                              {
+                                 x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2));
+                                 x2 = 3;
+                              }
+                              else 
+                              {
+                                 x1 = ceil(log2(n1*o1/2)) + ceil(log2(n2*o2/2));
+                                 x2 = 3;
+                              }
+                           }
+                           else
+                           {
+                              if (codebook_mode == 1) 
+                              {
+                                 x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2));
+                                 x2 = 1;
+                              }
+                              else 
+                              {
+                                 x1 = ceil(log2(n1*o1/2));
+                                 x2 = 3;
+                              }
+                           }
+                           x1 += 2;
+                        }
+                     }
+                     break;
+                     case 3:
+                     case 4:
+                     {
+                        if(n1*n2 == 2) 
+                        {
+                           x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2));
+                           x2 = 1;
+                        }
+                        else 
+                        {
+                           if(n1*n2 >= 8) 
+                           {
+                              x1 = ceil(log2(n1*o1/2)) + ceil(log2(n2*o2)) + 2;
+                              x2 = 1;
+                           }
+                           else 
+                           {
+                              x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2)) + 2;
+                              x2 = 1;
+                           }
+                        }
+                     }
+                     break;
+                     case 5:
+                     case 6:
+                     {
+                        x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2));
+                        x2 = 1;
+                     }
+                     break;
+                     case 7:
+                     case 8:
+                     {
+                        if(n1 == 4 && n2 == 1) 
+                        {
+                           x1 = ceil(log2(n1*o1/2)) + ceil(log2(n2*o2));
+                           x2 = 1;
+                        }
+                        else 
+                        {
+                           if(n1 > 2 && n2 == 2) 
+                           {
+                              x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2/2));
+                              x2 = 1;
+                           }
+                           else 
+                           {
+                              x1 = ceil(log2(n1*o1)) + ceil(log2(n2*o2));
+                              x2 = 1;
+                           }
+                        }
+                     }
+                     break;
+                     default:
+                     {
+                        DU_LOG("\nERROR  -->  MAC: invalid rank for PMI bit length computation.");
+                     }
+                     break;
+                  }
+
+                  reportCntnt->pmi_x1_bitlen[i] = x1;
+                  reportCntnt->pmi_x2_bitlen[i] = x2;
+                  bitlen = x2;
+
                }
                else
                {

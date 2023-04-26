@@ -1541,6 +1541,7 @@ typedef struct codebookType1{
       bool        isSinglePanel;
       SinglePanel singlePanel;
    }subType;
+   uint8_t        codebook_mode;
 }CodebookType1;
 
 typedef struct codebookConfig{
@@ -1560,21 +1561,21 @@ typedef struct csiReportContent{
    uint8_t     ri_restriction_bit;  
 }CsiReportContent;
 
-// typedef struct cri_ri_li_pmi_cqi{
-//    uint16_t cri;
-//    uint16_t ri;
-//    uint16_t li;
-//    uint16_t pmi_x1;
-//    uint16_t pmi_x2;
-//    uint16_t wb_cqi_1tb;
-//    uint16_t wb_cqi_2tb;
-//    uint16_t cqi_table;
-//    uint16_t csi_report_id;
-// }CRI_RI_LI_PMI_CQI;
+typedef struct cri_ri_li_pmi_cqi{
+   uint16_t cri;
+   uint16_t ri;
+   uint16_t li;
+   uint16_t pmi_x1;
+   uint16_t pmi_x2;
+   uint16_t wb_cqi_1tb;
+   uint16_t wb_cqi_2tb;
+   uint16_t cqi_table;
+   uint16_t csi_report_id;
+}CRI_RI_LI_PMI_CQI;
 
-// typedef struct csiReportResult{
-//    CRI_RI_LI_PMI_CQI cri_ri_li_pmi_cqi_report;
-// }CsiReportResult;
+typedef struct csiReportResult{
+   CRI_RI_LI_PMI_CQI cri_ri_li_pmi_cqi_report;
+}CsiReportResult;
 
 
 typedef struct csiReportConfig
@@ -1590,7 +1591,12 @@ typedef struct csiReportConfig
    ReportQuantity          reportQuantity;
    CodebookConfig          codebookConfig;
    CsiReportContent        reportContent;
-   // CsiReportResult         reportResult;   
+   
+   // Storing report result and config
+   CsiReportResult         reportResult;
+   uint8_t                 codebook_mode;
+   uint8_t                 N1;
+   uint8_t                 N2;
 }CsiReportConfig;
 
 /* CSI Measurement Config */
