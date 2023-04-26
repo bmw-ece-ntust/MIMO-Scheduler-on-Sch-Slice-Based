@@ -491,6 +491,7 @@ uint8_t duProcDlRrcMsg(F1DlRrcMsg *dlRrcMsg)
    }
    if(ueCcchCtxtFound)
    {
+      DU_LOG("\nJOJO  -->  DU APP : start getting initial DL RRC message from CU.");
       ret = duBuildAndSendDlCcchInd(&cellId, &crnti, RRC_SETUP, dlRrcMsg->rrcMsgSize, dlRrcMsg->rrcMsgPdu);
       if(ret == RFAILED)
       {

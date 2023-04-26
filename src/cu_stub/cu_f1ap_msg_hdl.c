@@ -86,6 +86,7 @@
 #include "PUCCH-ResourceSet.h"
 #include "PUCCH-Resource.h"
 #include "PUCCH-format1.h"
+#include "PUCCH-format2.h"
 #include "PUCCH-FormatConfig.h"
 #include "BWP-UplinkDedicated.h"
 #include "PUSCH-ServingCellConfig.h"
@@ -4511,6 +4512,7 @@ uint8_t BuildBWPUlDedPuschCfg(PUSCH_Config_t *puschCfg)
  * ****************************************************************/
 uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
 {
+   asn_enc_rval_t encRetVal;
    uint8_t arrIdx, elementCnt;
    uint8_t rsrcIdx, rsrcSetIdx;
    PUCCH_ResourceSet_t *rsrcSet = NULLP;
@@ -4529,7 +4531,10 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    rsrcSetIdx = 0;
    rsrcSet = pucchCfg->resourceSetToAddModList->list.array[rsrcSetIdx];
    rsrcSet->pucch_ResourceSetId = 1;
-   elementCnt = 1;
+
+// start from here
+   // RESOURCE ID LIST
+   elementCnt = 2;
    rsrcSet->resourceList.list.count = elementCnt;
    rsrcSet->resourceList.list.size = elementCnt * sizeof(PUCCH_ResourceId_t *);
    CU_ALLOC(rsrcSet->resourceList.list.array, rsrcSet->resourceList.list.size);
@@ -4539,9 +4544,11 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    }
    rsrcIdx = 0;
    *(rsrcSet->resourceList.list.array[rsrcIdx]) = 1;
+   rsrcIdx = 1;
+   *(rsrcSet->resourceList.list.array[rsrcIdx]) = 1;
 
    //RESOURCE
-   elementCnt = 1;
+   elementCnt = 2;
    CU_ALLOC(pucchCfg->resourceToAddModList, sizeof(struct PUCCH_Config__resourceToAddModList));
    pucchCfg->resourceToAddModList->list.count = elementCnt;
    pucchCfg->resourceToAddModList->list.size = elementCnt * sizeof(PUCCH_Resource_t *);
@@ -4550,6 +4557,8 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    {
       CU_ALLOC(pucchCfg->resourceToAddModList->list.array[rsrcIdx], sizeof(PUCCH_Resource_t));
    }
+
+   // format1
    rsrcIdx = 0;
    rsrc = pucchCfg->resourceToAddModList->list.array[rsrcIdx];
    rsrc->pucch_ResourceId = 1;
@@ -4561,12 +4570,52 @@ uint8_t BuildBWPUlDedPucchCfg(PUCCH_Config_t *pucchCfg)
    rsrc->format.choice.format1->startingSymbolIndex = 0;
    rsrc->format.choice.format1->timeDomainOCC = 0;
 
+   // format2
+   rsrcIdx = 1;
+   rsrc = pucchCfg->resourceToAddModList->list.array[rsrcIdx];
+   rsrc->pucch_ResourceId = 2;
+   rsrc->startingPRB = 1;
+   rsrc->format.present = PUCCH_Resource__format_PR_format2; 
+   CU_ALLOC(rsrc->format.choice.format2, sizeof(PUCCH_format2_t));
+   rsrc->format.choice.format2->nrofPRBs = 1;
+   rsrc->format.choice.format2->nrofSymbols = 1;
+   rsrc->format.choice.format2->startingSymbolIndex = 1;
+
+   memset(encBuf, 0, ENC_BUF_MAX_LEN);
+   encBufSize = 0;
+   encRetVal = uper_encode(&asn_DEF_PUCCH_Resource, 0, pucchCfg->resourceToAddModList->list.array[0], PrepFinalEncBuf, encBuf);
+   /* Encode results */
+   if (encRetVal.encoded == ENCODE_FAIL)
+   {
+      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode PUCCH RESOURCE (at %s)\n",
+               encRetVal.failed_type ? encRetVal.failed_type->name : "unknown");
+      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode PUCCH RESOURCE (at %s)\n",
+               encRetVal.failed_type ? encRetVal.failed_type->xml_tag : "unknown");
+      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode PUCCH RESOURCE (at %d)\n",
+               encRetVal.failed_type ? encRetVal.failed_type->tags_count : "unknown");
+      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode PUCCH RESOURCE (at %d)\n",
+               encRetVal.failed_type ? encRetVal.failed_type->elements_count : "unknown");
+   }
+   else
+   {
+      DU_LOG("\nDEBUG   -->  ENCODE UNIT TEST : Created APER encoded buffer for PUCCH RESOURCE\n");
+   }
+
    //PUCCH Format 1
    CU_ALLOC(pucchCfg->format1, sizeof(struct PUCCH_Config__format1));
    pucchCfg->format1->present = PUCCH_Config__format1_PR_setup;
    CU_ALLOC(pucchCfg->format1->choice.setup, sizeof(PUCCH_FormatConfig_t));
    CU_ALLOC(pucchCfg->format1->choice.setup->nrofSlots, sizeof(long));
    *(pucchCfg->format1->choice.setup->nrofSlots) = PUCCH_FormatConfig__nrofSlots_n4;
+
+   //PUCCH Format 2
+   CU_ALLOC(pucchCfg->format2, sizeof(struct PUCCH_Config__format2));
+   pucchCfg->format2->present = PUCCH_Config__format2_PR_setup;
+   CU_ALLOC(pucchCfg->format2->choice.setup, sizeof(PUCCH_FormatConfig_t));
+   CU_ALLOC(pucchCfg->format2->choice.setup->nrofSlots, sizeof(long));
+   *(pucchCfg->format2->choice.setup->nrofSlots) = PUCCH_FormatConfig__nrofSlots_n4;
+
+// until here
 
    //DL DATA TO UL ACK
    CU_ALLOC(pucchCfg->dl_DataToUL_ACK, sizeof(struct PUCCH_Config__dl_DataToUL_ACK));

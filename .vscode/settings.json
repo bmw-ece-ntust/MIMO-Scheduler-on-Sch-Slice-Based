@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "*.x": "c"
+        "*.x": "c",
+        "pucch-resourceset.h": "c"
     }
 }
