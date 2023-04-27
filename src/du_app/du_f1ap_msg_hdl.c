@@ -5906,119 +5906,15 @@ uint8_t BuildPdschSrvCellCfg(PdschServCellCfg *pdschServCellDb, struct ServingCe
 uint8_t BuildNzpCsiRsRsrcSetToAddModList(struct CSI_MeasConfig__nzp_CSI_RS_ResourceSetToAddModList *nzpCsiRsRsrcSetToAddModList)
 {
    uint8_t elementCnt, idx;
-   char errbuf[255];
-   size_t errlen = sizeof(errbuf);
-   int errReturn;
-
-   DU_LOG("\nDEBUG AKMAL ---> Enter Resource Set Initial");
-
-   // temporary hardcode
-   elementCnt = 1;
-   // ToDo Real Implementation to get real element count of the nzp csi rs to add mod list
-
-   // Initial Default Allocation for nzp csi rs to add mod list
-   nzpCsiRsRsrcSetToAddModList->list.count = elementCnt;
-   nzpCsiRsRsrcSetToAddModList->list.size = elementCnt * sizeof(struct NZP_CSI_RS_ResourceSet *);
-   nzpCsiRsRsrcSetToAddModList->list.array = NULLP;
-   DU_ALLOC(nzpCsiRsRsrcSetToAddModList->list.array, nzpCsiRsRsrcSetToAddModList->list.size);
-   if (nzpCsiRsRsrcSetToAddModList->list.array == NULLP)
-   {
-      DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsRsrcSetToAddModList");
-      return RFAILED;
-   }
-
-   DU_LOG("\nDEBUG AKMAL ---> Enter Resource Set");
-
-   for (idx = 0; idx < nzpCsiRsRsrcSetToAddModList->list.count; idx++)
-   {
-      DU_LOG("\nDEBUG AKMAL --> Inside Resource Set Allocation");
-      DU_ALLOC(nzpCsiRsRsrcSetToAddModList->list.array[idx], sizeof(struct NZP_CSI_RS_ResourceSet));
-      if (!nzpCsiRsRsrcSetToAddModList->list.array[idx])
-      {
-         DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsRsrcSetToAddModList");
-         return RFAILED;
-         if (nzpCsiRsRsrcSetToAddModList->list.array[idx] == NULLP)
-         {
-            DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsRsrcSetToAddModList");
-            return RFAILED;
-         }
-      }
-
-      // Default value assignments
-      nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_ResourceSetId = 0;
-
-      /*========Resource Set=========*/
-      nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.count = elementCnt;
-      nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.size = elementCnt * sizeof(NZP_CSI_RS_ResourceId_t *);
-      nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.array = NULLP;
-      DU_ALLOC(nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.array, nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.size);
-      for (int i = 0; i < nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.count; i++)
-      {
-         DU_LOG("\nDEBUG AKMAL --> Inside Resource Id Allocation");
-
-         nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.array[i] == NULLP;
-         DU_ALLOC(nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.array[i], sizeof(NZP_CSI_RS_ResourceId_t));
-
-         if (nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.array[i] == NULLP)
-         {
-            DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsRsrcSetToAddModList");
-            return RFAILED;
-         }
-         DU_LOG("\nSIZE COMPARISON --> 0=%d 1=%d", sizeof((NZP_CSI_RS_ResourceId_t)0), sizeof((NZP_CSI_RS_ResourceId_t)1));
-         DU_LOG("\nARRAY SIZE --> %d", sizeof(nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.array[i]));
-         // print_type(nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.array[i]);
-         // print_type((NZP_CSI_RS_ResourceId_t) 1);
-         nzpCsiRsRsrcSetToAddModList->list.array[idx]->nzp_CSI_RS_Resources.list.array[i] = (NZP_CSI_RS_ResourceId_t)(0);
-      }
-
-      DU_LOG("\nDEBUG AKMAL --> Leaving Resource Id Allocation");
-
-      errReturn = asn_check_constraints(&asn_DEF_NZP_CSI_RS_ResourceSet, &nzpCsiRsRsrcSetToAddModList->list.array[idx], errbuf, &errlen);
-
-      DU_LOG("\nTEST");
-      DU_LOG("\nCHECK CONSTRAINT NZP CSI Resource Set ---> errReturn = %d", errReturn);
-      DU_LOG("\nCHECK CONSTRAINT NZP CSI Resource Set---> Error Check ASN : %s, err length : %d\n", errbuf, (int)errlen);
-   }
-
-   return ROK;
-}
-
-/*******************************************************************
- *
- * @brief Builds CSI Meas config
- * @details
- *
- *    Function : BuildNzpCsiRsRsrcSetToAddModList2
- *
- *    Functionality: Builds NZP CSI RS Config in CSI Meas Config
- *
- * @params[in] struct CSI_MeasConfig__nzp_CSI_RS_ResourceToAddModList *nzpCsiRsToAddModList
- *
- * @return ROK     - success
- *         RFAILED - failure
- *
- * ****************************************************************/
-uint8_t BuildNzpCsiRsRsrcSetToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_ResourceSetToAddModList *nzpCsiRsRsrcSetToAddModList)
-{
-   uint8_t elementCnt, idx;
-   char errbuf[255];
-   size_t errlen = sizeof(errbuf);
-   int errReturn;
    struct NZP_CSI_RS_ResourceSet *resourceSetItem;
    NZP_CSI_RS_ResourceId_t *resourceIdItem;
-   asn_enc_rval_t encRetVal;
-
-   DU_LOG("\nDEBUG AKMAL ---> Enter Resource Set Initial");
-
+   
    // temporary hardcode
    elementCnt = 1;
    // ToDo Real Implementation to get real element count of the nzp csi rs to add mod list
-
-   DU_LOG("\nDEBUG AKMAL ---> Enter Resource Set");
 
    for (idx = 0; idx < elementCnt; idx++)
    {
-      DU_LOG("\nDEBUG AKMAL --> Inside Resource Set Allocation");
       resourceSetItem = NULLP;
       DU_ALLOC(resourceSetItem, sizeof(struct NZP_CSI_RS_ResourceSet));
       if (!resourceSetItem)
@@ -6033,12 +5929,11 @@ uint8_t BuildNzpCsiRsRsrcSetToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_Reso
       }
 
       // Default value assignments
-      resourceSetItem->nzp_CSI_ResourceSetId = idx;
+      resourceSetItem->nzp_CSI_ResourceSetId = 1;
 
       /*========Resource Set=========*/
       for (int i = 0; i < elementCnt; i++)
       {
-         // DU_LOG("\nDEBUG AKMAL --> Inside Resource Id Allocation");
          resourceIdItem = NULLP;
          DU_ALLOC(resourceIdItem, sizeof(NZP_CSI_RS_ResourceId_t));
 
@@ -6048,7 +5943,7 @@ uint8_t BuildNzpCsiRsRsrcSetToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_Reso
             return RFAILED;
          }
 
-         *resourceIdItem = i;
+         *resourceIdItem = 1;
 
          ASN_SEQUENCE_ADD(&resourceSetItem->nzp_CSI_RS_Resources.list, resourceIdItem);
          resourceSetItem->repetition = NULL;
@@ -6057,43 +5952,15 @@ uint8_t BuildNzpCsiRsRsrcSetToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_Reso
       }
 
       ASN_SEQUENCE_ADD(&nzpCsiRsRsrcSetToAddModList->list, resourceSetItem);
-
-      // DU_LOG("\nDEBUG AKMAL --> Leaving Resource Id Allocation");
-
-      errReturn = asn_check_constraints(&asn_DEF_NZP_CSI_RS_ResourceSet, resourceSetItem, errbuf, &errlen);
-
-      DU_LOG("\nTEST");
-      DU_LOG("\nCHECK CONSTRAINT NZP CSI Resource Set ---> errReturn = %d", errReturn);
-      DU_LOG("\nCHECK CONSTRAINT NZP CSI Resource Set---> Error Check ASN : %s, err length : %d\n", errbuf, (int)errlen);
-
-      xer_fprint(stdout, &asn_DEF_NZP_CSI_RS_ResourceSet, resourceSetItem);
-      memset(encBuf, 0, ENC_BUF_MAX_LEN);
-      encBufSize = 0;
-      encRetVal = uper_encode(&asn_DEF_NZP_CSI_RS_ResourceSet, 0, resourceSetItem, PrepFinalEncBuf, encBuf);
-      /* Encode results */
-      if (encRetVal.encoded == ENCODE_FAIL)
-      {
-         DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE SET (at %s)\n",
-                encRetVal.failed_type ? encRetVal.failed_type->name : "unknown");
-         DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE SET (at %s)\n",
-                encRetVal.failed_type ? encRetVal.failed_type->xml_tag : "unknown");
-         DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE SET (at %d)\n",
-                encRetVal.failed_type ? encRetVal.failed_type->tags_count : "unknown");
-         DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE SET (at %d)\n",
-                encRetVal.failed_type ? encRetVal.failed_type->elements_count : "unknown");
-      }
-      else
-      {
-         DU_LOG("\nDEBUG   -->  ENCODE UNIT TEST : Created APER encoded buffer for NZP CSI RESOURCE SET\n");
-      }
    }
 
    return ROK;
 }
 
+
 /*******************************************************************
  *
- * @brief Builds CSI Meas config
+ * @brief Builds CSI RS To Add Mod List
  * @details
  *
  *    Function : BuildNzpCsiRsToAddModList
@@ -6109,109 +5976,7 @@ uint8_t BuildNzpCsiRsRsrcSetToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_Reso
 uint8_t BuildNzpCsiRsToAddModList(struct CSI_MeasConfig__nzp_CSI_RS_ResourceToAddModList *nzpCsiRsToAddModList)
 {
    uint8_t elementCnt, idx;
-   char errbuf[255];
-   size_t errlen = sizeof(errbuf);
-   int errReturn;
-
-   // temporary hardcode
-   elementCnt = 1;
-   // ToDo Real Implementation to get real element count of the nzp csi rs to add mod list
-
-   // Initial Default Allocation for nzp csi rs to add mod list
-   nzpCsiRsToAddModList->list.count = elementCnt;
-   nzpCsiRsToAddModList->list.size = elementCnt * sizeof(struct NZP_CSI_RS_Resource *);
-   nzpCsiRsToAddModList->list.array = NULLP;
-   DU_ALLOC(nzpCsiRsToAddModList->list.array, nzpCsiRsToAddModList->list.size);
-   if (nzpCsiRsToAddModList->list.array == NULLP)
-   {
-      DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsToAddModList");
-      return RFAILED;
-   }
-
-   for (idx = 0; idx < nzpCsiRsToAddModList->list.count; idx++)
-   {
-      DU_ALLOC(nzpCsiRsToAddModList->list.array[idx], sizeof(struct NZP_CSI_RS_Resource));
-      if (!nzpCsiRsToAddModList->list.array[idx])
-      {
-         DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsToAddModList");
-         return RFAILED;
-         if (nzpCsiRsToAddModList->list.array[idx] == NULLP)
-         {
-            DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsToAddModList");
-            return RFAILED;
-         }
-      }
-
-      // Default value assignments
-      nzpCsiRsToAddModList->list.array[idx]->nzp_CSI_RS_ResourceId = (long)1;
-
-      /*========RESOURCE MAPPING=========*/
-      // Temporary Hardcode of frequency domain allocation with row1
-      nzpCsiRsToAddModList->list.array[idx]->resourceMapping.frequencyDomainAllocation.present = CSI_RS_ResourceMapping__frequencyDomainAllocation_PR_row1;
-      nzpCsiRsToAddModList->list.array[idx]->resourceMapping.frequencyDomainAllocation.choice.row1.size = 1 * sizeof(uint8_t);
-      DU_ALLOC(nzpCsiRsToAddModList->list.array[idx]->resourceMapping.frequencyDomainAllocation.choice.row1.buf, nzpCsiRsToAddModList->list.array[idx]->resourceMapping.frequencyDomainAllocation.choice.row1.size);
-      nzpCsiRsToAddModList->list.array[idx]->resourceMapping.frequencyDomainAllocation.choice.row1.bits_unused = 4;
-      if (!nzpCsiRsToAddModList->list.array[idx]->resourceMapping.frequencyDomainAllocation.choice.row1.buf)
-      {
-         DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsToAddModList for freq domain alloc buf");
-         return RFAILED;
-      }
-
-      fillBitString(&nzpCsiRsToAddModList->list.array[idx]->resourceMapping.frequencyDomainAllocation.choice.row1, 4, 1, 1);
-
-      // Temporary Hardcode of density with one density
-      nzpCsiRsToAddModList->list.array[idx]
-          ->resourceMapping.density.present = CSI_RS_ResourceMapping__density_PR_three;
-      // nzpCsiRsToAddModList->list.array[idx]->resourceMapping.density.choice.three = 0;
-      // Temporary Hardcode of number of ports
-      nzpCsiRsToAddModList->list.array[idx]->resourceMapping.nrofPorts = CSI_RS_ResourceMapping__nrofPorts_p1;
-      // Temporary Hardcode of first symbol in time domain
-      nzpCsiRsToAddModList->list.array[idx]->resourceMapping.firstOFDMSymbolInTimeDomain = 4;
-      // Temporary Hardcode of cdm type
-      nzpCsiRsToAddModList->list.array[idx]->resourceMapping.cdm_Type = CSI_RS_ResourceMapping__cdm_Type_noCDM; // No CDM
-      // Temporary Hardcode of Frequency Band Occupation
-      nzpCsiRsToAddModList->list.array[idx]->resourceMapping.freqBand.startingRB = 0; // dummy
-      nzpCsiRsToAddModList->list.array[idx]->resourceMapping.freqBand.nrofRBs = 0;
-
-      /*=======POWER CONTROL OFFSET======*/
-      nzpCsiRsToAddModList->list.array[idx]->powerControlOffset = 0;
-
-      /*=======SCRAMBLING ID=======*/
-      nzpCsiRsToAddModList->list.array[idx]->scramblingID = 1;
-
-      errReturn = asn_check_constraints(&asn_DEF_NZP_CSI_RS_Resource, &nzpCsiRsToAddModList->list.array[idx], errbuf, &errlen);
-
-      DU_LOG("\nTEST");
-      DU_LOG("\nCHECK CONSTRAINT NZP CSI Resource ---> errReturn = %d", errReturn);
-      DU_LOG("\nCHECK CONSTRAINT NZP CSI Resource ---> Error Check ASN : %s, err length : %d\n", errbuf, (int)errlen);
-   }
-
-   return ROK;
-}
-
-/*******************************************************************
- *
- * @brief Builds CSI RS To Add Mod List
- * @details
- *
- *    Function : BuildNzpCsiRsToAddModList2
- *
- *    Functionality: Builds NZP CSI RS Config in CSI Meas Config
- *
- * @params[in] struct CSI_MeasConfig__nzp_CSI_RS_ResourceToAddModList *nzpCsiRsToAddModList
- *
- * @return ROK     - success
- *         RFAILED - failure
- *
- * ****************************************************************/
-uint8_t BuildNzpCsiRsToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_ResourceToAddModList *nzpCsiRsToAddModList)
-{
-   uint8_t elementCnt, idx;
-   char errbuf[255];
-   size_t errlen = sizeof(errbuf);
-   int errReturn;
    struct NZP_CSI_RS_Resource *item;
-   asn_enc_rval_t encRetVal;
 
    // temporary hardcode
    elementCnt = 1;
@@ -6230,7 +5995,7 @@ uint8_t BuildNzpCsiRsToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_ResourceToA
       }
 
       // Default value assignments
-      item->nzp_CSI_RS_ResourceId = (long)0;
+      item->nzp_CSI_RS_ResourceId = (long)1;
 
       /*========RESOURCE MAPPING=========*/
       // Temporary Hardcode of frequency domain allocation with row2 following OAI configuration
@@ -6252,12 +6017,14 @@ uint8_t BuildNzpCsiRsToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_ResourceToA
       // Temporary Hardcode of number of ports
       item->resourceMapping.nrofPorts = CSI_RS_ResourceMapping__nrofPorts_p1;
       // Temporary Hardcode of first symbol in time domain
-      item->resourceMapping.firstOFDMSymbolInTimeDomain = (long)13;
+      item->resourceMapping.firstOFDMSymbolInTimeDomain = (long)10;
+      DU_ALLOC(item->resourceMapping.firstOFDMSymbolInTimeDomain2,sizeof(long));
+      *(item->resourceMapping.firstOFDMSymbolInTimeDomain2) = 2;
       // Temporary Hardcode of cdm type
       item->resourceMapping.cdm_Type = CSI_RS_ResourceMapping__cdm_Type_noCDM; // No CDM
       // Temporary Hardcode of Frequency Band Occupation
       item->resourceMapping.freqBand.startingRB = (long)0; // dummy
-      item->resourceMapping.freqBand.nrofRBs = (long)4;
+      item->resourceMapping.freqBand.nrofRBs = (long)25;
 
       /*=======POWER CONTROL OFFSET======*/
       item->powerControlOffset = (long)1;
@@ -6267,7 +6034,7 @@ uint8_t BuildNzpCsiRsToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_ResourceToA
       *item->powerControlOffsetSS = NZP_CSI_RS_Resource__powerControlOffsetSS_db0;
 
       /*=======SCRAMBLING ID=======*/
-      item->scramblingID = (long)1;
+      item->scramblingID = (long)2;
 
       DU_ALLOC(item->periodicityAndOffset, sizeof(CSI_ResourcePeriodicityAndOffset_t));
       if (!item->periodicityAndOffset)
@@ -6281,34 +6048,7 @@ uint8_t BuildNzpCsiRsToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_ResourceToA
 
       item->qcl_InfoPeriodicCSI_RS = (long)0;
 
-      errReturn = asn_check_constraints(&asn_DEF_NZP_CSI_RS_Resource, item, errbuf, &errlen);
-
       ASN_SEQUENCE_ADD(&nzpCsiRsToAddModList->list, item);
-
-      DU_LOG("\nTEST");
-      DU_LOG("\nCHECK CONSTRAINT NZP CSI Resource ---> errReturn = %d", errReturn);
-      DU_LOG("\nCHECK CONSTRAINT NZP CSI Resource ---> Error Check ASN : %s, err length : %d\n", errbuf, (int)errlen);
-
-      xer_fprint(stdout, &asn_DEF_NZP_CSI_RS_Resource, item);
-      memset(encBuf, 0, ENC_BUF_MAX_LEN);
-      encBufSize = 0;
-      encRetVal = uper_encode(&asn_DEF_NZP_CSI_RS_Resource, 0, item, PrepFinalEncBuf, encBuf);
-      /* Encode results */
-      if (encRetVal.encoded == ENCODE_FAIL)
-      {
-         DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE (at %s)\n",
-                encRetVal.failed_type ? encRetVal.failed_type->name : "unknown");
-         DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE (at %s)\n",
-                encRetVal.failed_type ? encRetVal.failed_type->xml_tag : "unknown");
-         DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE (at %d)\n",
-                encRetVal.failed_type ? encRetVal.failed_type->tags_count : "unknown");
-         DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE (at %d)\n",
-                encRetVal.failed_type ? encRetVal.failed_type->elements_count : "unknown");
-      }
-      else
-      {
-         DU_LOG("\nDEBUG   -->  ENCODE UNIT TEST : Created APER encoded buffer for NZP CSI RESOURCE\n");
-      }
    }
 
    return ROK;
@@ -6332,14 +6072,10 @@ uint8_t BuildNzpCsiRsToAddModList2(struct CSI_MeasConfig__nzp_CSI_RS_ResourceToA
 uint8_t BuildCsiResourceConfigToAddModList(struct CSI_MeasConfig__csi_ResourceConfigToAddModList *csiResourceConfigToAddModList)
 {
 
-   char errbuf[255];
-   size_t errlen = sizeof(errbuf);
-   int errReturn;
    struct CSI_ResourceConfig *item1;
    NZP_CSI_RS_ResourceSetId_t *nzpCsiResourceSetId;
    struct CSI_ResourceConfig__csi_RS_ResourceSetList__nzp_CSI_RS_SSB__nzp_CSI_RS_ResourceSetList *resourceSetList;
-   asn_enc_rval_t encRetVal;
-
+   
    int elmntCnt = 1;
 
    for (int i = 0; i < elmntCnt; i++)
@@ -6352,7 +6088,6 @@ uint8_t BuildCsiResourceConfigToAddModList(struct CSI_MeasConfig__csi_ResourceCo
          return RFAILED;
       }
 
-      DU_LOG("\nDEBUG AKMAL --> Inside for looop");
 
       item1->csi_ResourceConfigId = (CSI_ResourceConfigId_t)1;
       item1->bwp_Id = ACTIVE_DL_BWP_ID;
@@ -6362,7 +6097,6 @@ uint8_t BuildCsiResourceConfigToAddModList(struct CSI_MeasConfig__csi_ResourceCo
       item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB = NULLP;
 
       DU_ALLOC(item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB, sizeof(*item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB));
-      DU_LOG("\nDEBUG AKMAL --> Success Allocating nzp_CSI_RS_SSB");
       if (item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB == NULLP)
       {
          DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiResourceConfigToAddModList");
@@ -6376,17 +6110,8 @@ uint8_t BuildCsiResourceConfigToAddModList(struct CSI_MeasConfig__csi_ResourceCo
          return RFAILED;
       }
 
-      // resourceSetList=NULLP;
-      // DU_ALLOC(resourceSetList,sizeof(struct CSI_ResourceConfig__csi_RS_ResourceSetList__nzp_CSI_RS_SSB__nzp_CSI_RS_ResourceSetList));
-      // DU_LOG("\nDEBUG AKMAL --> Success Allocating nzp_CSI_RS_ResourceSetList");
-      // if(resourceSetList==NULLP){
-      //    DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiResourceConfigToAddModList");
-      //    return RFAILED;
-      // }
-
       nzpCsiResourceSetId = NULLP;
       DU_ALLOC(nzpCsiResourceSetId, sizeof(NZP_CSI_RS_ResourceSetId_t));
-      DU_LOG("\nDEBUG AKMAL --> Success Allocating NZP CSI Resource Set Id");
       if (nzpCsiResourceSetId == NULLP)
       {
          DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiResourceConfigToAddModList");
@@ -6397,36 +6122,6 @@ uint8_t BuildCsiResourceConfigToAddModList(struct CSI_MeasConfig__csi_ResourceCo
       // ASN_SEQUENCE_ADD(&resourceSetList->list,nzpCsiResourceSetId);
       ASN_SEQUENCE_ADD(&item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB->nzp_CSI_RS_ResourceSetList->list, nzpCsiResourceSetId);
 
-      DU_LOG("\nDEBUG AKMAL --> Success Add ASN Sequence");
-
-      // item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB->nzp_CSI_RS_ResourceSetList=resourceSetList;
-      DU_LOG("\nDEBUG AKMAL --> Success add sequence to item1");
-   }
-
-   errReturn = asn_check_constraints(&asn_DEF_CSI_ResourceConfig, item1, errbuf, &errlen);
-   DU_LOG("\nTEST");
-   DU_LOG("\nCHECK CONSTRAINT CSI Resource Config ---> errReturn = %d", errReturn);
-   DU_LOG("\nCHECK CONSTRAINT CSI Resource Config ---> Error Check ASN : %s, err length : %d\n", errbuf, (int)errlen);
-
-   xer_fprint(stdout, &asn_DEF_CSI_ResourceConfig, item1);
-   memset(encBuf, 0, ENC_BUF_MAX_LEN);
-   encBufSize = 0;
-   encRetVal = uper_encode(&asn_DEF_CSI_ResourceConfig, 0, item1, PrepFinalEncBuf, encBuf);
-   /* Encode results */
-   if (encRetVal.encoded == ENCODE_FAIL)
-   {
-      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE CONFIG (at %s)\n",
-             encRetVal.failed_type ? encRetVal.failed_type->name : "unknown");
-      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE CONFIG (at %s)\n",
-             encRetVal.failed_type ? encRetVal.failed_type->xml_tag : "unknown");
-      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE CONFIG (at %d)\n",
-             encRetVal.failed_type ? encRetVal.failed_type->tags_count : "unknown");
-      DU_LOG("\nERROR  --> ENCODE UNIT TEST : Could not encode NZP CSI RESOURCE CONFIG (at %d)\n",
-             encRetVal.failed_type ? encRetVal.failed_type->elements_count : "unknown");
-   }
-   else
-   {
-      DU_LOG("\nDEBUG   -->  ENCODE UNIT TEST : Created APER encoded buffer for NZP CSI RESOURCE CONFIG\n");
    }
 
    ASN_SEQUENCE_ADD(&csiResourceConfigToAddModList->list, item1);
@@ -6505,7 +6200,7 @@ uint8_t BuildCsiMeasCfg(struct ServingCellConfig__csi_MeasConfig *csiMeasCfg)
    }
 
    // TODO
-   if (BuildNzpCsiRsToAddModList2(csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceToAddModList) != ROK)
+   if (BuildNzpCsiRsToAddModList(csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceToAddModList) != ROK)
    {
       DU_LOG("\nERROR --> F1AP : BuildNzpCsiRsToAddModList failed");
       return RFAILED;
@@ -7205,7 +6900,7 @@ uint8_t BuildSpCellConfigCommon(ServingCellConfigCommon_t *spCellConfigCommon)
        convertSsbPeriodicityValueToEnum(duCfgParam.sib1Params.srvCellCfgCommSib.ssbPrdServingCell);
 
    /* DMRS Type A position */
-   spCellConfigCommon->dmrs_TypeA_Position = convertDmrsTypeAPosValueToEnum(duCfgParam.macCellCfg.dmrsTypeAPos);
+   spCellConfigCommon->dmrs_TypeA_Position = convertDmrsTypeAPosValueToEnum(duCfgParam.macCellCfg.ssbCfg.dmrsTypeAPos);
 
    /* SSB subcarrier spacing */
    DU_ALLOC(spCellConfigCommon->ssbSubcarrierSpacing, sizeof(SubcarrierSpacing_t));
