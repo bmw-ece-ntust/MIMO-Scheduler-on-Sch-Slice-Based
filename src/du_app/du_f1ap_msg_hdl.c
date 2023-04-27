@@ -6146,11 +6146,6 @@ uint8_t BuildCsiResourceConfigToAddModList(struct CSI_MeasConfig__csi_ResourceCo
  * ****************************************************************/
 uint8_t BuildCsiMeasCfg(struct ServingCellConfig__csi_MeasConfig *csiMeasCfg)
 {
-
-   char errbuf[255];
-   size_t errlen = sizeof(errbuf);
-   int errReturn;
-
    csiMeasCfg->present = ServingCellConfig__csi_MeasConfig_PR_setup;
    csiMeasCfg->choice.setup = NULLP;
    DU_ALLOC(csiMeasCfg->choice.setup, sizeof(struct CSI_MeasConfig));
@@ -6205,12 +6200,6 @@ uint8_t BuildCsiMeasCfg(struct ServingCellConfig__csi_MeasConfig *csiMeasCfg)
       DU_LOG("\nERROR --> F1AP : BuildNzpCsiRsToAddModList failed");
       return RFAILED;
    }
-
-   errReturn = asn_check_constraints(&asn_DEF_CSI_MeasConfig, csiMeasCfg->choice.setup, errbuf, &errlen);
-
-   DU_LOG("\nTEST");
-   DU_LOG("\nCHECK CONSTRAINT in CSI MEAS ---> errReturn = %d", errReturn);
-   DU_LOG("\nCHECK CONSTRAINT in CSI MEAS ---> Error Check ASN : %s, err length : %d\n", errbuf, (int)errlen);
 
    return ROK;
 }
