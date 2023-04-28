@@ -801,9 +801,9 @@ uint16_t schAllocPucchResource(SchCellCb *cell, SlotTimingInfo pucchTime, uint16
  * ****************************************************************/
 uint16_t getNumberOfLayer(SchUeCb *ueCb)
 {
-   uint16_t RI = 1;
+   uint16_t RI = 2;
    
-   RI = ueCb->ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.csiRprtCfgToAddModList->reportResult.cri_ri_li_pmi_cqi_report.ri;
+   // RI = ueCb->ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.csiRprtCfgToAddModList->reportResult.cri_ri_li_pmi_cqi_report.ri;
    DU_LOG("\nDEBUG  -->  SCH : RI for PDSCH is %d", RI);
 
    return RI;

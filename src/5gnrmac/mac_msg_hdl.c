@@ -234,7 +234,7 @@ uint16_t computeRIBitLength(uint16_t cellId, uint16_t ueId)
    return bitlen;
 }
 
-uint16_t computePMIBitLength(uint16_t cellId, uint16_t ueId)
+uint16_t computePMIBitLength(uint16_t cellId, uint16_t ueId, uint8_t ri)
 {
    uint16_t bitlen = 0;
    MacUeCb *ueCb = &macCb.macCell[cellId]->ueCb[ueId-1];
@@ -449,8 +449,10 @@ uint16_t computePMIBitLength(uint16_t cellId, uint16_t ueId)
 
                   reportCntnt->pmi_x1_bitlen[i] = x1;
                   reportCntnt->pmi_x2_bitlen[i] = x2;
-                  bitlen = x2;
-
+                  if(rank == ri)
+                  {
+                     bitlen = x1 + x2;
+                  }
                }
                else
                {
@@ -468,13 +470,12 @@ uint16_t computePMIBitLength(uint16_t cellId, uint16_t ueId)
          }
       }
    }
-   
+
    return bitlen;
 }
 
 uint16_t computeCQIBitLength(uint16_t cellId, uint16_t ueId)
 {
-   uint16_t bitlen = 0;
    MacUeCb *ueCb = &macCb.macCell[cellId]->ueCb[ueId-1];
    CodebookConfig *codebookCfg = &ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->codebookConfig;
    CsiReportContent *reportCntnt = &ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->reportConfig;
@@ -502,14 +503,12 @@ uint16_t computeCQIBitLength(uint16_t cellId, uint16_t ueId)
                {
                   if(codebookCfg->codebookType.type1.subType.singlePanel.nrOfAntennaPorts.isMoreThanTwoPort)
                   {
-                     bitlen = 4;
                      if(codebookCfg->codebookType.type1.subType.singlePanel.nrOfAntennaPorts.moreThanTwoPort.antennaConfig > TWO_ONE)
                      {
                         // more than four antenna ports
                         if(i >= 4)
                         {
                            reportCntnt->cqi_bitlen[i] += 4; // CQI for second TB
-                           bitlen = 8;
                         }
                      }
                   }
@@ -522,8 +521,6 @@ uint16_t computeCQIBitLength(uint16_t cellId, uint16_t ueId)
          reportCntnt->cqi_bitlen[i] = 0;
       }
    }
-
-   return bitlen;
 }
 
 uint8_t pickandreverse_bits(uint8_t *payload, uint16_t bitlen, int start_bit) 
@@ -563,18 +560,35 @@ uint16_t evaluateRIReport(uint8_t *payload, uint8_t ri_bitlen, int cumul_bits, u
    return 0;
 }
 
-uint16_t evaluatePMIReport(uint8_t *payload, uint8_t pmi_bitlen, int cumul_bits, uint16_t cellId, uint16_t ueId)
+uint16_t evaluatePMIReport(uint8_t *payload, uint8_t ri, int cumul_bits, uint16_t cellId, uint16_t ueId)
 {
-    uint16_t PMI = 3;
+   MacUeCb *ueCb = &macCb.macCell[cellId]->ueCb[ueId-1];
+   CsiReportContent *reportCntnt = &ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->reportConfig;
+   uint8_t rank = ri - 1;
+   uint8_t x1_bitlen = reportCntnt->pmi_x1_bitlen[rank];
+   uint8_t x2_bitlen = reportCntnt->pmi_x2_bitlen[rank];
+   uint16_t x1_x2_bitlen = x1_bitlen + x2_bitlen;
+   uint16_t PMI_x1, PMI_x2;
+   uint8_t temp_pmi = pickandreverse_bits(payload, x1_x2_bitlen, cumul_bits);
 
-    return PMI;
+   PMI_x1 = temp_pmi&((1<<x1_bitlen)-1);
+   PMI_x2 = (temp_pmi>>x1_bitlen)&((1<<x2_bitlen)-1);
+
+    return PMI_x2; // so far we just report PMI x2 field
 }
 
-uint16_t evaluateCQIReport(uint8_t *payload, uint8_t cqi_bitlen, int cumul_bits, uint16_t cellId, uint16_t ueId)
+uint16_t evaluateCQIReport(uint8_t *payload, uint8_t ri, int cumul_bits, uint16_t cellId, uint16_t ueId)
 {
-    uint16_t CQI = 4;
+   MacUeCb *ueCb = &macCb.macCell[cellId]->ueCb[ueId-1];
+   CsiReportContent *reportCntnt = &ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->reportConfig;
+   uint8_t rank = ri - 1;
+   uint8_t cqi_bitlen = reportCntnt->cqi_bitlen[rank];
+   uint16_t CQI = pickandreverse_bits(payload, cqi_bitlen, cumul_bits);
 
-    return CQI;
+   // 0 is for CQI table1, 1 is for CQI table2, 2 is for CQI table3, currently we only support table1
+   ueCb->cellCb->ueRecfgTmpData[ueId-1]->spCellRecfg.servCellCfg.csiMeasCfg.csiRprtCfgToAddModList->reportResult.cri_ri_li_pmi_cqi_report.cqi_table = 0; 
+
+   return CQI; // currently we only support  1 TB
 }
 
 uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciInd *macUciInd, UciPucchF2F3F4 *uciPucchF2F3F4)
@@ -582,7 +596,7 @@ uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciInd *macUciInd, UciPucchF2F3F
    uint8_t ret = ROK;
    uint16_t cellIdx = 0, ueId = 0;
    MacUeCb *ueCb = NULLP;
-   uint16_t CRIBitLength = 0, RIBitLength = 0, PMIBitLength = 0, CQIBitLength = 0, cumul_bits = 0;
+   uint16_t CRIBitLength = 0, RIBitLength = 0, PMIBitLength = 0, cumul_bits = 0;
    uint8_t *payload = uciPucchF2F3F4->uciBits;
 
    GET_CELL_IDX(macUciInd->cellId, cellIdx);
@@ -591,24 +605,35 @@ uint8_t extractCSIReport(SchDlCqiInd *dlCqiInd, UciInd *macUciInd, UciPucchF2F3F
    dlCqiInd->crnti = uciPucchF2F3F4->crnti;
    GET_UE_ID(dlCqiInd->crnti, ueId);
    ueCb = &macCb.macCell[cellIdx]->ueCb[ueId-1];
-   
-   // CRIBitLength = computeCRIBitLength(cellIdx, ueId);
-   // RIBitLength = computeRIBitLength(cellIdx, ueId);
-   // PMIBitLength = computePMIBitLength(cellIdx, ueId);
-   // CQIBitLength = computeCQIBitLength(cellIdx, ueId);
 
    // assume there is no zero padding
    dlCqiInd->dlCqiRpt.reportType = 0b1111;
+   
+   CRIBitLength = computeCRIBitLength(cellIdx, ueId);
+   RIBitLength = computeRIBitLength(cellIdx, ueId);
+
+   dlCqiInd->dlCqiRpt.cri = 1;
    dlCqiInd->dlCqiRpt.cri = evaluateCRIReport(payload, CRIBitLength, cumul_bits, cellIdx, ueId);
    cumul_bits += CRIBitLength;
 
+   dlCqiInd->dlCqiRpt.ri = 2;
    dlCqiInd->dlCqiRpt.ri = evaluateRIReport(payload, RIBitLength, cumul_bits, cellIdx, ueId);
    cumul_bits += RIBitLength;
-   
-   dlCqiInd->dlCqiRpt.pmi = evaluatePMIReport(payload, PMIBitLength, cumul_bits, cellIdx, ueId);
+
+   // actual number of reported bits depends on the reported rank
+   // zero padding bits are added to have predetermined max bit length to decode
+   // but now we assume zero padding is 0
+   // TODO: consider zero padding
+
+   PMIBitLength = computePMIBitLength(cellIdx, ueId, dlCqiInd->dlCqiRpt.ri);
+   computeCQIBitLength(cellIdx, ueId);
+
+   dlCqiInd->dlCqiRpt.pmi = 1;
+   dlCqiInd->dlCqiRpt.pmi = evaluatePMIReport(payload, dlCqiInd->dlCqiRpt.ri, cumul_bits, cellIdx, ueId);
    cumul_bits += PMIBitLength;
-   
-   dlCqiInd->dlCqiRpt.cqi = evaluateCQIReport(payload, CQIBitLength, cumul_bits, cellIdx, ueId);
+
+   dlCqiInd->dlCqiRpt.cqi = 2;
+   dlCqiInd->dlCqiRpt.cqi = evaluateCQIReport(payload, dlCqiInd->dlCqiRpt.ri, cumul_bits, cellIdx, ueId);
 
    return ret;
 }

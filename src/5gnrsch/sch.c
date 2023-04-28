@@ -2358,7 +2358,7 @@ uint8_t SchProcDlCqiInd(Pst *pst, SchDlCqiInd *dlCqiInd)
    SchCellCb *cell = NULLP;
    Inst  inst = pst->dstInst-SCH_INST_START;   
 
-   DU_LOG("\nDEBUG  -->  SCH : JOJO was here!");
+   DU_LOG("\nDEBUG  -->  SCH : processing CSI report from MAC.");
 
    if(!dlCqiInd)
    {
