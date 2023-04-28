@@ -679,6 +679,9 @@ uint8_t SchSendCfgCfm(Pst *pst, RgMngmt *cfm);
 SchUeCb* schGetUeCb(SchCellCb *cellCb, uint16_t crnti);
 uint8_t addUeToBeScheduled(SchCellCb *cell, uint8_t ueId);
 
+/* New function for MCS*/
+uint8_t getMCSFromCQI(int mcs_table, int cqi_table, int cqi_idx);
+
 /* Incoming message handler function declarations */
 uint8_t SchProcCellCfgReq(Pst *pst, SchCellCfg *schCellCfg);
 uint8_t SchProcSlotInd(Pst *pst, SlotTimingInfo *slotInd);
