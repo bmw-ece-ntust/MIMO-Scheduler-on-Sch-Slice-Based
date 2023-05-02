@@ -1147,7 +1147,7 @@ uint8_t fillUciPduInfo(fapi_uci_pdu_info_t *uciPdu, fapi_ul_pucch_pdu_t pucchPdu
         DU_LOG("\nERROR  -->  PHY_STUB: Invalid PUCCH Format Type %d", pucchPdu.formatType);
     }
 
-   uciPdu->pduType = UCI_IND_PUCCH_F2F3F4;
+   // uciPdu->pduType = UCI_IND_PUCCH_F2F3F4;
    switch(uciPdu->pduType)
    {
       case UCI_IND_PUSCH:
