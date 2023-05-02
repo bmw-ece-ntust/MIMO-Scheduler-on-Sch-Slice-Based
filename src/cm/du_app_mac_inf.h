@@ -111,6 +111,7 @@
 #define NZP_CSI_NUM_OF_PORTS 1
 
 /* CSI-RS Configuration */
+/* CSI-RS density --> TS38.331 v17.2.0 Page 573*/
 typedef enum
 {
    DOT5_DENSITY,
@@ -118,6 +119,7 @@ typedef enum
    THREE_DENSITY
 }csiRsDensity;
 
+/* CSI-RS cdm Type --> TS38.331 v17.2.0 Page 573*/
 typedef enum
 {
    NO_CDM,
@@ -126,6 +128,7 @@ typedef enum
    CDM8_FD2_TD4
 }csiRsCdmType;
 
+/* CSI nrOfPorts --> TS38.331 v17.2.0 Page 572*/
 typedef enum
 {
    P1,
@@ -138,6 +141,7 @@ typedef enum
    P32
 }csiRsNrAntPortsType;
 
+/* CSI Freq Domain Allocation --> TS38.331 v17.2.0 Page 572*/
 typedef enum
 {
    ROW1,
@@ -146,6 +150,7 @@ typedef enum
    OTHER
 }freqDomainAlloc;
 
+/* CSI Resource Power Control Offset SS --> TS38.331 v17.2.0 Page 580*/
 typedef enum
 {
    DBMIN3,
@@ -154,6 +159,7 @@ typedef enum
    DB6
 }powerControlOffsetSSType;
 
+/* CSI Resource Periodicity and Offset --> TS38.331 v17.2.0 Page 569*/
 typedef enum
 {
    SLOTS4,
@@ -171,6 +177,7 @@ typedef enum
    SLOTS640
 }ResourcePeriodicityAndOffsetChoice;
 
+/* CSI Report Periodicity and Offset --> TS38.331 v17.2.0 Page 562*/
 typedef enum{
    SLOT4,
    SLOT5,
@@ -184,6 +191,7 @@ typedef enum{
    SLOT320
 }ReportPeriodicityAndOffsetChoice;
 
+/* Report Resource Config Choice --> TS38.331 v17.2.0 Page 567*/
 typedef enum
 {
    APERIODIC,
@@ -191,6 +199,7 @@ typedef enum
    PERIODIC
 }CsiResourceType;
 
+/* ReportQuantity Choice --> TS38.331 v17.2.0 Page 560*/
 typedef enum{
    NONE_REPORT,
    CRI_RI_PMI_CQI,
@@ -202,6 +211,7 @@ typedef enum{
    RI_CRI_LI_PMI_CQI
 }ReportQuantity;
 
+/* moreThanTwo Choice --> TS38.331 v17.2.0 Page 530*/
 typedef enum{
    TWO_ONE,
    TWO_TWO,
@@ -1441,12 +1451,14 @@ typedef struct beamFailRecoveryCfg
 }BeamFailRecoveryCfg;
 
 /* CSI-RS Configuration */
+/* CSI Frequency Occupation --> TS38.331 v17.2.0 Page 555*/
 typedef struct freqOccupation
 {
    uint8_t  startingRB;
    uint8_t  numberOfRBs;
 }freqOccupation;
 
+/* CSI Resource Mapping --> TS38.331 v17.2.0 Page 572*/
 typedef struct csiRsResourceMapping
 {
    freqDomainAlloc                  freqDomainAllocation;
@@ -1460,12 +1472,14 @@ typedef struct csiRsResourceMapping
    freqOccupation                   freqBand;
 }CsiRsResourceMapping;
 
+/* CSI Periodicity and Offset --> TS38.331 v17.2.0 Page 569*/
 typedef struct csiResourcePeriodicityAndOffset
 {
    ResourcePeriodicityAndOffsetChoice choice;
    uint8_t                            offset;
 }CsiResourcePeriodicityAndOffset;
 
+/* NZP Csi Rs Resource --> TS38.331 v17.2.0 Page 680*/
 typedef struct nzpCsiRsResource
 {
    uint8_t                          nzpCsiRsResourceId;
@@ -1476,12 +1490,14 @@ typedef struct nzpCsiRsResource
    CsiResourcePeriodicityAndOffset  periodicityAndOffset;
 }NzpCsiRsResource;
 
+/* CSI Measurement Config --> TS38.331 v17.2.0 Page 558*/
 typedef struct nzpCsiRsResourceSet
 {
    uint8_t  nzpCsiRsRsrcSetId;
    uint8_t  nzpCsiRsRsrcIdList[MAX_NUM_NZP_CSI_RS_RESOURCE];
 }NzpCsiRsResourceSet;
 
+/* CSI Resource Config --> TS38.331 v17.2.0 Page 567*/
 typedef struct nzpCsiRsSsb
 {
    uint8_t  nzpCsiRsRsrcSetIdList[MAX_NUM_NZP_CSI_RS_RESOURCE_SET];
@@ -1489,6 +1505,7 @@ typedef struct nzpCsiRsSsb
    /*CSI SSB RESOURCE SET LIST*/
 }NzpCsiRsSsb;
 
+/* CSI Resource Config --> TS38.331 v17.2.0 Page 567*/
 typedef struct csiResourceSetList
 {
    NzpCsiRsSsb    nzpCsiRsSsbResourceSetList;
@@ -1496,6 +1513,7 @@ typedef struct csiResourceSetList
    /*CSI-IM ResourceSetList*/
 }CsiResourceSetList;
 
+/* CSI Resource Config --> TS38.331 v17.2.0 Page 567*/
 typedef struct csiResourceConfig
 {
    uint8_t              csiResourceConfigId;
@@ -1505,27 +1523,31 @@ typedef struct csiResourceConfig
 }CsiResourceConfig;
 
 
-/* CSI Report Config*/
+/* CSI Report Config --> TS38.331 v17.2.0 Page 559*/
 typedef struct pucchCsiResource
 {
    uint8_t  bwpId;
    uint8_t  rsrcId;
 }PucchCsiResource;
 
+/* CSI Report Config --> TS38.331 v17.2.0 Page 559*/
 typedef struct periodicCsiReportConfig
 {
    ReportPeriodicityAndOffsetChoice    reportSlotConfig;
    PucchCsiResource                    pucchCsiRsrcList[MAX_NUM_PUCCH_RESRC];
 }PeriodicCsiReportConfig;
 
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
 typedef struct twoPorts{
    
 }TwoPorts;
 
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
 typedef struct moreThanTwoPorts{
    MoreThanTwoOptions      antennaConfig;
 }MoreThanTwoPorts;
 
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
 typedef struct singlePanel{
    union{
       bool              isTwoPort;
@@ -1535,6 +1557,8 @@ typedef struct singlePanel{
    }nrOfAntennaPorts;
    uint8_t     ri_restriction_bit;
 }SinglePanel;
+
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
 typedef struct codebookType1{
    union{
       //Currently only support single panel
@@ -1544,6 +1568,7 @@ typedef struct codebookType1{
    uint8_t        codebook_mode;
 }CodebookType1;
 
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
 typedef struct codebookConfig{
    union{
       // Currently only support codebook type 1
@@ -1577,7 +1602,7 @@ typedef struct csiReportResult{
    CRI_RI_LI_PMI_CQI cri_ri_li_pmi_cqi_report;
 }CsiReportResult;
 
-
+/* CSI Report Config --> TS38.331 v17.2.0 Page 559*/
 typedef struct csiReportConfig
 {
    uint8_t                 reportConfigId;
@@ -1599,7 +1624,7 @@ typedef struct csiReportConfig
    uint8_t                 N2;
 }CsiReportConfig;
 
-/* CSI Measurement Config */
+/* CSI Measurement Config --> TS38.331 v17.2.0 Page 558*/
 typedef struct csiMeasConfig
 {
    NzpCsiRsResource     nzpCsiRsRsrcToAddModList[MAX_NUM_NZP_CSI_RS_RESOURCE];
