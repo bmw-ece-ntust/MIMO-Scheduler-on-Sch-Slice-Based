@@ -753,7 +753,53 @@ void fillDefaultInitUlBwp(InitialUlBwp *initUlBwp)
    uint8_t idx;
    if(initUlBwp)
    {
-      initUlBwp->pucchPresent = FALSE;
+      /*Filling PUCCH Config*/
+      initUlBwp->pucchPresent = TRUE;
+      if(initUlBwp->pucchPresent){
+         /*PUCCH ResourceSetCfg*/
+         initUlBwp->pucchCfg.resrcSet=NULLP;
+         DU_ALLOC(initUlBwp->pucchCfg.resrcSet,sizeof(PucchResrcSetCfg));
+         initUlBwp->pucchCfg.resrcSet[0].resrcSetToAddModListCount=2;
+         /*Resource Set 1*/
+         initUlBwp->pucchCfg.resrcSet[0].resrcSetToAddModList[0].resrcSetId = 1;
+         initUlBwp->pucchCfg.resrcSet[0].resrcSetToAddModList[0].resrcListCount = 1;
+         initUlBwp->pucchCfg.resrcSet[0].resrcSetToAddModList[0].resrcList[0] = 1;
+         /*Resource Set 2*/
+         initUlBwp->pucchCfg.resrcSet[0].resrcSetToAddModList[1].resrcSetId = 2;
+         initUlBwp->pucchCfg.resrcSet[0].resrcSetToAddModList[1].resrcListCount = 1;
+         initUlBwp->pucchCfg.resrcSet[0].resrcSetToAddModList[1].resrcList[0] = 2;
+
+         /*PUCCH Resource*/
+         initUlBwp->pucchCfg.resrc=NULLP;
+         DU_ALLOC(initUlBwp->pucchCfg.resrc,sizeof(PucchResrcCfg));
+         initUlBwp->pucchCfg.resrc->resrcToAddModListCount = 2;
+         /*Resource 1*/
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].resrcId=2;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].startPrb=2;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].pucchFormat=PUCCH_FORMAT_1;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].PucchFormat.format1=NULLP;
+         DU_ALLOC(initUlBwp->pucchCfg.resrc->resrcToAddModList[1].PucchFormat.format1,sizeof(PucchFormat1));
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].PucchFormat.format1->initialCyclicShift=0;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].PucchFormat.format1->numSymbols=4;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].PucchFormat.format1->startSymbolIdx=0;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].PucchFormat.format1->timeDomOCC=0;
+         /*Resource 2*/
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[0].resrcId=1;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[0].startPrb=0;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[0].pucchFormat=PUCCH_FORMAT_2;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[0].PucchFormat.format2=NULLP;
+         DU_ALLOC(initUlBwp->pucchCfg.resrc->resrcToAddModList[0].PucchFormat.format2,sizeof(PucchFormat2_3));
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[0].PucchFormat.format2->numPrbs=1;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[0].PucchFormat.format2->numSymbols=1;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[0].PucchFormat.format2->startSymbolIdx=0;
+
+         // /*Format 1*/
+         // DU_ALLOC(initUlBwp->pucchCfg.format1,sizeof(PucchFormatCfg));
+         // initUlBwp->pucchCfg.format1->numSlots = 4;
+         // /*Format 2*/
+         // DU_ALLOC(initUlBwp->pucchCfg.format2,sizeof(PucchFormatCfg));
+         // initUlBwp->pucchCfg.format2->numSlots = 4;
+      }
 
       /*Filling PUSCH Config */
       initUlBwp->puschPresent = TRUE;
@@ -1275,6 +1321,7 @@ uint8_t updateDuMacUeCfg(uint16_t cellId, uint8_t gnbDuUef1apId, uint16_t crnti,
       
       if(ueCfgDb->cellGrpCfg)
       {
+         DU_LOG("\nDEBUG AKMAL --> Calling procUeRecfgCellInfo 1");
          ret = procUeRecfgCellInfo(duMacUeCfg, duMacDb, ueCfgDb->cellGrpCfg);
          if(ret == ROK)
          {
@@ -1806,6 +1853,7 @@ uint8_t duCreateUeCb(UeCcchCtxt *ueCcchCtxt, uint32_t gnbCuUeF1apId)
 
          /* Filling Mac Ue Config */ 
          memset(&duCb.actvCellLst[cellIdx]->ueCb[ueIdx].duMacUeCfg, 0, sizeof(DuMacUeCfg));
+         DU_LOG("\nAKMAL DEBUG --> Create duMacUeCfg");
          ret = duBuildAndSendUeCreateReqToMac(ueCcchCtxt->cellId, ueCcchCtxt->gnbDuUeF1apId, ueCcchCtxt->crnti, NULL, 
                &duCb.actvCellLst[cellIdx]->ueCb[ueIdx].duMacUeCfg);
          if(ret == RFAILED)
@@ -2200,6 +2248,7 @@ uint8_t duUpdateMacCfg(DuMacUeCfg *macUeCfg, F1UeContextSetupDb *f1UeDb)
    oldMacUeCfg = &duCb.actvCellLst[cellIdx]->ueCb[macUeCfg->ueId-1].duMacUeCfg;
 
    /*Filling Cell Group Cfg*/
+   DU_LOG("\nDEBUG AKMAL --> Calling procUeRecfgCellInfo 2");
    ret =  procUeRecfgCellInfo(macUeCfg, &f1UeDb->duUeCfg.copyOfmacUeCfg, f1UeDb->duUeCfg.cellGrpCfg);
 #ifdef NR_DRX
    memcpy(&macUeCfg->macCellGrpCfg.drxCfg, &f1UeDb->duUeCfg.copyOfmacUeCfg.macCellGrpCfg.drxCfg, sizeof(DrxCfg));
