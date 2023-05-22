@@ -272,7 +272,7 @@
 
 /* cm_inet_h_001.main_25 : ifndef flag added as this can be defined by the customer now*/
 #ifndef CM_INET_MAX_UDPRAW_MSGSIZE
-#define CM_INET_MAX_UDPRAW_MSGSIZE 2048
+#define CM_INET_MAX_UDPRAW_MSGSIZE 4096
 #endif
 
 #define CM_INET_IPV6_ANCIL_DATA  512
