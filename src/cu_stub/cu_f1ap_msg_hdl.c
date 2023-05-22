@@ -9803,6 +9803,11 @@ uint8_t procUeContextSetupResponse(uint32_t duId, F1AP_PDU_t *f1apMsg)
          DU_LOG("\nINFO  -->  F1AP: Failed to build and send DL RRC MSG for RRC reconfiguration");
          return RFAILED;
       }
+      if(rrcMsgType == RRC_RECONFIG_COMPLETE)
+      {
+         DU_LOG("\nINFO  -->  F1AP: Sending UE Context Modification Request");
+         BuildAndSendUeContextModificationReq(duId, ueCb, RRC_RECONFIG_COMPLETE_IND);
+      }
    }
 
    return ROK;
