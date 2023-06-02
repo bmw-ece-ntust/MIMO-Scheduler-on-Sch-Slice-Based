@@ -774,7 +774,7 @@ void fillDefaultInitUlBwp(InitialUlBwp *initUlBwp)
          DU_ALLOC(initUlBwp->pucchCfg.resrc,sizeof(PucchResrcCfg));
          initUlBwp->pucchCfg.resrc->resrcToAddModListCount = 2;
          /*Resource 1*/
-         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].resrcId=2;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[1].resrcId=1;
          initUlBwp->pucchCfg.resrc->resrcToAddModList[1].startPrb=2;
          initUlBwp->pucchCfg.resrc->resrcToAddModList[1].pucchFormat=PUCCH_FORMAT_1;
          initUlBwp->pucchCfg.resrc->resrcToAddModList[1].PucchFormat.format1=NULLP;
@@ -784,7 +784,7 @@ void fillDefaultInitUlBwp(InitialUlBwp *initUlBwp)
          initUlBwp->pucchCfg.resrc->resrcToAddModList[1].PucchFormat.format1->startSymbolIdx=0;
          initUlBwp->pucchCfg.resrc->resrcToAddModList[1].PucchFormat.format1->timeDomOCC=0;
          /*Resource 2*/
-         initUlBwp->pucchCfg.resrc->resrcToAddModList[0].resrcId=1;
+         initUlBwp->pucchCfg.resrc->resrcToAddModList[0].resrcId=2;
          initUlBwp->pucchCfg.resrc->resrcToAddModList[0].startPrb=0;
          initUlBwp->pucchCfg.resrc->resrcToAddModList[0].pucchFormat=PUCCH_FORMAT_2;
          initUlBwp->pucchCfg.resrc->resrcToAddModList[0].PucchFormat.format2=NULLP;
