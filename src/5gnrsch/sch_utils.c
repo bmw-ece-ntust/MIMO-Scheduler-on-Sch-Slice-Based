@@ -1171,29 +1171,36 @@ void schInitUlSlot(SchUlSlotInfo *schUlSlotInfo)
    FreePrbBlock *freeBlock;
 
    /* Delete the old blocks */
-   if(schUlSlotInfo->prbAlloc.freePrbBlockList.count)
+   for(int symbolIndex=0;symbolIndex<MAX_SYMB_PER_SLOT;symbolIndex++)
    {
-      node = schUlSlotInfo->prbAlloc.freePrbBlockList.first;
-   }
-   while(node)
-   {
-      next = node->next;
-      freeBlock = (FreePrbBlock *)node->node;
-      if(deleteNodeFromLList(&schUlSlotInfo->prbAlloc.freePrbBlockList, node) == ROK)
-         SCH_FREE(freeBlock, sizeof(FreePrbBlock));
-      node = next;
+      if(schUlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex].count)
+      {
+         node = schUlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex].first;
+      }
+      while(node)
+      {
+         next = node->next;
+         freeBlock = (FreePrbBlock *)node->node;
+         if(deleteNodeFromLList(&schUlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex], node) == ROK)
+            SCH_FREE(freeBlock, sizeof(FreePrbBlock));
+         node = next;
+      }
    }
 
    /* Initilize UL Slot info and mark all PRBs as free */
    memset(schUlSlotInfo, 0, sizeof(SchUlSlotInfo));
-   cmLListInit(&schUlSlotInfo->prbAlloc.freePrbBlockList);
-   SCH_ALLOC(freeBlock, sizeof(FreePrbBlock));
-   if(freeBlock)
+   
+   for(int symbolIndex=0;symbolIndex<MAX_SYMB_PER_SLOT;symbolIndex++)
    {
-      freeBlock->numFreePrb = MAX_NUM_RB;
-      freeBlock->startPrb = 0;
-      freeBlock->endPrb = MAX_NUM_RB-1;
-      addNodeToLList(&schUlSlotInfo->prbAlloc.freePrbBlockList, freeBlock, NULL);
+      cmLListInit(&schUlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex]);
+      SCH_ALLOC(freeBlock, sizeof(FreePrbBlock));
+      if(freeBlock)
+      {
+         freeBlock->numFreePrb = MAX_NUM_RB;
+         freeBlock->startPrb = 0;
+         freeBlock->endPrb = MAX_NUM_RB-1;
+         addNodeToLList(&schUlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex], freeBlock, NULL);
+      }
    }
 
    schUlSlotInfo->puschCurrentPrb = PUSCH_START_RB;
@@ -1218,27 +1225,34 @@ void schInitDlSlot(SchDlSlotInfo *schDlSlotInfo)
    FreePrbBlock *freeBlock;
 
    /* Delete the old blocks */
-   if(schDlSlotInfo->prbAlloc.freePrbBlockList.count)
-      node = schDlSlotInfo->prbAlloc.freePrbBlockList.first;
-   while(node)
+   for(int symbolIndex=0;symbolIndex<MAX_SYMB_PER_SLOT;symbolIndex++)
    {
-      next = node->next;
-      freeBlock = (FreePrbBlock *)node->node;
-      if(deleteNodeFromLList(&schDlSlotInfo->prbAlloc.freePrbBlockList, node) == ROK)
-         SCH_FREE(freeBlock, sizeof(FreePrbBlock));
-      node = next;
+      if(schDlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex].count)
+         node = schDlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex].first;
+      while(node)
+      {
+         next = node->next;
+         freeBlock = (FreePrbBlock *)node->node;
+         if(deleteNodeFromLList(&schDlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex], node) == ROK)
+            SCH_FREE(freeBlock, sizeof(FreePrbBlock));
+         node = next;
+      }
    }
 
    /* Initilize DL Slot info and mark all PRBs as free */
    memset(schDlSlotInfo, 0, sizeof(SchDlSlotInfo));
-   cmLListInit(&schDlSlotInfo->prbAlloc.freePrbBlockList);
-   SCH_ALLOC(freeBlock, sizeof(FreePrbBlock));
-   if(freeBlock)
+   
+   for(int symbolIndex=0;symbolIndex<MAX_SYMB_PER_SLOT;symbolIndex++)
    {
-      freeBlock->numFreePrb = MAX_NUM_RB;
-      freeBlock->startPrb = 0;
-      freeBlock->endPrb = MAX_NUM_RB-1;
-      addNodeToLList(&schDlSlotInfo->prbAlloc.freePrbBlockList, freeBlock, NULL);
+      cmLListInit(&schDlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex]);
+      SCH_ALLOC(freeBlock, sizeof(FreePrbBlock));
+      if(freeBlock)
+      {
+         freeBlock->numFreePrb = MAX_NUM_RB;
+         freeBlock->startPrb = 0;
+         freeBlock->endPrb = MAX_NUM_RB-1;
+         addNodeToLList(&schDlSlotInfo->prbAlloc.freePrbBlockList[symbolIndex], freeBlock, NULL);
+      }
    }
 }
 
