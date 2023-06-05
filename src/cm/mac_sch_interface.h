@@ -132,6 +132,132 @@
    }                                                       \
 }
 
+/* Macro For CSI-Meas */
+#define MAX_NUM_NZP_CSI_RS_RESOURCE 1
+#define MAX_NUM_NZP_CSI_RS_RESOURCE_SET 1
+#define MAX_NUM_CSI_RESOURCE_CONFIG 1
+#define MAX_NUM_CSI_REPORT_CONFIG 1
+
+/* CSI-RS Configuration */
+/* CSI-RS density --> TS38.331 v17.2.0 Page 573*/
+typedef enum
+{
+   SCH_DOT5_DENSITY,
+   SCH_ONE_DENSITY,
+   SCH_THREE_DENSITY
+}SchCsiRsDensity;
+
+/* CSI-RS cdm Type --> TS38.331 v17.2.0 Page 573*/
+typedef enum
+{
+   SCH_NO_CDM,
+   SCH_FD_CDM2,
+   SCH_CDM4_FD2_TD2,
+   SCH_CDM8_FD2_TD4
+}SchCsiRsCdmType;
+
+/* CSI nrOfPorts --> TS38.331 v17.2.0 Page 572*/
+typedef enum
+{
+   SCH_P1,
+   SCH_P2,
+   SCH_P4,
+   SCH_P8,
+   SCH_P12,
+   SCH_P16,
+   SCH_P24,
+   SCH_P32
+}SchCsiRsNrAntPortsType;
+
+/* CSI Freq Domain Allocation --> TS38.331 v17.2.0 Page 572*/
+typedef enum
+{
+   SCH_ROW1,
+   SCH_ROW2,
+   SCH_ROW4,
+   SCH_OTHER
+}SchFreqDomainAlloc;
+
+/* CSI Resource Power Control Offset SS --> TS38.331 v17.2.0 Page 580*/
+typedef enum
+{
+   SCH_DBMIN3,
+   SCH_DB0,
+   SCH_DB3,
+   SCH_DB6
+}SchPowerControlOffsetSSType;
+
+/* CSI Resource Periodicity and Offset --> TS38.331 v17.2.0 Page 569*/
+typedef enum
+{
+   SCH_SLOTS4,
+   SCH_SLOTS5,
+   SCH_SLOTS8,
+   SCH_SLOTS10,
+   SCH_SLOTS16,
+   SCH_SLOTS20,
+   SCH_SLOTS32,
+   SCH_SLOTS40,
+   SCH_SLOTS64,
+   SCH_SLOTS80,
+   SCH_SLOTS160,
+   SCH_SLOTS320,
+   SCH_SLOTS640
+}SchResourcePeriodicityAndOffsetChoice;
+
+/* CSI Report Periodicity and Offset --> TS38.331 v17.2.0 Page 562*/
+typedef enum{
+   SCH_SLOT4,
+   SCH_SLOT5,
+   SCH_SLOT8,
+   SCH_SLOT10,
+   SCH_SLOT16,
+   SCH_SLOT20,
+   SCH_SLOT40,
+   SCH_SLOT80,
+   SCH_SLOT160,
+   SCH_SLOT320
+}SchReportPeriodicityAndOffsetChoice;
+
+/* Report Resource Config Choice --> TS38.331 v17.2.0 Page 567*/
+typedef enum
+{
+   SCH_APERIODIC,
+   SCH_SEMIPERSISTENT,
+   SCH_PERIODIC
+}SchCsiResourceType;
+
+/* ReportQuantity Choice --> TS38.331 v17.2.0 Page 560*/
+typedef enum{
+   SCH_NONE_REPORT,
+   SCH_CRI_RI_PMI_CQI,
+   SCH_CRI_RI_I1,
+   SCH_CRI_RI_I1_CQI,
+   SCH_CRI_RI_CQI,
+   SCH_CRI_RSRP,
+   SCH_SSB_INDEX_RSRP,
+   SCH_RI_CRI_LI_PMI_CQI
+}SchReportQuantity;
+
+/* moreThanTwo Choice --> TS38.331 v17.2.0 Page 530*/
+typedef enum{
+   SCH_TWO_ONE,
+   SCH_TWO_TWO,
+   SCH_FOUR_ONE,
+   SCH_THREE_TWO,
+   SCH_SIX_ONE,
+   SCH_FOUR_TWO,
+   SCH_EIGHT_ONE,
+   SCH_FOUR_THREE,
+   SCH_SIX_TWO,
+   SCH_TWELVE_ONE,
+   SCH_FOUR_GFOUR,
+   SCH_EIGHT_TWO,
+   SCH_SIXTEEN_ONE
+}SchMoreThanTwoOptions;
+
+/* End of CSI-RS Configuration */
+
 typedef enum
 {
    PRB_RSRC,
@@ -1815,6 +1941,189 @@ typedef struct schBwpRelInfo
    uint8_t bwpId;
 }SchBwpRelInfo;
 
+/* CSI-RS Configuration */
+/* CSI Frequency Occupation --> TS38.331 v17.2.0 Page 555*/
+typedef struct schFreqOccupation
+{
+   uint8_t  startingRB;
+   uint8_t  numberOfRBs;
+}SchFreqOccupation;
+
+/* CSI Resource Mapping --> TS38.331 v17.2.0 Page 572*/
+typedef struct schCsiRsResourceMapping
+{
+   SchFreqDomainAlloc                  freqDomainAllocation;
+   uint8_t                          bitString;
+   SchCsiRsNrAntPortsType              nrOfPorts;
+   uint8_t                          firstOFDMSymbolInTimeDomain;
+   uint8_t                          firstOFDMSymbolInTimeDomain2;
+   SchCsiRsCdmType                     cdmType;
+   SchCsiRsDensity                     density;
+   uint8_t                          evenOddDensity;
+   SchFreqOccupation                   freqBand;
+}SchCsiRsResourceMapping;
+
+/* CSI Periodicity and Offset --> TS38.331 v17.2.0 Page 569*/
+typedef struct schCsiResourcePeriodicityAndOffset
+{
+   SchResourcePeriodicityAndOffsetChoice choice;
+   uint8_t                            offset;
+}SchCsiResourcePeriodicityAndOffset;
+
+/* NZP Csi Rs Resource --> TS38.331 v17.2.0 Page 680*/
+typedef struct schNzpCsiRsResource
+{
+   uint8_t                          nzpCsiRsResourceId;
+   SchCsiRsResourceMapping             resourceMapping;
+   int                              powerControlOffset;
+   SchPowerControlOffsetSSType         powerControlOffsetSS;
+   uint8_t                          scramblingId;
+   SchCsiResourcePeriodicityAndOffset  periodicityAndOffset;
+}SchNzpCsiRsResource;
+
+/* CSI Measurement Config --> TS38.331 v17.2.0 Page 558*/
+typedef struct schNzpCsiRsResourceSet
+{
+   uint8_t  nzpCsiRsRsrcSetId;
+   uint8_t  nzpCsiRsRsrcIdList[MAX_NUM_NZP_CSI_RS_RESOURCE];
+}SchNzpCsiRsResourceSet;
+
+/* CSI Resource Config --> TS38.331 v17.2.0 Page 567*/
+typedef struct schNzpCsiRsSsb
+{
+   uint8_t  nzpCsiRsRsrcSetIdList[MAX_NUM_NZP_CSI_RS_RESOURCE_SET];
+   /*FUTURE WORKS*/
+   /*CSI SSB RESOURCE SET LIST*/
+}SchNzpCsiRsSsb;
+
+/* CSI Resource Config --> TS38.331 v17.2.0 Page 567*/
+typedef struct schCsiResourceSetList
+{
+   SchNzpCsiRsSsb    nzpCsiRsSsbResourceSetList;
+   /*FUTURE WORKS*/
+   /*CSI-IM ResourceSetList*/
+}SchCsiResourceSetList;
+
+/* CSI Resource Config --> TS38.331 v17.2.0 Page 567*/
+typedef struct schCsiResourceConfig
+{
+   uint8_t              csiResourceConfigId;
+   SchCsiResourceSetList   resourceSetList;
+   SchCsiResourceType      resourceType;
+   uint8_t              bwpId;
+}SchCsiResourceConfig;
+
+
+/* CSI Report Config --> TS38.331 v17.2.0 Page 559*/
+typedef struct schPucchCsiResource
+{
+   uint8_t  bwpId;
+   uint8_t  rsrcId;
+}SchPucchCsiResource;
+
+/* CSI Report Config --> TS38.331 v17.2.0 Page 559*/
+typedef struct schPeriodicCsiReportConfig
+{
+   SchReportPeriodicityAndOffsetChoice    reportSlotConfig;
+   SchPucchCsiResource                    pucchCsiRsrcList[MAX_NUM_PUCCH_RESRC];
+}SchPeriodicCsiReportConfig;
+
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
+typedef struct schTwoPorts{
+   
+}SchTwoPorts;
+
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
+typedef struct schMoreThanTwoPorts{
+   SchMoreThanTwoOptions      antennaConfig;
+}SchMoreThanTwoPorts;
+
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
+typedef struct schSinglePanel{
+   union{
+      bool                 isTwoPort;
+      SchTwoPorts          twoPort;
+      bool                 isMoreThanTwoPort;
+      SchMoreThanTwoPorts  moreThanTwoPort;
+   }nrOfAntennaPorts;
+   uint8_t     ri_restriction_bit;
+}SchSinglePanel;
+
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
+typedef struct SchCodebookType1{
+   union{
+      //Currently only support single panel
+      bool           isSinglePanel;
+      SchSinglePanel singlePanel;
+      uint8_t        codebook_mode;
+   }subType;
+}SchCodebookType1;
+
+/* Codebook Config --> TS38.331 v17.2.0 Page 530 */
+typedef struct schCodebookConfig{
+   union{
+      // Currently only support codebook type 1
+      bool              isType1;
+      SchCodebookType1  type1;
+   }codebookType;
+}SchCodebookConfig;
+
+typedef struct schCsiReportContent{
+   uint8_t     cri_bitlen;
+   uint8_t     ri_bitlen;
+   uint8_t     pmi_x1_bitlen[8];
+   uint8_t     pmi_x2_bitlen[8];
+   uint8_t     cqi_bitlen[8];
+   uint8_t     ri_restriction_bit;  
+}SchCsiReportContent;
+
+typedef struct sch_cri_ri_li_pmi_cqi{
+   uint16_t cri;
+   uint16_t ri;
+   uint16_t li;
+   uint16_t pmi_x1;
+   uint16_t pmi_x2;
+   uint16_t wb_cqi_1tb;
+   uint16_t wb_cqi_2tb;
+   uint16_t cqi_table;
+   uint16_t csi_report_id;
+}SCH_CRI_RI_LI_PMI_CQI;
+
+typedef struct schCsiReportResult{
+   SCH_CRI_RI_LI_PMI_CQI cri_ri_li_pmi_cqi_report;
+}SchCsiReportResult;
+
+/* CSI Report Config --> TS38.331 v17.2.0 Page 559*/
+typedef struct schCsiReportConfig
+{
+   uint8_t                       reportConfigId;
+   SchCsiResourceType            reportConfigType;
+   // Currently, only periodic reporting is supported
+   union{
+      SchPeriodicCsiReportConfig periodicReportInfo;
+      /*TODO : Add other reporting type*/
+   }reportConfig;
+
+   SchReportQuantity            reportQuantity;
+   SchCodebookConfig            codebookConfig;
+   SchCsiReportContent          reportContent;
+
+   //Storing Report Result and config
+   SchCsiReportResult           reportResult;
+   uint8_t                 codebook_mode;
+   uint8_t                 N1;
+   uint8_t                 N2;
+}SchCsiReportConfig;
+
+/* CSI Measurement Config --> TS38.331 v17.2.0 Page 558*/
+typedef struct schCsiMeasConfig
+{
+   SchNzpCsiRsResource     nzpCsiRsRsrcToAddModList[MAX_NUM_NZP_CSI_RS_RESOURCE];
+   SchNzpCsiRsResourceSet  nzpCsiRsRsrcSetToAddModList[MAX_NUM_NZP_CSI_RS_RESOURCE_SET];
+   SchCsiResourceConfig    csiRsrcCfgToAddModList[MAX_NUM_CSI_RESOURCE_CONFIG];
+   SchCsiReportConfig      csiRprtCfgToAddModList[MAX_NUM_CSI_REPORT_CONFIG];
+}SchCsiMeasConfig;
+
 /* Serving cell configuration */
 typedef struct schServCellRecfgInfo
 {
@@ -1829,6 +2138,7 @@ typedef struct schServCellRecfgInfo
    uint8_t                 *bwpInactivityTmr;
    SchPdschServCellCfg     pdschServCellCfg;
    SchInitialUlBwp         initUlBwp;
+   SchCsiMeasConfig        csiMeasCfg;
    SchBeamFailRecoveryCfg  beamFailureRecoveryCfg;
    uint8_t                 numUlBwpToAddOrMod;
    SchUlBwpInfo            ulBwpToAddOrModList[MAX_NUM_BWP];
@@ -1849,6 +2159,7 @@ typedef struct schServCellCfgInfo
    uint8_t               *bwpInactivityTmr;
    SchPdschServCellCfg     pdschServCellCfg;
    SchInitialUlBwp         initUlBwp;
+   SchCsiMeasConfig        csiMeasCfg;
    SchBeamFailRecoveryCfg  beamFailureRecoveryCfg;
    uint8_t                 numUlBwpToAdd;
    SchUlBwpInfo            ulBwpToAddList[MAX_NUM_BWP];
