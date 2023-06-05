@@ -820,46 +820,6 @@ uint16_t schAllocPucchResource(SchCellCb *cell, SlotTimingInfo pucchTime, uint16
    return ROK;
 }
 
-/*******************************************************************
- *
- * @brief Scheduling for Pucch Resource CSI Triggering
- *
- * @details
- *
- *    Function : schAllocPucchResourceCSI
- *
- *    Functionality:
- *       Scheduling for Pucch Resource for CSI Triggering
- *
- * @params[in] SchCellCb *cell, SlotTimingInfo pucchTime, crnti
- * @params[in] SchUeCb *ueCb, bool isRetx, SchDlHqProcCb *hqP
- * @return ROK     - success
- *         RFAILED - failure
- *
- *******************************************************************/
-
-uint16_t schAllocPucchResourceCSI(SchCellCb *cell, SlotTimingInfo pucchTime, uint16_t crnti,
-                               SchUeCb *ueCb, bool isRetx, SchDlHqProcCb *hqP)
-{
-   uint16_t pucchSlot = 0;
-   SchUlSlotInfo  *schUlSlotInfo = NULLP;
-
-   pucchSlot = pucchTime.slot;
-   schUlSlotInfo = cell->schUlSlotInfo[pucchSlot];
-   memset(&schUlSlotInfo->schPucchInfo, 0, sizeof(SchPucchInfo));
-
-   schUlSlotInfo->pucchPres = true;
-   schUlSlotInfo->schPucchInfo.csiInfo.csiBits = 0b000001;
-   schUlSlotInfo->schPucchInfo.pucchFormat = 2;
-   // if(ueCb != NULLP)
-   // {
-   //    /* set HARQ flag to true */
-   //    // schUlSlotInfo->schPucchInfo.harqInfo.harqBitLength = 1; /* 1 bit for HARQ */
-   //    ADD_DELTA_TO_TIME(pucchTime, pucchTime, 3, cell->numSlots); /* SLOT_DELAY=3 */
-   //    // cmLListAdd2Tail(&(ueCb->hqDlmap[pucchTime.slot]->hqList), &hqP->ulSlotLnk);
-   // }
-   return ROK;
-}
 
 /*******************************************************************
  *
@@ -1948,7 +1908,6 @@ uint8_t schProcessMsg4Req(SchCellCb *cell, SlotTimingInfo currTime, uint8_t ueId
 
    /* PUCCH resource */
    schAllocPucchResource(cell, pucchTime, cell->raCb[ueId-1].tcrnti, &cell->ueCb[ueId-1], isRetxMsg4, *msg4HqProc);
-   schAllocPucchResourceCSI(cell, pucchTime, cell->raCb[ueId-1].tcrnti, &cell->ueCb[ueId-1], isRetxMsg4, *msg4HqProc);
 
    cell->schDlSlotInfo[pdcchTime.slot]->pdcchUe = ueId;
    cell->schDlSlotInfo[pdschTime.slot]->pdschUe = ueId;
