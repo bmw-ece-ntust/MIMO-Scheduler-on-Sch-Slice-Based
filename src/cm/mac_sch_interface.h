@@ -142,7 +142,8 @@
 /* CSI-RS density --> TS38.331 v17.2.0 Page 573*/
 typedef enum
 {
-   SCH_DOT5_DENSITY,
+   SCH_DOT5_DENSITY_EVEN,
+   SCH_DOT5_DENSITY_ODD,
    SCH_ONE_DENSITY,
    SCH_THREE_DENSITY
 }SchCsiRsDensity;
@@ -684,6 +685,30 @@ typedef struct pdschCfg
 } PdschCfg;
 /* SIB1 PDSCH structures end */
 
+/* CSI-RS Structures start */
+typedef struct{
+   uint16_t bwpSize;
+   uint16_t bwpStart;
+   uint8_t subCarrierSpacing;
+   uint8_t cyclicPrefix;
+   uint16_t startRb;
+   uint16_t nrOfRbs;
+   uint8_t csiType;
+   uint8_t row;
+   uint16_t freqDomain;
+   uint8_t symbL0;
+   uint8_t symbL1;
+   uint8_t cdmType;
+   uint8_t freqDensity;
+   uint16_t scramId;
+   uint8_t powerControlOffset;
+   uint8_t powerControlOffsetSs;
+   uint8_t pad[2];
+   BeamformingInfo  beamCsiRsInfo;
+}CsiRsCfg;
+
+/* CSI-RS Structures end */
+
 /* SIB1 interface structure */
 
 /* Reference -> O-RAN.WG8.AAD.0-v07.00, Table 9-35 CORESET Configuration */
@@ -1211,6 +1236,7 @@ typedef struct dlMsgSchedInfo
    BwpCfg          bwp;
    PdcchCfg        *dlMsgPdcchCfg;
    PdschCfg        *dlMsgPdschCfg;
+   CsiRsCfg        *dlMsgCsiRsCfg;
 }DlMsgSchInfo;
 
 typedef struct schSlotValue
@@ -1220,6 +1246,7 @@ typedef struct schSlotValue
    SlotTimingInfo rarTime;
    SlotTimingInfo dlMsgTime;
    SlotTimingInfo ulDciTime;
+   SlotTimingInfo csiRsTime;
 }SchSlotValue;
 
 
@@ -1953,13 +1980,12 @@ typedef struct schFreqOccupation
 typedef struct schCsiRsResourceMapping
 {
    SchFreqDomainAlloc                  freqDomainAllocation;
-   uint8_t                          bitString;
+   uint16_t                          bitString;
    SchCsiRsNrAntPortsType              nrOfPorts;
    uint8_t                          firstOFDMSymbolInTimeDomain;
    uint8_t                          firstOFDMSymbolInTimeDomain2;
    SchCsiRsCdmType                     cdmType;
    SchCsiRsDensity                     density;
-   uint8_t                          evenOddDensity;
    SchFreqOccupation                   freqBand;
 }SchCsiRsResourceMapping;
 
@@ -2024,7 +2050,8 @@ typedef struct schPucchCsiResource
 /* CSI Report Config --> TS38.331 v17.2.0 Page 559*/
 typedef struct schPeriodicCsiReportConfig
 {
-   SchReportPeriodicityAndOffsetChoice    reportSlotConfig;
+   SchReportPeriodicityAndOffsetChoice    choice;
+   uint8_t                                offset;
    SchPucchCsiResource                    pucchCsiRsrcList[MAX_NUM_PUCCH_RESRC];
 }SchPeriodicCsiReportConfig;
 
@@ -2055,8 +2082,8 @@ typedef struct SchCodebookType1{
       //Currently only support single panel
       bool           isSinglePanel;
       SchSinglePanel singlePanel;
-      uint8_t        codebook_mode;
    }subType;
+   uint8_t        codebook_mode;
 }SchCodebookType1;
 
 /* Codebook Config --> TS38.331 v17.2.0 Page 530 */
