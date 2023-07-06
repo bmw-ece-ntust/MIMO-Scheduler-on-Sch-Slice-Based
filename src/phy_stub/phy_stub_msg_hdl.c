@@ -963,6 +963,10 @@ S16 l1HdlDlTtiReq(uint16_t msgLen, void *msg)
       {
          DU_LOG("\nINFO   -->  PHY_STUB: PDSCH PDU");
       }
+      else if(dlTtiReq->pdus[pduCount].pduType == 2)
+      {
+         DU_LOG("\nINFO   -->  PHY_STUB: CSI-RS PDU");
+      }
    }
 
    /* Free FAPI message */
