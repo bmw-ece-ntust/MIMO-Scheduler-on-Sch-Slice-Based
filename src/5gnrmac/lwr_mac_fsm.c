@@ -40,6 +40,7 @@
 #define MIB_SFN_BITMASK 0xFC
 #define PDCCH_PDU_TYPE 0
 #define PDSCH_PDU_TYPE 1
+#define CSI_RS_PDU_TYPE 2
 #define SSB_PDU_TYPE 3
 #define PRACH_PDU_TYPE 0
 #define PUSCH_PDU_TYPE 1
@@ -3227,6 +3228,72 @@ uint8_t fillPdcchPdu(fapi_dl_tti_req_pdu_t *dlTtiReqPdu, fapi_vendor_dl_tti_req_
 
 /*******************************************************************
  *
+ * @brief fills CSI-RS PDU required for DL TTI info in MAC
+ *
+ * @details
+ *
+ *    Function : fillCsiRsPdu
+ *
+ *    Functionality:
+ *         -Fills the Csi-RS PDU info
+ *          stored in MAC
+ *
+ * @params[in] Pointer to FAPI DL TTI Req
+ *             Pointer to CsiRsCfg
+ * @return ROK
+ *
+ ******************************************************************/
+uint8_t fillCsiRsPdu(fapi_dl_tti_req_pdu_t *dlTtiReqPdu, fapi_vendor_dl_tti_req_pdu_t *dlTtiVendorPdu, MacDlSlot *dlSlot, int8_t dlMsgSchInfoIdx, \
+      uint8_t ueIdx)
+{
+   CsiRsCfg *csirsInfo = NULLP;
+   BwpCfg *bwp = NULLP;
+
+   if(dlTtiReqPdu != NULLP)
+   {
+      csirsInfo = dlSlot->dlInfo.dlMsgAlloc[ueIdx]->dlMsgCsiRsCfg;
+      bwp = &dlSlot->dlInfo.dlMsgAlloc[ueIdx]->bwp;
+      memset(&dlTtiReqPdu->pdu.csi_rs_pdu,0, sizeof(fapi_dl_csi_rs_pdu_t));
+
+      dlTtiReqPdu->pduType = CSI_RS_PDU_TYPE;
+      dlTtiReqPdu->pduSize = sizeof(fapi_dl_csi_rs_pdu_t);
+
+      dlTtiReqPdu->pdu.csi_rs_pdu.subCarrierSpacing = bwp->subcarrierSpacing;
+      dlTtiReqPdu->pdu.csi_rs_pdu.cyclicPrefix = bwp->cyclicPrefix;
+
+      dlTtiReqPdu->pdu.csi_rs_pdu.startRb = csirsInfo->startRb;
+      dlTtiReqPdu->pdu.csi_rs_pdu.nrOfRbs = csirsInfo->nrOfRbs;
+      dlTtiReqPdu->pdu.csi_rs_pdu.csiType = csirsInfo->csiType;
+      dlTtiReqPdu->pdu.csi_rs_pdu.row = csirsInfo->row;
+      dlTtiReqPdu->pdu.csi_rs_pdu.freqDomain = csirsInfo->freqDomain;
+      dlTtiReqPdu->pdu.csi_rs_pdu.symbL0 = csirsInfo->symbL0;
+      dlTtiReqPdu->pdu.csi_rs_pdu.symbL1 = csirsInfo->symbL1;
+      dlTtiReqPdu->pdu.csi_rs_pdu.cdmType = csirsInfo->cdmType;
+      dlTtiReqPdu->pdu.csi_rs_pdu.freqDensity = csirsInfo->freqDensity;
+      dlTtiReqPdu->pdu.csi_rs_pdu.scramId = csirsInfo->scramId;
+
+      dlTtiReqPdu->pdu.csi_rs_pdu.powerControlOffset = csirsInfo->powerControlOffset;
+      dlTtiReqPdu->pdu.csi_rs_pdu.powerControlOffsetSs = csirsInfo->powerControlOffsetSs;
+      
+      dlTtiReqPdu->pdu.csi_rs_pdu.preCodingAndBeamforming.numPrgs = csirsInfo->beamCsiRsInfo.numPrgs;
+      dlTtiReqPdu->pdu.csi_rs_pdu.preCodingAndBeamforming.prgSize = csirsInfo->beamCsiRsInfo.prgSize;
+      dlTtiReqPdu->pdu.csi_rs_pdu.preCodingAndBeamforming.digBfInterfaces = csirsInfo->beamCsiRsInfo.digBfInterfaces;
+      dlTtiReqPdu->pdu.csi_rs_pdu.preCodingAndBeamforming.pmi_bfi[0]. \
+         pmIdx = csirsInfo->beamCsiRsInfo.prg[0].pmIdx;
+      dlTtiReqPdu->pdu.csi_rs_pdu.preCodingAndBeamforming.pmi_bfi[0]. \
+         beamIdx[0].beamidx = csirsInfo->beamCsiRsInfo.prg[0].beamIdx[0];
+      
+      /* DL TTI Request Vendor Message */
+      dlTtiVendorPdu->pdu_type = FAPI_CSIRS_PDU_TYPE;
+      dlTtiVendorPdu->pdu_size = sizeof(fapi_vendor_csi_rs_pdu_t);
+
+   }
+
+   return ROK;
+}
+
+/*******************************************************************
+ *
  * @brief fills PDSCH PDU from PageAlloc required for DL TTI info in MAC
  *
  * @details
@@ -3458,6 +3525,8 @@ uint8_t calcDlTtiReqPduCount(MacDlSlot *dlSlot)
          if(dlSlot->dlInfo.dlMsgAlloc[ueIdx]->dlMsgPdcchCfg)
             count += 1;
          if(dlSlot->dlInfo.dlMsgAlloc[ueIdx]->dlMsgPdschCfg)
+            count += 1;
+         if(dlSlot->dlInfo.dlMsgAlloc[ueIdx]->dlMsgCsiRsCfg)
             count += 1;
       }
    }
@@ -3951,6 +4020,16 @@ uint16_t fillDlTtiReq(SlotTimingInfo currTimingInfo)
                      fillPdcchPdu(&dlTtiReq->pdus[numPduEncoded], &vendorMsg->p7_req_vendor.dl_tti_req.pdus[numPduEncoded],
                            currDlSlot, idx, rntiType, currDlSlot->dlInfo.dlMsgAlloc[ueIdx]->dlMsgPdcchCfg->coresetCfg.coreSetType, ueIdx);
                      numPduEncoded++;
+                  }
+
+                  if(currDlSlot->dlInfo.dlMsgAlloc[ueIdx]->dlMsgCsiRsCfg)
+                  {
+                     fillCsiRsPdu(&dlTtiReq->pdus[numPduEncoded],&vendorMsg->p7_req_vendor.dl_tti_req.pdus[numPduEncoded],currDlSlot,idx,ueIdx);
+                     numPduEncoded++;
+
+                     DU_LOG("\033[1;32m");
+						   DU_LOG("\nDEBUG  -->  LWR_MAC: CSI-RS sent for UE %d...",ueIdx);
+						   DU_LOG("\033[0m");
                   }
 
                   if(currDlSlot->dlInfo.dlMsgAlloc[ueIdx]->dlMsgPdu != NULLP)
