@@ -1128,6 +1128,245 @@ uint32_t schSliceBasedScheduleDlLc(SlotTimingInfo pdcchTime, SlotTimingInfo pdsc
 
 /*******************************************************************
  *
+ * @brief Get CSI-RS Period
+ *
+ * @details
+ *
+ *    Function : getCsiPeriod 
+ *
+ *    Functionality:
+ *       Get CSI-RS Period
+ *
+ * @params[in] SchResourcePeriodicityAndOffsetChoice periodicity 
+ * @return  period of CSI transmission 
+ *
+ * ****************************************************************/
+uint16_t getCsiPeriod(SchResourcePeriodicityAndOffsetChoice periodicity)
+{
+   uint16_t period;
+
+   switch (periodicity)
+   {
+      case SCH_SLOTS4:
+         period = 4;
+         break;
+      
+      case SCH_SLOTS5:
+         period = 5;
+         break;
+
+      case SCH_SLOTS8:
+         period = 8;
+         break;
+
+      case SCH_SLOTS10:
+         period = 10;
+         break;
+      
+      case SCH_SLOTS16:
+         period = 16;
+         break;
+
+      case SCH_SLOTS20:
+         period = 20;
+         break;
+
+      case SCH_SLOTS32:
+         period = 32;
+         break;
+      
+      case SCH_SLOTS40:
+         period = 40;
+         break;
+
+      case SCH_SLOTS64:
+         period = 64;
+         break;
+
+      case SCH_SLOTS80:
+         period = 80;
+         break;
+
+      case SCH_SLOTS160:
+         period = 160;
+         break;
+
+      case SCH_SLOTS320:
+         period = 320;
+         break;
+
+      case SCH_SLOTS640:
+         period = 640;
+         break;
+
+      default:
+         period = 0;
+         break;
+   }
+   
+   return period;
+}
+
+
+/*******************************************************************
+ *
+ * @brief Checks if a slot is to be scheduled for CSI-RS transmission
+ *
+ * @details
+ *
+ *    Function : schCheckCsiRsOcc 
+ *
+ *    Functionality:
+ *       Checks if a slot is to be scheduled for CSI-RS transmission
+ *
+ * @params[in] SlotTimingInfo slotTime
+ *             SchCellCb *cell 
+ * @return  boolean whether CSI need to be transmitted 
+ *
+ * ****************************************************************/
+bool schCheckCsiRsOcc(SchUeCb ueCb, SlotTimingInfo slotTime, uint32_t numslots)
+{
+   SchResourcePeriodicityAndOffsetChoice periodicity;
+   uint8_t offset;
+   uint16_t period;
+
+   DU_LOG("\nAKMAL PRINT CHECK CSI RS OCC");
+   if(ueCb.ueCfg.spCellCfgPres){
+      if(ueCb.ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].nzpCsiRsResourceId>=0){
+         periodicity = ueCb.ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].periodicityAndOffset.choice;
+         offset = ueCb.ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].periodicityAndOffset.offset;
+         period = getCsiPeriod(periodicity);
+
+         DU_LOG("\nAKMAL PRINT CHECK CSI RS OCC slot %d, sfn %d, numslots %d, offset %d, period %d, val %d",slotTime.slot, slotTime.sfn, numslots,offset,period, (slotTime.sfn*numslots + slotTime.slot - offset) % period);
+         if((slotTime.sfn*numslots + slotTime.slot - offset) % period == 0){
+            return true;
+         }else{
+            return false;
+         }
+
+      }else{
+         return false;
+      }      
+   }else{
+      return false;
+   }
+
+}
+
+
+/*******************************************************************
+ *
+ * @brief Schedule CSI RS Transmission
+ *
+ * @details
+ *
+ *    Function : schSliceBasedScheduleCsiRs 
+ *
+ *    Functionality:
+ *       This function is used to fill in the DLMSG
+ *
+ * @params[in] SlotTimingInfo slotTime
+ *             SchCellCb *cell 
+ * @return  status ROK if OK, and RFAILED if something is wrong 
+ *
+ * ****************************************************************/
+uint8_t schSliceBasedScheduleCsiRs(SchCellCb *cell, SlotTimingInfo csiRsTiming, uint8_t ueId){
+   DU_LOG("\nAKMAL SCHEDULING CSI-RS FOR SLOT %d, SFN %d",csiRsTiming.slot,csiRsTiming.sfn);
+
+   uint8_t startSymbol0 = cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.firstOFDMSymbolInTimeDomain;
+   uint8_t startSymbol1 = cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.firstOFDMSymbolInTimeDomain2;
+   
+   uint16_t startPrb = cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.freqBand.startingRB;
+   uint16_t nrOfRbs = cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.freqBand.numberOfRBs;
+
+   DlMsgSchInfo *dlSlotAlloc;
+   CsiRsCfg *csiRsConfig;
+
+   if(cell->schDlSlotInfo[csiRsTiming.slot]->dlMsgAlloc[ueId-1]==NULL){
+      SCH_ALLOC(dlSlotAlloc,sizeof(DlMsgSchInfo));
+      if(dlSlotAlloc == NULLP){
+         DU_LOG("\nERROR --> SCH Memory allocation failed for csiRsSlotAlloc");
+         return RFAILED;
+      }
+      cell->schDlSlotInfo[csiRsTiming.slot]->dlMsgAlloc[ueId-1] = dlSlotAlloc;
+      memset(dlSlotAlloc,0,sizeof(DlMsgSchInfo));
+   }else{
+      dlSlotAlloc = cell->schDlSlotInfo[csiRsTiming.slot]->dlMsgAlloc[ueId-1];
+   }
+
+   if(dlSlotAlloc->dlMsgCsiRsCfg == NULL){
+      SCH_ALLOC(dlSlotAlloc->dlMsgCsiRsCfg, sizeof(CsiRsCfg));
+      if(dlSlotAlloc->dlMsgCsiRsCfg == NULL){
+         DU_LOG("\nERROR --> SCH Memory allocation failed for dlMsgCsiRsCfg");
+      }
+      memset(dlSlotAlloc->dlMsgCsiRsCfg,0,sizeof(CsiRsCfg));
+   }
+
+   csiRsConfig = dlSlotAlloc->dlMsgCsiRsCfg;
+
+   csiRsConfig->bwpSize=MAX_NUM_RB;
+   csiRsConfig->bwpStart=0;
+   csiRsConfig->cyclicPrefix=0; /* 0 for Normal Cyclic Prefix, 1 for Extended Cyclic Prefix*/
+
+   csiRsConfig->startRb=startPrb;
+   csiRsConfig->nrOfRbs=nrOfRbs;
+
+   /* Assume only one NZP CSI-RS Resource */
+   if(cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.freqBand.numberOfRBs>0){
+      csiRsConfig->csiType=1; /* 0 for TRS, 1 for CSI-RS NZP, 2 for CSI-RS ZP as per FAPI Spec*/
+      
+      csiRsConfig->powerControlOffset=cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].powerControlOffset;
+      csiRsConfig->powerControlOffsetSs=cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].powerControlOffsetSS;  
+      csiRsConfig->scramId=cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].scramblingId;
+      csiRsConfig->subCarrierSpacing=cell->cellCfg.numerology;
+      
+      csiRsConfig->freqDomain=cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.bitString;
+      csiRsConfig->symbL0=startSymbol0;
+      csiRsConfig->symbL1=startSymbol1;
+      csiRsConfig->row=cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.freqDomainAllocation; /* Check Later */
+      csiRsConfig->cdmType=cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.cdmType;
+      csiRsConfig->freqDensity=cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.density;
+
+      /* Follow PDSCH Config */
+      csiRsConfig->beamCsiRsInfo.numPrgs = 1;
+      csiRsConfig->beamCsiRsInfo.prgSize = 1;
+      csiRsConfig->beamCsiRsInfo.digBfInterfaces = 0;
+      csiRsConfig->beamCsiRsInfo.prg[0].pmIdx = 0;
+      csiRsConfig->beamCsiRsInfo.prg[0].beamIdx[0] = 0;
+
+      if(allocatePrbDl(cell,csiRsTiming,startSymbol0,1,&startPrb,nrOfRbs)!=ROK){
+         DU_LOG("\nERROR  --> SCH : allocatePrbDl() failed for DL CSI-RS Transmission");
+         return RFAILED;
+      }
+
+
+      DU_LOG("\n PRINTING SCHEDULED VALUE FROM SCHEDULE CSI-RS");
+      DU_LOG("\n start prb = %d", csiRsConfig->startRb);
+      DU_LOG("\n numPrb = %d", csiRsConfig->nrOfRbs);
+      DU_LOG("\n BWP SIZE = %d", csiRsConfig->bwpSize);
+      DU_LOG("\n cyclic prefix = %d", csiRsConfig->cyclicPrefix);
+      DU_LOG("\n\n CSI TYPE = %d", csiRsConfig->csiType);
+      DU_LOG("\n POWER CONTROL OFFSET = %d", csiRsConfig->powerControlOffset);
+      DU_LOG("\n POWER CONTROL OFFSET SS = %d", csiRsConfig->powerControlOffsetSs);
+      DU_LOG("\n Scrambling ID = %d", csiRsConfig->scramId);
+      DU_LOG("\n SCS = %d", csiRsConfig->subCarrierSpacing);
+      DU_LOG("\n freqdomain = %d", csiRsConfig->freqDomain);
+      DU_LOG("\n symbl0= %d", csiRsConfig->symbL0);
+      DU_LOG("\n symbl1= %d", csiRsConfig->symbL1);
+      DU_LOG("\n row = %d", csiRsConfig->row);
+      DU_LOG("\n cdm type = %d", csiRsConfig->cdmType);
+      DU_LOG("\n freqdensity = %d", csiRsConfig->freqDensity);
+      DU_LOG("\n CSI TIMING SLOT = %d", csiRsTiming.slot);
+      DU_LOG("\n CSI TIMING SFN = %d", csiRsTiming.sfn);
+
+
+      return ROK;
+   }
+   return RFAILED;
+}
+
+/*******************************************************************
+ *
  * @brief Scheduling of Slots in UL And DL 
  *
  * @details
@@ -1156,6 +1395,12 @@ void schSliceBasedScheduleSlot(SchCellCb *cell, SlotTimingInfo *slotInd, Inst sc
    bool           isMsg4Pending = false, isMsg4Scheduled = false;
    bool           isDlMsgPending = false, isDlMsgScheduled = false;
    bool           isUlGrantPending = false, isUlGrantScheduled = false;
+   
+   bool           isScheduleCsiRs = false;
+   SlotTimingInfo csiRsTiming;
+   memset(&csiRsTiming,0,sizeof(csiRsTiming));
+   ADD_DELTA_TO_TIME((*slotInd),csiRsTiming,PHY_DELTA_DL + SCHED_DELTA, cell->numSlots);
+   // DU_LOG("\nAKMAL PRINT CSI_RS TIMING SLOT=%d, SFN=%d",csiRsTiming.slot,csiRsTiming.sfn);
 
    schSpcCell = (SchSliceBasedCellCb *)cell->schSpcCell;
    
@@ -1165,8 +1410,10 @@ void schSliceBasedScheduleSlot(SchCellCb *cell, SlotTimingInfo *slotInd, Inst sc
    {
       if(pendingUeNode->node)
       {
+         DU_LOG("\nAKMAL PRINT SCHEDULE SLOT");
          ueId = *(uint8_t *)(pendingUeNode->node);
          schSpcUeCb = (SchSliceBasedUeCb *)cell->ueCb[ueId-1].schSpcUeCb;
+         isScheduleCsiRs = schCheckCsiRsOcc(cell->ueCb[ueId-1],csiRsTiming,cell->numSlots);
 
          /* If RAR is pending for this UE, schedule PDCCH,PDSCH to send RAR and 
           * PUSCH to receive MSG3 as per k0-k2 configuration*/
@@ -1233,6 +1480,14 @@ void schSliceBasedScheduleSlot(SchCellCb *cell, SlotTimingInfo *slotInd, Inst sc
          else 
 #endif
          {
+            /* CSI-RS */
+            if(isScheduleCsiRs){
+               DU_LOG("\nAKMAL SCHEDULING DL CSI-RS for SLOT %d and SFN %d",csiRsTiming.slot,csiRsTiming.sfn);
+               DU_LOG("\nAKMAL TEST SEG FAULT = %d, ueId = %d",cell->ueCb[ueId-1].ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].scramblingId,ueId);
+               if(schSliceBasedScheduleCsiRs(cell,csiRsTiming,ueId)!=ROK){
+                  DU_LOG("\nAKMAL ERROR --> SCH : Error Schedule CSI-RS");
+               }
+            }
 
             /* DL Data */
             node = NULLP;
