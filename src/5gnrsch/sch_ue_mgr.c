@@ -257,7 +257,9 @@ void fillSpCellInSchCb(SchSpCellRecfg *destSpCellCfg, SchSpCellCfg *srcSpCellCfg
    destSpCellCfg->servCellRecfg.bwpInactivityTmr = srcSpCellCfg->servCellCfg.bwpInactivityTmr;
    memcpy(&destSpCellCfg->servCellRecfg.pdschServCellCfg, &srcSpCellCfg->servCellCfg.pdschServCellCfg, sizeof(SchPdschServCellCfg));
    memcpy(&destSpCellCfg->servCellRecfg.initUlBwp, &srcSpCellCfg->servCellCfg.initUlBwp, sizeof(SchInitialUlBwp));
-   
+   /* Copying CSI Meas Cfg */
+   memcpy(&destSpCellCfg->servCellRecfg.csiMeasCfg,&srcSpCellCfg->servCellCfg.csiMeasCfg,sizeof(CsiMeasConfig));
+
    destSpCellCfg->servCellRecfg.numDlBwpToAddOrMod =  srcSpCellCfg->servCellCfg.numDlBwpToAdd;
    if(destSpCellCfg->servCellRecfg.numDlBwpToAddOrMod > 0)
    {

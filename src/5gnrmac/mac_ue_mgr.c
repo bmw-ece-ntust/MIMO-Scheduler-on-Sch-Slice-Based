@@ -1360,6 +1360,73 @@ uint8_t fillInitialDlBwp(InitialDlBwp macInitDlBwp, SchInitalDlBwp *schInitDlBwp
 
 /*******************************************************************
  *
+ * @brief Fill CSI Meas Cfg for SCH UE config
+ *
+ * @details
+ *
+ *    Function : fillCsiMeasCfg
+ *
+ *    Functionality: Fill CSI Meas Cfg for SCH UE config
+ *
+ * @params[in] macInitDlBwp : CSI Meas Cfg at MAC
+ *             schInitDlBwp : CSI Meas Cfg to be filled
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ * ****************************************************************/
+uint8_t fillCsiMeasCfg(CsiMeasConfig macCsiMeasCfg, SchCsiMeasConfig *schCsiMeasCfg)
+{
+   /* Filling NZP CSI Resource */
+   // schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0] = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0];
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].nzpCsiRsResourceId = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].nzpCsiRsResourceId;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].resourceMapping.bitString = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.bitString;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].resourceMapping.cdmType = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.cdmType;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].resourceMapping.density = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.density;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].resourceMapping.firstOFDMSymbolInTimeDomain2 = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.firstOFDMSymbolInTimeDomain2;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].resourceMapping.firstOFDMSymbolInTimeDomain = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.firstOFDMSymbolInTimeDomain;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].resourceMapping.freqBand.numberOfRBs = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.freqBand.numberOfRBs;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].resourceMapping.freqBand.startingRB = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.freqBand.startingRB;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].resourceMapping.freqDomainAllocation = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.freqDomainAllocation;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].resourceMapping.nrOfPorts = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].resourceMapping.nrOfPorts;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].powerControlOffset = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].powerControlOffset;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].powerControlOffsetSS = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].powerControlOffsetSS;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].scramblingId = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].scramblingId;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].periodicityAndOffset.choice = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].periodicityAndOffset.choice;
+   schCsiMeasCfg->nzpCsiRsRsrcToAddModList[0].periodicityAndOffset.offset = macCsiMeasCfg.nzpCsiRsRsrcToAddModList[0].periodicityAndOffset.offset;
+
+
+   /* Filling CSI Resource Set */
+   schCsiMeasCfg->nzpCsiRsRsrcSetToAddModList[0].nzpCsiRsRsrcSetId = macCsiMeasCfg.nzpCsiRsRsrcSetToAddModList[0].nzpCsiRsRsrcSetId;
+   schCsiMeasCfg->nzpCsiRsRsrcSetToAddModList[0].nzpCsiRsRsrcIdList[0] = macCsiMeasCfg.nzpCsiRsRsrcSetToAddModList[0].nzpCsiRsRsrcIdList[0];
+
+   /* Filling CSI Resource Config */
+   schCsiMeasCfg->csiRsrcCfgToAddModList[0].bwpId = macCsiMeasCfg.csiRsrcCfgToAddModList[0].bwpId;
+   schCsiMeasCfg->csiRsrcCfgToAddModList[0].csiResourceConfigId = macCsiMeasCfg.csiRsrcCfgToAddModList[0].csiResourceConfigId;
+   schCsiMeasCfg->csiRsrcCfgToAddModList[0].resourceType = macCsiMeasCfg.csiRsrcCfgToAddModList[0].resourceType;
+   schCsiMeasCfg->csiRsrcCfgToAddModList[0].resourceSetList.nzpCsiRsSsbResourceSetList.nzpCsiRsRsrcSetIdList[0] = macCsiMeasCfg.csiRsrcCfgToAddModList[0].resourceSetList.nzpCsiRsSsbResourceSetList.nzpCsiRsRsrcSetIdList[0];
+
+   /* Filling CSI Report Config */
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].reportConfigId = macCsiMeasCfg.csiRprtCfgToAddModList[0].reportConfigId;
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].reportConfigType = macCsiMeasCfg.csiRprtCfgToAddModList[0].reportConfigType;
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].reportConfig.periodicReportInfo.choice = macCsiMeasCfg.csiRprtCfgToAddModList[0].reportConfig.periodicReportInfo.choice;
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].reportConfig.periodicReportInfo.offset = macCsiMeasCfg.csiRprtCfgToAddModList[0].reportConfig.periodicReportInfo.offset;
+   
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].codebookConfig.codebookType.isType1 = macCsiMeasCfg.csiRprtCfgToAddModList[0].codebookConfig.codebookType.isType1;
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].codebookConfig.codebookType.type1.codebook_mode = macCsiMeasCfg.csiRprtCfgToAddModList[0].codebookConfig.codebookType.type1.codebook_mode;
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].codebookConfig.codebookType.type1.subType.isSinglePanel = macCsiMeasCfg.csiRprtCfgToAddModList[0].codebookConfig.codebookType.type1.subType.isSinglePanel;
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].codebookConfig.codebookType.type1.subType.singlePanel.nrOfAntennaPorts.isTwoPort = macCsiMeasCfg.csiRprtCfgToAddModList[0].codebookConfig.codebookType.type1.subType.singlePanel.nrOfAntennaPorts.isTwoPort;
+
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].N1 = macCsiMeasCfg.csiRprtCfgToAddModList[0].N1;
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].N2 = macCsiMeasCfg.csiRprtCfgToAddModList[0].N2;
+   schCsiMeasCfg->csiRprtCfgToAddModList[0].reportQuantity = macCsiMeasCfg.csiRprtCfgToAddModList[0].reportQuantity;
+
+   DU_LOG("\nAKMAL PRINT CSI MEAS CFG --> Success Copying config from MAC to SCH (spcellconfig)");
+
+   return ROK;
+}
+
+/*******************************************************************
+ *
  * @brief Fills Sp Cell config to be sent to scheduler
  *
  * @details
@@ -1437,6 +1504,12 @@ uint8_t fillSpCellCfg(SpCellCfg macSpCellCfg, SchSpCellCfg *schSpCellCfg)
       memcpy(&servCellCfg->ulBwpToAddList[idx], &macSpCellCfg.servCellCfg.ulBwpToAddList[idx], sizeof(UlBwpInfo));
    }
    servCellCfg->firstActvUlBwpId =  macSpCellCfg.servCellCfg.firstActvUlBwpId;
+
+   if(fillCsiMeasCfg(macSpCellCfg.servCellCfg.csiMeasCfg, &servCellCfg->csiMeasCfg)!=ROK){
+      DU_LOG("\nERROR --> MAC : fillCsiMeasCfg() failed");
+      return RFAILED;
+   }
+   DU_LOG("\nAKMAL PRINT CSI MEAS CFG --> MAC : testing scramblingId value :%d",servCellCfg->csiMeasCfg.nzpCsiRsRsrcToAddModList[0].scramblingId);
 
    return ROK;
 }
@@ -1542,6 +1615,11 @@ uint8_t fillSpCellRecfg(SpCellRecfg macSpCellRecfg, SchSpCellRecfg *schSpCellRec
       memcpy(&servCellRecfg->ulBwpToRelList[idx], &macSpCellRecfg.servCellCfg.ulBwpToRelList[idx], sizeof(UlBwpInfo));
    }
    servCellRecfg->firstActvUlBwpId =  macSpCellRecfg.servCellCfg.firstActvUlBwpId;
+
+   if(fillCsiMeasCfg(macSpCellRecfg.servCellCfg.csiMeasCfg, &servCellRecfg->csiMeasCfg)!=ROK){
+      DU_LOG("\nERROR --> MAC : fillCsiMeasCfg() failed");
+      return RFAILED;
+   }
 
    return ROK;
 }
@@ -2780,6 +2858,7 @@ uint8_t MacProcUeCreateReq(Pst *pst, MacUeCfg *ueCfg)
       if(ret == ROK)
       {
          /*Sending Cfg Req to SCH */
+         DU_LOG("\nAKMAL PRINT CSI MEAS CFG : MAC --> Received CSI MEAS CFG Scrambling ID = %d",ueCfg->spCellCfg.servCellCfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].scramblingId);
          ret = fillSchUeCfg(&schUeCfg, ueCfg);
          if(ret != ROK)
             DU_LOG("\nERROR  -->  MAC : Failed to fill Sch Ue Cfg at MacProcUeCreateReq()");

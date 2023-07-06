@@ -627,6 +627,234 @@ void fillDefaultUlLcCfg(UlLcCfg *ulLcCfg)
 
 /******************************************************************
  *
+ * @brief Decide the resource mapping of NZP CSI-RS
+ *
+ * @details
+ *
+ *    Function : fillNzpCsiRsResourceMapping
+ *
+ *    Functionality: Fills the  resource mapping of the NZP CSI RS Resource
+ *
+ * @params[in]  CsiRsResourceMapping *resourceMapping
+ *              uint8_t ueId
+ * @return ROK - success
+ *         RFAILED - failure
+ *
+ *****************************************************************/
+uint8_t fillNzpCsiRsResourceMapping(CsiRsResourceMapping *resourceMapping, uint8_t ueId)
+{
+
+   if(resourceMapping)
+   {
+      // Assume only one antenna port supported right now
+      resourceMapping->nrOfPorts = P1;
+      resourceMapping->firstOFDMSymbolInTimeDomain = 13;
+      resourceMapping->density = ONE_DENSITY;
+      resourceMapping->freqDomainAllocation = ROW2;
+      resourceMapping->bitString = 0x1<<8;
+      resourceMapping->cdmType = NO_CDM;
+      /* Temporary Hardcode for freq domain allocation */
+      resourceMapping->freqBand.startingRB = 80;
+      resourceMapping->freqBand.numberOfRBs = 24;
+   }
+
+   return ROK;
+}
+
+/******************************************************************
+ *
+ * @brief Decide the Periodicity and offset of the NZP CSI RS Resource
+ *
+ * @details
+ *
+ *    Function : fillNzpCsiRsPeriodicityAndOffset
+ *
+ *    Functionality: Fills the Periodicity and offset of the NZP CSI RS Resource
+ *
+ * @params[in]  CsiResourcePeriodicityAndOffset *periodAndOffset
+ * @return ROK - success
+ *         RFAILED - failure
+ *
+ *****************************************************************/
+uint8_t fillNzpCsiRsPeriodicityAndOffset(CsiResourcePeriodicityAndOffset *periodAndOffset,uint8_t ueId)
+{
+   uint8_t idx = 0;
+   uint8_t maxNumUE = MAX_NUM_UE;
+   uint8_t slotsPerFrame = MAX_SLOTS;
+   uint8_t idealPeriod;
+
+
+   if(periodAndOffset)
+   {
+      idealPeriod = slotsPerFrame * maxNumUE;
+      if(idealPeriod < 5){
+         periodAndOffset->choice = SLOTS4;
+      }else if(idealPeriod < 6){
+         periodAndOffset->choice = SLOTS5;
+      }else if(idealPeriod < 9){
+         periodAndOffset->choice = SLOTS8;
+      }else if(idealPeriod < 11){
+         periodAndOffset->choice = SLOTS10;
+      }else if(idealPeriod < 17){
+         periodAndOffset->choice = SLOTS16;
+      }else if(idealPeriod < 21){
+         periodAndOffset->choice = SLOTS20;
+      }else if(idealPeriod < 41){
+         periodAndOffset->choice = SLOTS40;
+      }else if(idealPeriod < 81){
+         periodAndOffset->choice = SLOTS80;
+      }else if(idealPeriod < 161){
+         periodAndOffset->choice = SLOTS160;
+      }else{
+         periodAndOffset->choice = SLOTS320;
+      }
+
+      periodAndOffset->offset = slotsPerFrame * ueId;
+   }
+
+   return ROK;
+}
+
+/******************************************************************
+ *
+ * @brief Decide the Periodicity and offset of the Report Config Data Structure
+ *
+ * @details
+ *
+ *    Function : fillReportConfigPeriodicityAndOffset
+ *
+ *    Functionality: Fills the Periodicity and offset of the Report Config Data Structure
+ *
+ * @params[in]  PeriodicCsiReportConfig *periodicReportConfig
+ * @return ROK - success
+ *         RFAILED - failure
+ *
+ *****************************************************************/
+uint8_t fillReportConfigPeriodicityAndOffset(PeriodicCsiReportConfig *periodicReportConfig,uint8_t ueId)
+{
+   uint8_t idx = ueId<<1;
+   uint8_t maxNumUE = MAX_NUM_UE;
+   uint8_t slotsPerFrame = MAX_SLOTS;
+   uint8_t idealPeriod;
+
+   // Assume FDD for now
+#ifdef NR_TDD
+   return RFAILED
+#endif
+
+   if(periodicReportConfig)
+   {
+      idealPeriod = 2 * maxNumUE;
+      if(idealPeriod < 5){
+         periodicReportConfig->choice = SLOT4;
+      }else if(idealPeriod < 6){
+         periodicReportConfig->choice = SLOT5;
+      }else if(idealPeriod < 9){
+         periodicReportConfig->choice = SLOT8;
+      }else if(idealPeriod < 11){
+         periodicReportConfig->choice = SLOT10;
+      }else if(idealPeriod < 17){
+         periodicReportConfig->choice = SLOT16;
+      }else if(idealPeriod < 21){
+         periodicReportConfig->choice = SLOT20;
+      }else if(idealPeriod < 41){
+         periodicReportConfig->choice = SLOT40;
+      }else if(idealPeriod < 81){
+         periodicReportConfig->choice = SLOT80;
+      }else if(idealPeriod < 161){
+         periodicReportConfig->choice = SLOT160;
+      }else{
+         periodicReportConfig->choice = SLOT320;
+      }
+
+      periodicReportConfig->offset = idx % slotsPerFrame + (idx/slotsPerFrame) * slotsPerFrame;
+   }
+
+   return ROK;
+}
+
+
+/******************************************************************
+ *
+ * @brief Fills Default CSI Meas Config
+ *
+ * @details
+ *
+ *    Function : fillDefaultCsiMeasCfg
+ *
+ *    Functionality: Fills Default CSI Meas Config
+ *
+ * @params[in]  CsiMeasConfig *csiMeasCfg
+ *              uint8_t ueId
+ * @return ROK - success
+ *         RFAILED - failure
+ *
+ *****************************************************************/
+uint8_t fillDefaultCsiMeasCfg(CsiMeasConfig *csiMeasCfg, uint8_t ueId)
+{
+   uint8_t idx = 0;
+   NzpCsiRsResource     *csiResource;
+   NzpCsiRsResourceSet  *csiResourceSet;
+   CsiReportConfig      *csiReportCfg;
+   CsiResourceConfig    *csiResourceCfg;
+
+   if(csiMeasCfg)
+   {
+      /* Getting the element of CSI Meas Config*/
+      csiResourceCfg = &csiMeasCfg->csiRsrcCfgToAddModList[idx];         // Currently, assume only one CSI Resource Config
+      csiReportCfg = &csiMeasCfg->csiRprtCfgToAddModList[idx];           // Currently, assume only one CSI Report Config
+      csiResource = &csiMeasCfg->nzpCsiRsRsrcToAddModList[idx];          // Currently, assume only one NZP CSI RS Resource
+      csiResourceSet = &csiMeasCfg->nzpCsiRsRsrcSetToAddModList[idx];    // Currently, assume only one NZP CSI RS Resource Set
+
+      /* Filling CSI Meas Config */
+      /* ==Filling NZP CSI Resource== */
+      csiResource->nzpCsiRsResourceId = 0;
+      if(fillNzpCsiRsPeriodicityAndOffset(&csiResource->periodicityAndOffset,ueId)!=ROK){
+         DU_LOG("\nERROR  -->  DUAPP : Error in fillDefaultCsiMeasCfg -> Failed to fill default periodicity and offset");
+         return RFAILED;
+      }
+      csiResource->powerControlOffset = 0;
+      csiResource->powerControlOffsetSS = DB0;
+      if(fillNzpCsiRsResourceMapping(&csiResource->resourceMapping,ueId)!=ROK){
+         DU_LOG("\nERROR  -->  DUAPP : Error in fillDefaultCsiMeasCfg -> Failed to fill default resourceMapping");
+         return RFAILED;
+      }
+      csiResource->scramblingId = /*SCRAMBLING_ID*/ 12; /* Temporary Check value -> change to default SCRAMBLING_ID*/
+      
+      /* ==Filling Csi Resource Set== */
+      csiResourceSet->nzpCsiRsRsrcSetId = 0;
+      csiResourceSet->nzpCsiRsRsrcIdList[0] = 0;
+
+      /* ==Filling CSI Resource Config== */
+      csiResourceCfg->bwpId = ACTIVE_DL_BWP_ID;
+      csiResourceCfg->csiResourceConfigId = 0;
+      csiResourceCfg->resourceSetList.nzpCsiRsSsbResourceSetList.nzpCsiRsRsrcSetIdList[0] = 0;
+      csiResourceCfg->resourceType = PERIODIC;
+
+      /* ==Filling CSI Report Config== */
+      csiReportCfg->reportConfigId = 0;
+      csiReportCfg->reportConfigType = PERIODIC;
+      if(fillReportConfigPeriodicityAndOffset(&csiReportCfg->reportConfig.periodicReportInfo,ueId)!=ROK){
+         DU_LOG("\nERROR  -->  DUAPP : Error in fillDefaultCsiMeasCfg -> Failed to fill default report config periodicity and offset");
+         return RFAILED;
+      }
+      csiReportCfg->codebookConfig.codebookType.isType1 = true;
+      csiReportCfg->codebookConfig.codebookType.type1.codebook_mode = 1;
+      csiReportCfg->codebookConfig.codebookType.type1.subType.isSinglePanel = true;
+      csiReportCfg->codebookConfig.codebookType.type1.subType.singlePanel.nrOfAntennaPorts.isTwoPort = true; 
+
+      csiReportCfg->N1 = 1;
+      csiReportCfg->N2 = 1;
+      csiReportCfg->reportQuantity = CRI_RI_CQI;
+
+   }
+
+   return ROK;
+}
+
+
+/******************************************************************
+ *
  * @brief Fills Initial DL Bandwidth Part
  *
  * @details
@@ -857,6 +1085,7 @@ void fillDefaultInitUlBwp(InitialUlBwp *initUlBwp)
 uint8_t fillDefaultSpCellGrpInfo(DuMacUeCfg *macUeCfg)
 {
    SpCellRecfg *spCell = NULL;
+   uint8_t ueId = macUeCfg->ueId;
 
    if(macUeCfg)
       spCell = &macUeCfg->spCellCfg;
@@ -889,6 +1118,10 @@ uint8_t fillDefaultSpCellGrpInfo(DuMacUeCfg *macUeCfg)
       spCell->servCellCfg.numUlBwpToAddOrMod  = 0; 
       spCell->servCellCfg.numUlBwpToRel       = 0; 
       spCell->servCellCfg.firstActvUlBwpId    = ACTIVE_DL_BWP_ID; 
+      
+      /* Filling CSI Meas Config */
+      fillDefaultCsiMeasCfg(&spCell->servCellCfg.csiMeasCfg,ueId);
+      DU_LOG("\nAKMAL PRINT CSI MEAS CFG --> SUCCESS CONFIGURING DEFAULT CSI MEAS CFG scrambling id = %d",spCell->servCellCfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].scramblingId);
    }
    else
    {
@@ -1930,6 +2163,8 @@ void fillMacUeCfg(DuMacUeCfg *duMacUeCfg, MacUeCfg *macUeCfg)
                  (sizeof(UlBwpInfo) * MAX_NUM_BWP));
       }
       macUeCfg->spCellCfg.servCellCfg.firstActvUlBwpId =  duMacUeCfg->spCellCfg.servCellCfg.firstActvUlBwpId;
+      /* Copying CSI Meas Config */
+      memcpy(&macUeCfg->spCellCfg.servCellCfg.csiMeasCfg,&duMacUeCfg->spCellCfg.servCellCfg.csiMeasCfg,sizeof(CsiMeasConfig));
    }
    if(duMacUeCfg->ambrCfg != NULLP)
    {
