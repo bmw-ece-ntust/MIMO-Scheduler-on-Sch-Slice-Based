@@ -322,6 +322,7 @@ typedef struct schDlSlotInfo
    RarAlloc     *rarAlloc[MAX_NUM_UE];    /*!< RAR allocation per UE*/
    DciInfo      *ulGrant;
    DlMsgSchInfo *dlMsgAlloc[MAX_NUM_UE];  /*!< Dl msg allocation per UE*/
+   // DlMsgSchInfo *csiRsAlloc[MAX_NUM_UE];  /*!< CSI-RS Allocation Per UE*/
 }SchDlSlotInfo;
 
 typedef struct schRaCb

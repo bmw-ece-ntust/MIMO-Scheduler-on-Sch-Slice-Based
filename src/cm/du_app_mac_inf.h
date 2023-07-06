@@ -114,7 +114,8 @@
 /* CSI-RS density --> TS38.331 v17.2.0 Page 573*/
 typedef enum
 {
-   DOT5_DENSITY,
+   DOT5_DENSITY_EVEN,
+   DOT5_DENSITY_ODD,
    ONE_DENSITY,
    THREE_DENSITY
 }csiRsDensity;
@@ -1462,13 +1463,12 @@ typedef struct freqOccupation
 typedef struct csiRsResourceMapping
 {
    freqDomainAlloc                  freqDomainAllocation;
-   uint8_t                          bitString;
+   uint16_t                         bitString;
    csiRsNrAntPortsType              nrOfPorts;
    uint8_t                          firstOFDMSymbolInTimeDomain;
    uint8_t                          firstOFDMSymbolInTimeDomain2;
    csiRsCdmType                     cdmType;
    csiRsDensity                     density;
-   uint8_t                          evenOddDensity;
    freqOccupation                   freqBand;
 }CsiRsResourceMapping;
 
@@ -1533,7 +1533,8 @@ typedef struct pucchCsiResource
 /* CSI Report Config --> TS38.331 v17.2.0 Page 559*/
 typedef struct periodicCsiReportConfig
 {
-   ReportPeriodicityAndOffsetChoice    reportSlotConfig;
+   ReportPeriodicityAndOffsetChoice    choice;
+   uint8_t                             offset;
    PucchCsiResource                    pucchCsiRsrcList[MAX_NUM_PUCCH_RESRC];
 }PeriodicCsiReportConfig;
 
