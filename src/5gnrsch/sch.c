@@ -2373,7 +2373,9 @@ uint8_t SchProcDlCqiInd(Pst *pst, SchDlCqiInd *dlCqiInd)
    uint16_t ueId = 0, cellIdx = 0;
    SchUeCb *ueCb = NULLP;
    SchCellCb *cell = NULLP;
-   Inst  inst = pst->dstInst-SCH_INST_START;   
+   Inst  inst = pst->dstInst-SCH_INST_START;
+   uint8_t mcsMappingTable[] = {1,1,1,2,2,3,3,4,4,5,5,6,6,8,8};
+   DU_LOG("\nINFO  -->  SCH : Received DL CQI Ind %d",dlCqiInd->dlCqiRpt.cqi);   
 
    if(!dlCqiInd)
    {
@@ -2403,6 +2405,9 @@ uint8_t SchProcDlCqiInd(Pst *pst, SchDlCqiInd *dlCqiInd)
             else
             {
                /*TODO: complete the processing of DL CQI Ind*/ 
+               DU_LOG("\nINFO   -->   SCH : Processing DL CQI Ind. CQI Value = %d, Updated MCS = %d",dlCqiInd->dlCqiRpt.cqi,mcsMappingTable[dlCqiInd->dlCqiRpt.cqi-1]);   
+               //Updating MCS value
+               ueCb->ueCfg.dlModInfo.mcsIndex = mcsMappingTable[dlCqiInd->dlCqiRpt.cqi-1];
             }
          }
          else

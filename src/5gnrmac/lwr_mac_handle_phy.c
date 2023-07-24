@@ -374,7 +374,6 @@ uint8_t procRxDataInd(fapi_rx_data_indication_t  *fapiRxDataInd)
  * ****************************************************************/
 uint8_t fillUciIndPucchF0F1(UciPucchF0F1 *pduInfo, fapi_uci_o_pucch_f0f1_t *fapiPduInfo)
 {
-   // JOJO was here
    uint8_t harqIdx;
    uint8_t ret = ROK;
    
@@ -401,6 +400,44 @@ uint8_t fillUciIndPucchF0F1(UciPucchF0F1 *pduInfo, fapi_uci_o_pucch_f0f1_t *fapi
    }
    return ret;
 }
+
+/*******************************************************************
+ *
+ * @brief Fills Uci Ind Pdu Info carried on Pucch Format 0/Format 1
+ *
+ * @details
+ *
+ *    Function : fillUciIndPucchF0F1
+ *
+ *    Functionality:
+ *       Fills Uci Ind Pdu Info carried on Pucch Format 0/Format 1
+ *
+ *@params[in] UciPucchF0F1 *
+ *            fapi_uci_o_pucch_f0f1_t *
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ * ****************************************************************/
+uint8_t fillUciIndPucchF2F3F4(UciPucchF2F3F4 *pduInfo, fapi_uci_o_pucch_f2f3f4_t *fapiPduInfo)
+{
+   uint8_t ret = ROK;
+   
+   pduInfo->handle        = fapiPduInfo->handle;
+   pduInfo->pduBitmap     = fapiPduInfo->pduBitmap;
+   pduInfo->pucchFormat   = fapiPduInfo->pucchFormat;
+   pduInfo->ul_cqi        = fapiPduInfo->ul_cqi;
+   pduInfo->dl_cqi        = fapiPduInfo->dl_cqi;
+   pduInfo->crnti         = fapiPduInfo->rnti;
+   pduInfo->timingAdvance = fapiPduInfo->timingAdvance;
+   pduInfo->rssi          = fapiPduInfo->rssi;   
+   
+   if(fapiPduInfo->srInfo.srBitlen){
+      pduInfo->srInfo.srBitLen = fapiPduInfo->srInfo.srBitlen;
+   }
+
+   return ret;
+}
+
 
 /*******************************************************************
  *
@@ -456,6 +493,12 @@ uint8_t procUciInd(fapi_uci_indication_t  *fapiUciInd)
          }
          break;
          case UCI_IND_PUCCH_F2F3F4:
+         {
+            UciPucchF2F3F4 *pduInfo = NULLP;
+            macUciInd->pdus[pduIdx].pduSize = fapiUciInd->uciPdu[pduIdx].pduSize;
+            pduInfo = &macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4;
+            ret = fillUciIndPucchF2F3F4(pduInfo,&fapiUciInd->uciPdu[pduIdx].uci.uciPucchF2F3F4);
+         }   
             break;
          default:
             DU_LOG("\nERROR  -->  LWR_MAC: Invalid Pdu Type %d at procmacUciInd()", macUciInd->pdus[pduIdx].pduType);

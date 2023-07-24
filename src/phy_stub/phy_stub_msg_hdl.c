@@ -18,6 +18,10 @@
 
 /*This file contains stub for PHY to handle messages to/from MAC CL */
 
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <stdio.h>
 #include "common_def.h"
 #include "lrg.h"
 #include "lrg.x"
@@ -1089,6 +1093,89 @@ uint8_t fillPucchF0F1PduInfo(fapi_uci_o_pucch_f0f1_t *pduInfo, fapi_ul_pucch_pdu
    }
    return ROK;
 }
+
+double generate_rayleigh_fading() {
+    double u1 = (double)rand() / RAND_MAX;  // Uniform random variable (0, 1]
+    double u2 = (double)rand() / RAND_MAX;  // Uniform random variable (0, 1]
+
+    double x1 = sqrt(-2 * log(u1));
+    double x2 = 2 * M_PI * u2;
+
+    double y = x1 * cos(x2);
+
+    return y;
+}
+
+int simulate_cqi(long time, int cycle_duration, int* cqi_values, int* perturbation_ranges, int num_values) {
+    int cycle_length = num_values;
+    int elapsed_time = time % (cycle_duration * cycle_length);
+    int cycle_index = elapsed_time / cycle_duration;
+    int cqi = cqi_values[cycle_index];
+    int perturbation_range = perturbation_ranges[cycle_index];
+
+    // Apply Rayleigh fading channel model
+    double fading = generate_rayleigh_fading();
+    double perturbation = perturbation_range * fading;
+    cqi += (int)perturbation;
+
+    // Ensure the CQI stays within the specified range
+    if (cqi < 0) {
+        cqi = 0;
+    } else if (cqi > 15) {
+        cqi = 15;
+    }
+
+    return cqi;
+}
+
+int get_cqi(){
+   int cqi_pattern[] = {11, 4, 11, 7, 11};
+   int perturbation_pattern[] = {1, 4, 1, 2, 1};
+   int cycle_duration = 10;
+
+   return simulate_cqi(time(NULL),cycle_duration,cqi_pattern,perturbation_pattern,sizeof(cqi_pattern) / sizeof(cqi_pattern[0]));
+}
+
+
+/*******************************************************************
+ *
+ * @brief Fills Uci Ind Pdu Info carried on Pucch Format 2,3,4
+ *
+ * @details
+ *
+ *    Function : fillPucchF2F3F4PduInfo
+ *
+ *    Functionality:
+ *       Fills Uci Ind Pdu Info carried on Pucch Format 2,3,4 
+ *
+ * @params[in] fapi_uci_o_pucch_f2f3f4_t *
+ *             pucchPdu
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ * ****************************************************************/
+uint8_t fillPucchF2F3F4PduInfo(fapi_uci_o_pucch_f2f3f4_t *pduInfo, fapi_ul_pucch_pdu_t pucchPdu)
+{
+   uint8_t idx = 0;
+   static uint8_t ind=0;
+
+   pduInfo->handle = pucchPdu.handle;
+   pduInfo->pduBitmap = 1;  //hardcoded for CSI report
+   pduInfo->pucchFormat = 0; //Hardcode format 2 for Dummy CQI report (FAPI PHY API Spec July 2022 Section 3.4.9.3)
+   pduInfo->ul_cqi = 0;
+   pduInfo->dl_cqi = get_cqi();
+   pduInfo->rnti = pucchPdu.rnti;
+   pduInfo->timingAdvance = 0;
+   pduInfo->rssi = 0;
+
+   if(pduInfo->pduBitmap & SR_PDU_BITMASK)
+   {
+      pduInfo->srInfo.srBitlen = 1;
+   }
+   
+   return ROK;
+}
+
 /*******************************************************************
  *
  * @brief Fills UCI Pdu Information
@@ -1114,7 +1201,7 @@ uint8_t fillUciPduInfo(fapi_uci_pdu_info_t *uciPdu, fapi_ul_pucch_pdu_t pucchPdu
      UCI Ind for PUCCH forat0/format1. This is to be
      modified when we get SR form UE */
    DU_LOG("\nAKMAL PHY STUB PRINT --> RECEIVED PUCCH PDU TYPE = %d",pucchPdu.formatType);
-   uciPdu->pduType = UCI_IND_PUCCH_F0F1;
+   uciPdu->pduType = pucchPdu.formatType;
    switch(uciPdu->pduType)
    {
       case UCI_IND_PUSCH:
@@ -1131,6 +1218,15 @@ uint8_t fillUciPduInfo(fapi_uci_pdu_info_t *uciPdu, fapi_ul_pucch_pdu_t pucchPdu
       case UCI_IND_PUCCH_F2F3F4:
          {
             DU_LOG("\nAKMAL --> RECEIVED PUCCH PDU FORMAT 2,3,4");
+            fapi_uci_o_pucch_f2f3f4_t *pduInfo = NULLP;
+
+            pduInfo = &uciPdu->uci.uciPucchF2F3F4;
+            ret = fillPucchF2F3F4PduInfo(pduInfo,pucchPdu);
+            uciPdu->pduSize = sizeof(fapi_uci_o_pucch_f2f3f4_t);
+
+            if(ret!=ROK){
+               DU_LOG("\nAKMAL PUCCH --> ERROR Filling PUCCH Format 2");
+            }
          }
          break;
       default:

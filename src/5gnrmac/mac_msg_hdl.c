@@ -831,6 +831,45 @@ uint8_t buildAndSendSrInd(UciInd *macUciInd, uint8_t crnti)
 
 /*******************************************************************
  *
+ * @brief Builds and send DL CQI Indication to SCH
+ *
+ * @details
+ *
+ *    Function : buildAndSendDlCqiInd
+ *
+ *    Functionality:
+ *       Builds and send DL CQI Indication to SCH
+ *
+ * @params[in] UciIndInfo Pointer
+ *             crnti value
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ * ****************************************************************/
+uint8_t buildAndSendDlCqiInd(UciInd *macUciInd, uint8_t crnti, UciPucchF2F3F4 pucchPdu)
+{
+   uint16_t cellIdx;
+   Pst pst;
+   SchDlCqiInd   dlCqiInd;
+   memset(&pst, 0, sizeof(Pst));
+   memset(&dlCqiInd, 0, sizeof(SchDlCqiInd));
+
+   GET_CELL_IDX(macUciInd->cellId, cellIdx);
+   dlCqiInd.cellId       = macCb.macCell[cellIdx]->cellId;
+   dlCqiInd.crnti        = crnti;
+   dlCqiInd.timingInfo.sfn  = macUciInd->slotInd.sfn;
+   dlCqiInd.timingInfo.slot = macUciInd->slotInd.slot;
+   dlCqiInd.numDlCqiReported = 1;
+   dlCqiInd.dlCqiRpt.cqi = pucchPdu.dl_cqi;
+
+   /* Fill Pst */
+   FILL_PST_MAC_TO_SCH(pst, EVENT_DL_CQI_TO_SCH);
+
+   return(SchMessageRouter(&pst, (void *)&dlCqiInd));
+}
+
+/*******************************************************************
+ *
  * @brief Processes UCI Indication from PHY
  *
  * @details
@@ -876,6 +915,12 @@ uint8_t FapiMacUciInd(Pst *pst, UciInd *macUciInd)
             }
                break;
             case UCI_IND_PUCCH_F2F3F4:
+            {
+               DU_LOG("\nDEBUG  -->  MAC : Received UCI Ind PUCCH format 2,3,4");
+               crnti = macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4.crnti;
+               
+               ret = buildAndSendDlCqiInd(macUciInd,crnti, macUciInd->pdus[pduIdx].uci.uciPucchF2F3F4);
+            }
                break;
             default:
                DU_LOG("\nERROR  -->  MAC: Invalid Pdu Type %d at FapiMacUciInd", macUciInd->pdus[pduIdx].pduType);
