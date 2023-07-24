@@ -361,6 +361,7 @@ uint8_t fillUlSchedPucchDedicatedCfg(SchCellCb *cell, SchPucchCfg *pucchDedCfg,\
    uint16_t numSlots = cell->numSlots;
    bool isAllocated = false;
    uint16_t pucchStartPrb;
+   uint8_t pucchCount = 0;
    ret = ROK;
    if(pucchDedCfg->resrcSet && pucchDedCfg->resrc)
    {
@@ -374,22 +375,24 @@ uint8_t fillUlSchedPucchDedicatedCfg(SchCellCb *cell, SchPucchCfg *pucchDedCfg,\
                if(pucchDedCfg->resrcSet->resrcSetToAddModList[resrcSetIdx].resrcList[resrcSetRsrcIdx] ==\
                      pucchDedCfg->resrc->resrcToAddModList[resrcIdx].resrcId)
                {
+                  DU_LOG("\nPUCCH COUNT = %d",pucchCount);
                   ret=RFAILED;
-                  ulSchedPucch->intraFreqHop = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].intraFreqHop;
-                  ulSchedPucch->secondPrbHop = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].secondPrbHop;
-                  ulSchedPucch->fdAlloc.startPrb = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].startPrb;
-                  ulSchedPucch->pucchFormat = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].pucchFormat;
-                  ret = fillUlSchedPucchFormat(ulSchedPucch->pucchFormat, ulSchedPucch,\
+                  ulSchedPucch[pucchCount].intraFreqHop = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].intraFreqHop;
+                  ulSchedPucch[pucchCount].secondPrbHop = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].secondPrbHop;
+                  ulSchedPucch[pucchCount].fdAlloc.startPrb = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].startPrb;
+                  ulSchedPucch[pucchCount].pucchFormat = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].pucchFormat;
+                  ret = fillUlSchedPucchFormat(ulSchedPucch[pucchCount].pucchFormat, &ulSchedPucch[pucchCount],\
                         &pucchDedCfg->resrc->resrcToAddModList[resrcIdx], NULLP);
                   if(ret == RFAILED)
                      return ret;
-
+                  
                   pucchStartPrb = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].startPrb;
                   if(pucchDedCfg->resrc->resrcToAddModList[resrcIdx].SchPucchFormat.format2->numPrbs>0){
-                     format2Alloc = allocatePrbUl(cell, *slotInfo, ulSchedPucch->tdAlloc.startSymb, ulSchedPucch->tdAlloc.numSymb, &pucchStartPrb, pucchDedCfg->resrc->resrcToAddModList[resrcIdx].SchPucchFormat.format2->numPrbs);
+                     format2Alloc = allocatePrbUl(cell, *slotInfo, ulSchedPucch[pucchCount].tdAlloc.startSymb, ulSchedPucch[pucchCount].tdAlloc.numSymb, &pucchStartPrb, pucchDedCfg->resrc->resrcToAddModList[resrcIdx].SchPucchFormat.format2->numPrbs);
                   }else{
-                     format1Alloc = allocatePrbUl(cell, *slotInfo, ulSchedPucch->tdAlloc.startSymb, ulSchedPucch->tdAlloc.numSymb, &pucchStartPrb, PUCCH_NUM_PRB_FORMAT_0_1_4);
+                     format1Alloc = allocatePrbUl(cell, *slotInfo, ulSchedPucch[pucchCount].tdAlloc.startSymb, ulSchedPucch[pucchCount].tdAlloc.numSymb, &pucchStartPrb, PUCCH_NUM_PRB_FORMAT_0_1_4);
                   }
+                  pucchCount++;
                   if(format1Alloc == ROK && format2Alloc == ROK)
                   {
                      isAllocated = true;
@@ -405,7 +408,7 @@ uint8_t fillUlSchedPucchDedicatedCfg(SchCellCb *cell, SchPucchCfg *pucchDedCfg,\
 
    if(pucchDedCfg->format1)
    {
-      ret = fillUlSchedPucchFormat(ulSchedPucch->pucchFormat, ulSchedPucch, NULLP, pucchDedCfg->format1);
+      ret = fillUlSchedPucchFormat(ulSchedPucch[0].pucchFormat, &ulSchedPucch[0], NULLP, pucchDedCfg->format1);
       if(ret == RFAILED)
          return ret;
    }
@@ -426,7 +429,7 @@ uint8_t fillUlSchedPucchDedicatedCfg(SchCellCb *cell, SchPucchCfg *pucchDedCfg,\
       }
       if(((numSlots * slotInfo->sfn + slotInfo->slot - srOffset) % srPeriodicity) == 0)
       {
-         ulSchedPucch->srFlag  = true;
+         ulSchedPucch[0].srFlag  = true;
       }
    }
    return ret;
@@ -473,7 +476,7 @@ uint16_t fillPucchResourceInfo(uint8_t ueId, SchPucchInfo *schPucchInfo, Inst in
        &cell->ueCb[ueIdx].ueCfg.spCellCfg.servCellRecfg.initUlBwp.pucchCfg, &slotInfo, schPucchInfo);
       if(ret == RFAILED)
       {
-         memset(schPucchInfo, 0, sizeof(SchPucchInfo));
+         memset(schPucchInfo, 0, 2*sizeof(SchPucchInfo));
          DU_LOG("\nERROR  --> SCH : Filling PUCCH dedicated cfg failed at fillPucchResourceInfo()");
 	 return ret;
       }
@@ -491,14 +494,14 @@ uint16_t fillPucchResourceInfo(uint8_t ueId, SchPucchInfo *schPucchInfo, Inst in
             &startPrb, PUCCH_NUM_PRB_FORMAT_0_1_4);
       if (ret == ROK)
       {
-         schPucchInfo->fdAlloc.startPrb = ulBwp->freqAlloc.startPrb + pucchResourceSet[pucchIdx][3];
-         schPucchInfo->fdAlloc.numPrb = PUCCH_NUM_PRB_FORMAT_0_1_4;
-         schPucchInfo->tdAlloc.startSymb = pucchResourceSet[pucchIdx][1];
-         schPucchInfo->tdAlloc.numSymb = pucchResourceSet[pucchIdx][2];
-         schPucchInfo->pucchFormat = pucchResourceSet[pucchIdx][0];
+         schPucchInfo[0].fdAlloc.startPrb = ulBwp->freqAlloc.startPrb + pucchResourceSet[pucchIdx][3];
+         schPucchInfo[0].fdAlloc.numPrb = PUCCH_NUM_PRB_FORMAT_0_1_4;
+         schPucchInfo[0].tdAlloc.startSymb = pucchResourceSet[pucchIdx][1];
+         schPucchInfo[0].tdAlloc.numSymb = pucchResourceSet[pucchIdx][2];
+         schPucchInfo[0].pucchFormat = pucchResourceSet[pucchIdx][0];
 
          /* set SR and UCI flag to false */
-         schPucchInfo->srFlag  = true;
+         schPucchInfo[0].srFlag  = true;
       }
    }
    return ROK;
@@ -566,14 +569,14 @@ uint8_t schUlResAlloc(SchCellCb *cell, Inst schInst)
       if (ret == ROK)
       {
          ulSchedInfo.dataType |= SCH_DATATYPE_UCI;
-         memcpy(&ulSchedInfo.schPucchInfo, &schUlSlotInfo->schPucchInfo,
-               sizeof(SchPucchInfo));
+         memcpy(&ulSchedInfo.schPucchInfo, schUlSlotInfo->schPucchInfo,
+               2*sizeof(SchPucchInfo));
       }
       else
       {
          return RFAILED;
       }
-      memset(&schUlSlotInfo->schPucchInfo, 0, sizeof(SchPucchInfo));
+      memset(schUlSlotInfo->schPucchInfo, 0, 2*sizeof(SchPucchInfo));
    }
 
    //send msg to MAC
@@ -807,13 +810,14 @@ uint16_t schAllocPucchResource(SchCellCb *cell, SlotTimingInfo pucchTime, uint16
 
    pucchSlot = pucchTime.slot;
    schUlSlotInfo = cell->schUlSlotInfo[pucchSlot];
-   memset(&schUlSlotInfo->schPucchInfo, 0, sizeof(SchPucchInfo));
+   memset(schUlSlotInfo->schPucchInfo, 0, 2*sizeof(SchPucchInfo));
 
    schUlSlotInfo->pucchPres = true;
    if(ueCb != NULLP)
    {
       /* set HARQ flag to true */
-      schUlSlotInfo->schPucchInfo.harqInfo.harqBitLength = 1; /* 1 bit for HARQ */
+      schUlSlotInfo->schPucchInfo[0].harqInfo.harqBitLength = 1; /* 1 bit for HARQ */
+      schUlSlotInfo->schPucchInfo[1].harqInfo.harqBitLength = 1; /* 1 bit for HARQ */
       ADD_DELTA_TO_TIME(pucchTime, pucchTime, 3, cell->numSlots); /* SLOT_DELAY=3 */
       cmLListAdd2Tail(&(ueCb->hqDlmap[pucchTime.slot]->hqList), &hqP->ulSlotLnk);
    }
@@ -845,7 +849,7 @@ uint8_t schDlRsrcAllocDlMsg(SchCellCb *cell, SlotTimingInfo slotTime, uint16_t c
                 uint32_t tbSize, DlMsgSchInfo *dlMsgAlloc, uint16_t startPRB, uint8_t pdschStartSymbol,
                 uint8_t pdschNumSymbols, bool isRetx, SchDlHqProcCb *hqP)
 {
-   DU_LOG("\nAKMAL --> DL Transmission Mapping : Inside SchDlRsrcAllocDlMsg");
+   DU_LOG("\nAKMAL --> DL Transmission Mapping : Inside SchDlRsrcAllocDlMsg %d", tbSize);
    uint8_t ueId=0;
    uint8_t cwCount = 0;
    PdcchCfg *pdcch = NULLP;

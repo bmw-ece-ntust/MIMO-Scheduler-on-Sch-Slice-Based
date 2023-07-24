@@ -4286,8 +4286,8 @@ uint8_t getnPdus(fapi_ul_tti_req_t *ulTtiReq, MacUlSlot *currUlSlot)
       }
       if(currUlSlot->ulInfo.dataType & SCH_DATATYPE_UCI)
       {
-	 pduCount++;
-	 ulTtiReq->nUlcch++;
+	 pduCount+=2;
+	 ulTtiReq->nUlcch+=2;
       }
       if(currUlSlot->ulInfo.dataType & SCH_DATATYPE_SRS)
       {
@@ -4471,12 +4471,12 @@ void fillPuschPdu(fapi_ul_tti_req_pdu_t *ulTtiReqPdu, fapi_vendor_ul_tti_req_pdu
  *
  * ****************************************************************/
 void fillPucchPdu(fapi_ul_tti_req_pdu_t *ulTtiReqPdu, fapi_vendor_ul_tti_req_pdu_t *ulTtiVendorPdu, MacCellCfg *macCellCfg,\
-      MacUlSlot *currUlSlot)
+      MacUlSlot *currUlSlot, uint8_t pucchIdx)
 {
    if(ulTtiReqPdu != NULLP)
    {
       DU_LOG("\nAKMAL PRINT LWR MAC --> LWR MAC FILL PUCCH PDU");
-      DU_LOG("\nAKMAL PRINT LWR MAC --> RECEIVED PUCCH FORMAT %d at slot %d sfn %d",currUlSlot->ulInfo.schPucchInfo.pucchFormat, currUlSlot->ulInfo.slotIndInfo.slot,currUlSlot->ulInfo.slotIndInfo.sfn);
+      DU_LOG("\nAKMAL PRINT LWR MAC --> RECEIVED PUCCH FORMAT %d at slot %d sfn %d",currUlSlot->ulInfo.schPucchInfo[pucchIdx].pucchFormat, currUlSlot->ulInfo.slotIndInfo.slot,currUlSlot->ulInfo.slotIndInfo.sfn);
       ulTtiReqPdu->pduType                  = PUCCH_PDU_TYPE;
       memset(&ulTtiReqPdu->pdu.pucch_pdu, 0, sizeof(fapi_ul_pucch_pdu_t));
       ulTtiReqPdu->pdu.pucch_pdu.rnti         = currUlSlot->ulInfo.crnti;
@@ -4486,37 +4486,37 @@ void fillPucchPdu(fapi_ul_tti_req_pdu_t *ulTtiReqPdu, fapi_vendor_ul_tti_req_pdu
       ulTtiReqPdu->pdu.pucch_pdu.bwpStart     = macCellCfg->initialUlBwp.bwp.firstPrb;
       ulTtiReqPdu->pdu.pucch_pdu.subCarrierSpacing = macCellCfg->initialUlBwp.bwp.scs;
       ulTtiReqPdu->pdu.pucch_pdu.cyclicPrefix = macCellCfg->initialUlBwp.bwp.cyclicPrefix;
-      ulTtiReqPdu->pdu.pucch_pdu.formatType   = currUlSlot->ulInfo.schPucchInfo.pucchFormat; /* Supporting PUCCH Format 0 */
+      ulTtiReqPdu->pdu.pucch_pdu.formatType   = currUlSlot->ulInfo.schPucchInfo[pucchIdx].pucchFormat; /* Supporting PUCCH Format 0 */
       ulTtiReqPdu->pdu.pucch_pdu.multiSlotTxIndicator = 0; /* No Multi Slot transmission */
       
-      ulTtiReqPdu->pdu.pucch_pdu.prbStart     = currUlSlot->ulInfo.schPucchInfo.fdAlloc.startPrb;
-      ulTtiReqPdu->pdu.pucch_pdu.prbSize      = currUlSlot->ulInfo.schPucchInfo.fdAlloc.numPrb;
-      ulTtiReqPdu->pdu.pucch_pdu.startSymbolIndex = currUlSlot->ulInfo.schPucchInfo.tdAlloc.startSymb;
-      ulTtiReqPdu->pdu.pucch_pdu.nrOfSymbols  = currUlSlot->ulInfo.schPucchInfo.tdAlloc.numSymb;
-      ulTtiReqPdu->pdu.pucch_pdu.freqHopFlag  = currUlSlot->ulInfo.schPucchInfo.intraFreqHop;
-      ulTtiReqPdu->pdu.pucch_pdu.secondHopPrb = currUlSlot->ulInfo.schPucchInfo.secondPrbHop;
+      ulTtiReqPdu->pdu.pucch_pdu.prbStart     = currUlSlot->ulInfo.schPucchInfo[pucchIdx].fdAlloc.startPrb;
+      ulTtiReqPdu->pdu.pucch_pdu.prbSize      = currUlSlot->ulInfo.schPucchInfo[pucchIdx].fdAlloc.numPrb;
+      ulTtiReqPdu->pdu.pucch_pdu.startSymbolIndex = currUlSlot->ulInfo.schPucchInfo[pucchIdx].tdAlloc.startSymb;
+      ulTtiReqPdu->pdu.pucch_pdu.nrOfSymbols  = currUlSlot->ulInfo.schPucchInfo[pucchIdx].tdAlloc.numSymb;
+      ulTtiReqPdu->pdu.pucch_pdu.freqHopFlag  = currUlSlot->ulInfo.schPucchInfo[pucchIdx].intraFreqHop;
+      ulTtiReqPdu->pdu.pucch_pdu.secondHopPrb = currUlSlot->ulInfo.schPucchInfo[pucchIdx].secondPrbHop;
       ulTtiReqPdu->pdu.pucch_pdu.groupHopFlag = 0;     
       ulTtiReqPdu->pdu.pucch_pdu.sequenceHopFlag = 0;
       ulTtiReqPdu->pdu.pucch_pdu.hoppingId    = 0;
 
-      ulTtiReqPdu->pdu.pucch_pdu.initialCyclicShift = currUlSlot->ulInfo.schPucchInfo.initialCyclicShift;
+      ulTtiReqPdu->pdu.pucch_pdu.initialCyclicShift = currUlSlot->ulInfo.schPucchInfo[pucchIdx].initialCyclicShift;
 
       ulTtiReqPdu->pdu.pucch_pdu.dataScramblingId = 0; /* Valid for Format 2, 3, 4 */
-      ulTtiReqPdu->pdu.pucch_pdu.timeDomainOccIdx = currUlSlot->ulInfo.schPucchInfo.timeDomOCC; 
-      ulTtiReqPdu->pdu.pucch_pdu.preDftOccIdx = currUlSlot->ulInfo.schPucchInfo.occIdx; /* Valid for Format 4 only */
-      ulTtiReqPdu->pdu.pucch_pdu.preDftOccLen = currUlSlot->ulInfo.schPucchInfo.occLen; /* Valid for Format 4 only */
-      ulTtiReqPdu->pdu.pucch_pdu.pi2Bpsk = currUlSlot->ulInfo.schPucchInfo.pi2BPSK;
-      ulTtiReqPdu->pdu.pucch_pdu.addDmrsFlag = currUlSlot->ulInfo.schPucchInfo.addDmrs;/* Valid for Format 3, 4 only */
+      ulTtiReqPdu->pdu.pucch_pdu.timeDomainOccIdx = currUlSlot->ulInfo.schPucchInfo[pucchIdx].timeDomOCC; 
+      ulTtiReqPdu->pdu.pucch_pdu.preDftOccIdx = currUlSlot->ulInfo.schPucchInfo[pucchIdx].occIdx; /* Valid for Format 4 only */
+      ulTtiReqPdu->pdu.pucch_pdu.preDftOccLen = currUlSlot->ulInfo.schPucchInfo[pucchIdx].occLen; /* Valid for Format 4 only */
+      ulTtiReqPdu->pdu.pucch_pdu.pi2Bpsk = currUlSlot->ulInfo.schPucchInfo[pucchIdx].pi2BPSK;
+      ulTtiReqPdu->pdu.pucch_pdu.addDmrsFlag = currUlSlot->ulInfo.schPucchInfo[pucchIdx].addDmrs;/* Valid for Format 3, 4 only */
       ulTtiReqPdu->pdu.pucch_pdu.dmrsScramblingId = 0; /* Valid for Format 2 */
       ulTtiReqPdu->pdu.pucch_pdu.dmrsCyclicShift  = 0; /* Valid for Format 4 */
-      ulTtiReqPdu->pdu.pucch_pdu.srFlag           = currUlSlot->ulInfo.schPucchInfo.srFlag;
-      ulTtiReqPdu->pdu.pucch_pdu.bitLenHarq       = currUlSlot->ulInfo.schPucchInfo.harqInfo.harqBitLength;
+      ulTtiReqPdu->pdu.pucch_pdu.srFlag           = currUlSlot->ulInfo.schPucchInfo[pucchIdx].srFlag;
+      ulTtiReqPdu->pdu.pucch_pdu.bitLenHarq       = currUlSlot->ulInfo.schPucchInfo[pucchIdx].harqInfo.harqBitLength;
       ulTtiReqPdu->pdu.pucch_pdu.bitLenCsiPart1   = 0; /* Valid for Format 2, 3, 4 */
       ulTtiReqPdu->pdu.pucch_pdu.bitLenCsiPart2   = 0; /* Valid for Format 2, 3, 4 */
-      ulTtiReqPdu->pdu.pucch_pdu.beamforming.numPrgs = currUlSlot->ulInfo.schPucchInfo.beamPucchInfo.numPrgs; 
-      ulTtiReqPdu->pdu.pucch_pdu.beamforming.prgSize = currUlSlot->ulInfo.schPucchInfo.beamPucchInfo.prgSize;
-      ulTtiReqPdu->pdu.pucch_pdu.beamforming.digBfInterface = currUlSlot->ulInfo.schPucchInfo.beamPucchInfo.digBfInterfaces;
-      ulTtiReqPdu->pdu.pucch_pdu.beamforming.rx_bfi[0].beamIdx[0].beamidx = currUlSlot->ulInfo.schPucchInfo.beamPucchInfo.prg[0].beamIdx[0];
+      ulTtiReqPdu->pdu.pucch_pdu.beamforming.numPrgs = currUlSlot->ulInfo.schPucchInfo[pucchIdx].beamPucchInfo.numPrgs; 
+      ulTtiReqPdu->pdu.pucch_pdu.beamforming.prgSize = currUlSlot->ulInfo.schPucchInfo[pucchIdx].beamPucchInfo.prgSize;
+      ulTtiReqPdu->pdu.pucch_pdu.beamforming.digBfInterface = currUlSlot->ulInfo.schPucchInfo[pucchIdx].beamPucchInfo.digBfInterfaces;
+      ulTtiReqPdu->pdu.pucch_pdu.beamforming.rx_bfi[0].beamIdx[0].beamidx = currUlSlot->ulInfo.schPucchInfo[pucchIdx].beamPucchInfo.prg[0].beamIdx[0];
 
       ulTtiReqPdu->pduSize = sizeof(fapi_ul_pucch_pdu_t);
 
@@ -4558,6 +4558,7 @@ uint16_t fillUlTtiReq(SlotTimingInfo currTimingInfo, p_fapi_api_queue_elem_t pre
 #ifdef INTEL_FAPI
    uint16_t   cellIdx =0;
    uint8_t    pduIdx = -1;
+   uint8_t     pucchIdx = 0;
    SlotTimingInfo ulTtiReqTimingInfo;
    MacUlSlot *currUlSlot = NULLP;
    MacCellCfg macCellCfg;
@@ -4608,7 +4609,10 @@ uint16_t fillUlTtiReq(SlotTimingInfo currTimingInfo, p_fapi_api_queue_elem_t pre
 		      if(currUlSlot->ulInfo.dataType & SCH_DATATYPE_UCI)
 		      {
 			      pduIdx++;
-			      fillPucchPdu(&ulTtiReq->pdus[pduIdx], &vendorUlTti->ul_pdus[pduIdx], &macCellCfg, currUlSlot);
+			      fillPucchPdu(&ulTtiReq->pdus[pduIdx], &vendorUlTti->ul_pdus[pduIdx], &macCellCfg, currUlSlot, pucchIdx);
+               pucchIdx++;
+               pduIdx++;
+               fillPucchPdu(&ulTtiReq->pdus[pduIdx], &vendorUlTti->ul_pdus[pduIdx], &macCellCfg, currUlSlot, pucchIdx);
 			      ulTtiReq->nUlcch++;
 		      }
 	      } 
