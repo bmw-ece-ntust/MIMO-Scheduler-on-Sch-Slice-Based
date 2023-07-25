@@ -180,17 +180,26 @@ typedef struct
    HarqInfoF0F1 harqInfo;
 }UciPucchF0F1;
 
+// FAPI PHY API Spec July 2022 Table 3-135
+typedef struct
+{
+   uint16_t srBitLen;
+   uint8_t *srPayload;
+}SrInfoF2F3F4; 
+
 typedef struct
 {
    uint32_t handle;
    uint8_t pduBitmap;
    uint8_t pucchFormat;
    uint8_t ul_cqi;
+   uint8_t dl_cqi;
    uint16_t crnti;
    uint16_t timingAdvance;
    uint16_t rssi;
    uint16_t num_uci_bits;
    uint8_t uciBits[MAX_UCI_BIT_PER_TTI_IN_BYTES];
+   SrInfoF2F3F4  srInfo;
 }UciPucchF2F3F4;
 
 typedef struct 
