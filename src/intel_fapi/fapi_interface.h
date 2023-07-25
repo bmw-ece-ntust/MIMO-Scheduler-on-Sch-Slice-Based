@@ -1195,12 +1195,14 @@ extern "C" {
         uint8_t pduBitmap;
         uint8_t pucchFormat;
         uint8_t ul_cqi;
+        uint8_t dl_cqi;
         uint8_t pad;
         uint16_t rnti;
         uint16_t timingAdvance;
         uint16_t rssi;          // 5G FAPI Table 3-66
         uint16_t num_uci_bits;
         uint8_t uciBits[FAPI_MAX_UCI_BIT_BYTE_LEN];
+        fapi_sr_f2f3f4_info_t srInfo; // This is included if indicated by the pduBitmap
     } fapi_uci_o_pucch_f2f3f4_t;
 
 // Updated per 5G FAPI
