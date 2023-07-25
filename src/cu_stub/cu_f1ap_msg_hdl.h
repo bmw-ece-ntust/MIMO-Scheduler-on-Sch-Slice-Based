@@ -34,7 +34,7 @@
 #define DRB2 2
 #define DRB3 3
 #define QCI  9
-#define MAX_DRB_SET_UE_CONTEXT_SETUP_REQ 2  /*Number of DRBs to be added using UE CONTEXT SETUP procedure*/
+#define MAX_DRB_SET_UE_CONTEXT_SETUP_REQ 1  /*Number of DRBs to be added using UE CONTEXT SETUP procedure*/
 #define MAX_DRB_SET_UE_CONTEXT_MOD_REQ 1     /*Number of DRBs to be added/setup via UE CONTEXT MODIFICATION procedure*/
 #define MAX_DRB_MODIFIED_UE_MOD_REQ 1        /*Currently CU trigger Modification of 2DRBs*/
 #define DRB_ID_TO_ADD_MOD MAX_DRB_SET_UE_CONTEXT_SETUP_REQ+1 /*The DRB ID: which will be added using Modification Procedure*/
