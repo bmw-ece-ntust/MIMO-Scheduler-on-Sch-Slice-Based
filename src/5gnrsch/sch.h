@@ -349,7 +349,7 @@ typedef struct schUlSlotInfo
    bool         puschPres;        /*!< PUSCH presence field */
    SchPuschInfo *schPuschInfo;    /*!< PUSCH info */
    bool         pucchPres;        /*!< PUCCH presence field */
-   SchPucchInfo schPucchInfo;     /*!< PUCCH info */
+   SchPucchInfo schPucchInfo[2];  /*!< PUCCH info */ /* Hardcode support 2 PUCCH Cfg for HARQ, SR & CQI */
    uint8_t      pucchUe;          /*!< Store UE id for which PUCCH is scheduled */
    uint8_t      puschUe;          /*!< Store UE id for which PUSCH is scheduled */
 }SchUlSlotInfo;

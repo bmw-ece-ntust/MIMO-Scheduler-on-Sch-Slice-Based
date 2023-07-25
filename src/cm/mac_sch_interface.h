@@ -1503,7 +1503,7 @@ typedef struct ulSchedInfo
    SchPrachInfo     prachSchInfo;   /* Prach scheduling info */
    SchPuschInfo     schPuschInfo;   /* Pusch scheduling info */
    SchPuschUci      schPuschUci;    /* Pusch Uci */
-   SchPucchInfo     schPucchInfo;   /* Pucch and Uci scheduling info */
+   SchPucchInfo     schPucchInfo[2];   /* Pucch and Uci scheduling info */
 }UlSchedInfo;
 
 /* Info of Scheduling Request to Add/Modify */
