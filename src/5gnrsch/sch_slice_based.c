@@ -31,6 +31,8 @@ File:     sch_slice_based.c
 /** @file sch_slot_ind.c
   @brief This module processes slot indications
  */
+#include <time.h>
+#include <sys/time.h>
 #include "common_def.h"
 #include "tfu.h"
 #include "lrg.h"
@@ -988,6 +990,12 @@ uint32_t schSliceBasedScheduleDlLc(SlotTimingInfo pdcchTime, SlotTimingInfo pdsc
    uint16_t rsvdDedicatedPRB = 0;
    DlMsgSchInfo *dciSlotAlloc;
 
+   time_t rawtime;
+   struct tm *timeinfo;
+   struct timeval tv;
+   gettimeofday(&tv,NULL);
+   char buffer[80];
+
    /* TX_PAYLOAD_HDR_LEN: Overhead which is to be Added once for any UE while estimating Accumulated TB Size
     * Following flag added to keep the record whether TX_PAYLOAD_HDR_LEN is added to the first Node getting allocated.
     * If both Dedicated and Default LC lists are present then First LC in Dedicated List will include this overhead
@@ -1123,6 +1131,13 @@ uint32_t schSliceBasedScheduleDlLc(SlotTimingInfo pdcchTime, SlotTimingInfo pdsc
       accumalatedSize = 0;
    }
 
+   rawtime = tv.tv_sec;
+   timeinfo = localtime(&rawtime);
+
+   strftime(buffer,sizeof(buffer), "%Y-%m-%d %H:%M:%S",timeinfo);
+   
+   DU_LOG("\nAKMAL PRINT THROUGHPUT of UE %d in bytes = %d , timing = %d, Timestamp: %s.%03ld, MCS %d",ueCb->ueId,accumalatedSize,pdschTime.sfn*10 + pdschTime.slot,buffer,tv.tv_usec/1000,ueCb->ueCfg.dlModInfo.mcsIndex);
+      
    return accumalatedSize;
 }
 

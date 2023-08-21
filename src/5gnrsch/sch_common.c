@@ -1680,6 +1680,8 @@ void updateGrantSizeForBoRpt(CmLListCp *lcLL, DlMsgSchInfo *dlMsgAlloc,\
 {
    CmLList *node = NULLP, *next = NULLP;
    LcInfo *lcNode = NULLP;
+   uint32_t totalReqBo;
+   totalReqBo = 0;
 
    if(lcLL == NULLP)
    {
@@ -1721,6 +1723,10 @@ void updateGrantSizeForBoRpt(CmLListCp *lcLL, DlMsgSchInfo *dlMsgAlloc,\
             DU_LOG("\nINFO   -->  SCH: Added in MAC BO report: LCID:%d,reqBO:%d,Idx:%d, TotalBO Size:%d",\
                   lcNode->lcId,lcNode->reqBO, dlMsgAlloc->transportBlock[0].numLc, *accumalatedBOSize);
 
+            totalReqBo+=lcNode->reqBO;
+            if(lcNode->lcId==4){
+               DU_LOG("\nAKMAL PRINT --> totalReqBO %d",totalReqBo);
+            }
             dlMsgAlloc->transportBlock[0].numLc++;
             handleLcLList(lcLL, lcNode->lcId, DELETE);
          }
