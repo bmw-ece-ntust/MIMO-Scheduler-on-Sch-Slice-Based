@@ -442,7 +442,7 @@ uint8_t startDlDataExperiment()
    uint32_t timerCnt = 0; 
    EgtpTeIdCb *teidCb = NULLP;
    
-   while(timerCnt < 300){
+   while(timerCnt < 20000){
       totalNumOfTestFlow = 1;
       while(totalNumOfTestFlow)
       {
@@ -456,7 +456,7 @@ uint8_t startDlDataExperiment()
                {
                   cnt =0;
                   DU_LOG("\nDEBUG  -->  EGTP: Sending DL User Data(duId %d, teId:%d)\n", duId, teId);
-                  while(cnt < NUM_DL_PACKETS)
+                  while(cnt < 5)
                   {
                      ret =  cuEgtpDatReq(duId, teId);      
                      if(ret != ROK)
@@ -478,7 +478,7 @@ uint8_t startDlDataExperiment()
          }
          totalNumOfTestFlow--;
       }
-      usleep(1000000);
+      usleep(5000);
       timerCnt++;
       DU_LOG("\nDEBUG  -->  Timer Count: %d\n", timerCnt);   
    }
