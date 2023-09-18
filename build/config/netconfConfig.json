@@ -1,8 +1,8 @@
 {
     "NetconfServer": {
-        "MacAddress": "02:42:f7:d4:62:ce",
-        "NetconfServerIpv4": "10.0.2.132",
-        "NetconfServerIpv6": "2002:c0a8:3865::",
+        "MacAddress": "fa:16:3e:e2:81:fe",
+        "NetconfServerIpv4": "10.0.10.30",
+        "NetconfServerIpv6": "fe80::f816:3eff:fee2:81fe",
         "NetconfPort": "830",
         "NetconfUsername": "netconf",
         "NetconfPassword": "netconf!"

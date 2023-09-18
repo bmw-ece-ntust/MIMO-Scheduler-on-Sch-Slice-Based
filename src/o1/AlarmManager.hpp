@@ -22,7 +22,7 @@
 
 #ifndef __ALARM_MANAGER_HPP__
 #define __ALARM_MANAGER_HPP__
-
+#include "sysrepo-cpp/Session.hpp"
 #include <map>
 #include "Alarm.hpp"
 #include "Singleton.hpp"
@@ -55,7 +55,6 @@ class AlarmManager : public Singleton<AlarmManager> ,public Observer
    const map<uint16_t, Alarm>& getAlarmList()const;
 
 };
-
 
 #endif
 
