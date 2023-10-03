@@ -37,8 +37,7 @@ class Alarm3GPPYangModel:public sysrepo::Callback {
                          const char *path,\
                          const char *request_xpath,\
                          uint32_t request_id,\
-                         libyang::S_Data_Node &parent,\
-                         void *private_data) override;
+                         libyang::S_Data_Node &parent) override;
 };
 
 #endif

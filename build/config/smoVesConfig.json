@@ -1,6 +1,6 @@
 {
     "vesConfig": {
-        "vesV4IpAddress" : "10.0.2.135",
+        "vesV4IpAddress" : "10.0.10.30",
         "vesPort" : "9999",
         "username" : "user",
         "password" : "password"

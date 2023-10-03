@@ -126,8 +126,9 @@ endif
 ifeq ($(O1_ENABLE),YES)
   L_OPTS+=-lsysrepo -lyang
   L_OPTS+=-lsysrepo-cpp -lyang-cpp
-L_OPTS+= -lnetconf2 -lcjson -lcurl
+  L_OPTS+= -lnetconf2 -lcjson -lcurl
   L_OPTS+=-lstdc++
+  L_OPTS+=-lsysrepo_extend
 endif
 
 # Export some of the flags expected from the command line.
@@ -205,7 +206,7 @@ ifeq ($(O1_ENABLE),YES)
 endif
 
 link_du: du
-		   $(Q)$(CC1) -g -o $(OBJ_ROOT)/odu/odu -Wl,-R../lib/:. $(OBJ_ROOT)/odu/*.o\
+		   $(Q)$(CC1) -L/usr/local/lib -g -o $(OBJ_ROOT)/odu/odu -Wl,-R../lib/:. $(OBJ_ROOT)/odu/*.o\
 			$(L_OPTS) -L$(LIB_ROOT)/odu -L$(ROOT_DIR)/libs/odu 
 
 clean_odu: 
@@ -271,7 +272,7 @@ endif
 	 $(Q)echo -e "***** CU STUB CLEAN COMPLETE *****"
 
 link_cu: 
-		$(Q)$(CC1) -g -o $(OBJ_ROOT)/cu_stub/cu_stub -Wl,-R../lib/:. $(OBJ_ROOT)/cu_stub/*.o\
+		$(Q)$(CC1) -L/usr/local/lib -g -o $(OBJ_ROOT)/cu_stub/cu_stub -Wl,-R../lib/:. $(OBJ_ROOT)/cu_stub/*.o\
 		$(L_OPTS) -L$(LIB_ROOT)/cu_stub -L$(ROOT_DIR)/libs/cu_stub
 		$(Q)cp -f ./obj/cu_stub/cu_stub ./bin/cu_stub
 		$(Q)cp -rf ./bin/cu_stub $(ROOT_DIR)/bin/

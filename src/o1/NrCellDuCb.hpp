@@ -25,6 +25,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "sysrepo-cpp/Session.hpp"
+#include "sysrepo_extend.hpp"
 #include "AlarmManager.hpp"
 #include "GlobalDefs.hpp"
 #include "CmInterface.h"
@@ -38,15 +39,13 @@ class NrCellDuCb: public sysrepo::Callback
                          const char *path,\
                          const char *request_xpath,\
                          uint32_t request_id,\
-                         libyang::S_Data_Node &parent,\
-                         void *private_data);
+                         libyang::S_Data_Node &parent);
 
       int module_change(sysrepo::S_Session sess, \
                          const char *module_name, \
                          const char *xpath, \
                          sr_event_t event, \
-                         uint32_t request_id, \
-                         void *private_data); //override
+                         uint32_t request_id); //override
    private:
       bool configureCell();
       void updateParams(string &parent, string &leaf, string &val);
