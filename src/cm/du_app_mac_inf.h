@@ -87,6 +87,7 @@
 #define EVENT_MAC_UE_RESET_REQ       225
 #define EVENT_MAC_UE_RESET_RSP       226
 #define EVENT_MAC_UE_SYNC_STATUS_IND 227
+#define EVENT_MAC_UE_MCS_IDX_REPORT 228
 
 #define BSR_PERIODIC_TIMER_SF_10 10
 #define BSR_RETX_TIMER_SF_320 320
@@ -109,6 +110,21 @@
 #define NZP_CSI_FIRST_SYMBOL_IN_TIME_DOMAIN 2
 #define NZP_CSI_FREQ_DOMAIN_ALLOC ROW1
 #define NZP_CSI_NUM_OF_PORTS 1
+
+/* MCS Index Buffer */
+/* Added by Akmal to track MCS Index Metrics */
+typedef struct mcsIndexBuffer{
+   uint16_t sum;
+   uint16_t count;
+}McsIndexBuffer;
+
+/* Message to send MCS Index */
+typedef struct ueMcsIndexRpt
+{
+   uint16_t cellId;
+   uint8_t  ueId;
+   uint8_t mcsIndex;
+}MacUeMcsIndexRpt;
 
 /* CSI-RS Configuration */
 /* CSI-RS density --> TS38.331 v17.2.0 Page 573*/
@@ -2151,6 +2167,11 @@ typedef uint8_t (*MacDuUeSyncStatusIndFunc) ARGS((
         Pst            *pst,
         MacUeSyncStatusInd *syncStatusInd));
 
+/* MCS Index Report from MAC to DU APP */
+typedef uint8_t (*MacDuMcsIdxRptFunc) ARGS((
+	 Pst           *pst, 
+	 MacUeMcsIndexRpt      *MacMcsIdxRpt));
+
 uint64_t ueBitMapPerCell[MAX_NUM_CELL]; /* Bit Map to store used/free UE-IDX per Cell */
 
 uint8_t packMacCellUpInd(Pst *pst, OduCellId *cellId);
@@ -2240,6 +2261,8 @@ uint8_t unpackDuMacUeResetRsp(MacDuUeResetRspFunc func, Pst *pst, Buffer *mBuf);
 uint8_t packDuMacUeSyncStatusInd(Pst *pst, MacUeSyncStatusInd *ueSyncStatusInd);
 uint8_t DuProcMacUeSyncStatusInd(Pst *pst, MacUeSyncStatusInd *ueSyncStatusInd);
 uint8_t unpackDuMacUeSyncStatusInd(MacDuUeSyncStatusIndFunc func, Pst *pst, Buffer *mBuf);
+uint8_t packDuMacUeMcsIdxRpt(Pst *pst, MacUeMcsIndexRpt *MacMcsIdxRpt);
+uint8_t DuProcMacUeMcsIdxRpt(Pst *pst, MacUeMcsIndexRpt *MacMcsIdxRpt);
 #endif
 
 

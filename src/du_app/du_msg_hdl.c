@@ -54,6 +54,8 @@ uint8_t numRlcMacSaps = 0;
 uint8_t macCfg = 0;
 uint8_t macCfgInst = 0;
 
+McsIndexBuffer mcsBuff1 = {.count=0, .sum=0};
+
 DuCfgParams duCfgParam;
 uint8_t packRlcConfigReq(Pst *pst, RlcMngmt *cfg);
 uint8_t cmPkLkwCntrlReq(Pst *pst, RlcMngmt *cfg);
