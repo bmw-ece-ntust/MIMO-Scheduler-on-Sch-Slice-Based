@@ -2068,6 +2068,34 @@ uint8_t DuProcRlcSliceMetrics(Pst *pst, SlicePmList *sliceStats)
    return ROK;
 }
 
+/*******************************************************************
+ *
+ * @brief process the MCS Index report received from MAC
+ *
+ * @details
+ *
+ *    Function : DuProcMacUeMcsIdxRpt
+ *
+ *    Functionality: process the MCS Index report received from MAC
+ *
+ * @params[in] Post structure, MacUeMcsIndexRpt  *MacMcsIdxRpt
+ *             
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ **********************************************************************/
+uint8_t DuProcMacUeMcsIdxRpt(Pst *pst, MacUeMcsIndexRpt *MacMcsIdxRpt)
+{
+   if(MacMcsIdxRpt)
+   {
+      mcsBuff1.sum += MacMcsIdxRpt->mcsIndex;
+      mcsBuff1.count++;
+
+      DU_FREE_SHRABL_BUF(DU_APP_MEM_REGION, DU_POOL, MacMcsIdxRpt, sizeof(MacUeMcsIndexRpt));
+   }
+   return ROK;
+}
+
 /**********************************************************************
   End of file
  **********************************************************************/
