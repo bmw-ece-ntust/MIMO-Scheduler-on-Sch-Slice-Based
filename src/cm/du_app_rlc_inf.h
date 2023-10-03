@@ -290,6 +290,7 @@ typedef struct slicePm
   SliceIdentifier networkSliceIdentifier;
   double ThpDl;
   double ThpUl;
+  double mcsIndex;
 }SlicePm;
 
 typedef struct slicePmList

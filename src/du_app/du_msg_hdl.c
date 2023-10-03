@@ -54,6 +54,8 @@ uint8_t numRlcMacSaps = 0;
 uint8_t macCfg = 0;
 uint8_t macCfgInst = 0;
 
+McsIndexBuffer mcsBuff1 = {.count=0, .sum=0};
+
 DuCfgParams duCfgParam;
 uint8_t packRlcConfigReq(Pst *pst, RlcMngmt *cfg);
 uint8_t cmPkLkwCntrlReq(Pst *pst, RlcMngmt *cfg);
@@ -2063,6 +2065,34 @@ uint8_t DuProcRlcSliceMetrics(Pst *pst, SlicePmList *sliceStats)
    DU_FREE_SHRABL_BUF(pst->region, pst->pool,sliceStats->sliceRecord, (sliceStats->numSlice) * (sizeof(SlicePm)));
    DU_FREE_SHRABL_BUF(pst->region, pst->pool,sliceStats, sizeof(SlicePmList));
 
+   return ROK;
+}
+
+/*******************************************************************
+ *
+ * @brief process the MCS Index report received from MAC
+ *
+ * @details
+ *
+ *    Function : DuProcMacUeMcsIdxRpt
+ *
+ *    Functionality: process the MCS Index report received from MAC
+ *
+ * @params[in] Post structure, MacUeMcsIndexRpt  *MacMcsIdxRpt
+ *             
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ **********************************************************************/
+uint8_t DuProcMacUeMcsIdxRpt(Pst *pst, MacUeMcsIndexRpt *MacMcsIdxRpt)
+{
+   if(MacMcsIdxRpt)
+   {
+      mcsBuff1.sum += MacMcsIdxRpt->mcsIndex;
+      mcsBuff1.count++;
+
+      DU_FREE_SHRABL_BUF(DU_APP_MEM_REGION, DU_POOL, MacMcsIdxRpt, sizeof(MacUeMcsIndexRpt));
+   }
    return ROK;
 }
 

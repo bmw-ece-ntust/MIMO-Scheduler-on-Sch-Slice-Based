@@ -63,6 +63,13 @@ MacDuSliceRecfgRspFunc macDuSliceRecfgRspOpts[] =
    packDuMacSliceRecfgRsp    /* packing for light weight loosly coupled */
 };
 
+MacDuMcsIdxRptFunc macDuMcsIdxRptRspOpts[] = 
+{
+   packDuMacUeMcsIdxRpt,   /* packing for loosely coupled */
+   DuProcMacUeMcsIdxRpt,   /* packing for tightly coupled */
+   packDuMacUeMcsIdxRpt    /* packing for light weight loosly coupled */
+};
+
 /**
  * @brief Layer Manager  Configuration request handler for Scheduler
  *
