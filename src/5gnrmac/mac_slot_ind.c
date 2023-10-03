@@ -188,12 +188,20 @@ uint8_t MacProcDlAlloc(Pst *pst, DlSchedInfo *dlSchedInfo)
           return RFAILED;
       }
       if(dlSchedInfo){
-         /*For UE 1*/
-         macMcsIdxRpt->cellId = dlSchedInfo->cellId;
-         macMcsIdxRpt->ueId = 0; // Assume Single UE
-         macMcsIdxRpt->mcsIndex = dlSchedInfo->dlMsgAlloc[0]->dlMsgPdschCfg->codeword[0].mcsIndex;
+         if(dlSchedInfo->dlMsgAlloc){
+            if(dlSchedInfo->dlMsgAlloc[0]){
+               if(dlSchedInfo->dlMsgAlloc[0]->dlMsgPdschCfg){
+                  /*For UE 1*/
+                  macMcsIdxRpt->cellId = dlSchedInfo->cellId;
+                  macMcsIdxRpt->ueId = 0; // Assume Single UE
+                  macMcsIdxRpt->mcsIndex = dlSchedInfo->dlMsgAlloc[0]->dlMsgPdschCfg->codeword[0].mcsIndex;
+                  macSendMcsIdxRptToDu(macMcsIdxRpt);
+               }
+            }
+            
+         }
+         
       }
-      macSendMcsIdxRptToDu(macMcsIdxRpt);
    }
    return ROK;
 }
