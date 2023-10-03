@@ -2374,7 +2374,7 @@ uint8_t SchProcDlCqiInd(Pst *pst, SchDlCqiInd *dlCqiInd)
    SchUeCb *ueCb = NULLP;
    SchCellCb *cell = NULLP;
    Inst  inst = pst->dstInst-SCH_INST_START;
-   uint8_t mcsMappingTable[] = {0,0,1,3,5,7,9,11,13,15,17,19,21,23,25,27};
+   uint8_t mcsMappingTable[] = {0,0,0,2,4,6,8,11,13,15,18,20,22,24,26,28};
    // DU_LOG("\nINFO  -->  SCH : Received DL CQI Ind Value %d, MCS Value %d",dlCqiInd->dlCqiRpt.cqi,mcsMappingTable[dlCqiInd->dlCqiRpt.cqi-1]);   
 
    if(!dlCqiInd)
