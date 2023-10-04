@@ -478,7 +478,7 @@ uint8_t startDlDataExperiment()
          }
          totalNumOfTestFlow--;
       }
-      usleep(5500);
+      usleep(6000);
       timerCnt++;
       DU_LOG("\nDEBUG  -->  Timer Count: %d\n", timerCnt);   
    }
