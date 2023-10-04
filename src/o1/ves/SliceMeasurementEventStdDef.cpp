@@ -89,7 +89,7 @@ std::string SliceMeasurementEventStdDef::getMeasPath(string str, int sd, int sst
    std::ostringstream os;
    os<<"/"<<YANG_NAME<<":network-function/distributed-unit-functions[id='"\ 
 	   << ODU_HIGH <<"']/cell[id='"<<cellParams.cellLocalId <<\ 
-	   "']/supported-measurements[performance-measurement-type='user-equipment-average-throughput-"\ 
+	   "']/supported-measurements[performance-measurement-type='"\ 
 	   <<str<<"']/supported-snssai-subcounter-instances[slice-differentiator='"\ 
 	   <<sd<<"'][slice-service-type='"<<sst<<"']" ;
    return os.str();
@@ -197,27 +197,36 @@ bool SliceMeasurementEventStdDef::prepareEventFields(const Message* msg)
 
             string str;
             cJSON *value;
-	    if(j==0)
-	    {
-               str = "downlink";
+            if(j==0)
+            {
+               str = "user-equipment-average-throughput-downlink";
                value = cJSON_CreateNumber(sliceList[i].DRB_UEThpDl_SNSSAI);
             }
             else
-	    {
-               str = "uplink";
-               value = cJSON_CreateNumber(sliceList[i].DRB_UEThpUl_SNSSAI);
+	         {
+               str = "user-equipment-MCS-Index";
+               value = cJSON_CreateNumber(sliceList[i].mcsIndex);
             }
+            // {
+            //    str = "user-equipment-average-throughput-uplink";
+            //    value = cJSON_CreateNumber(sliceList[i].DRB_UEThpUl_SNSSAI);
+            // }
 
             if(JsonHelper::addNodeToObject(arr, MEAS_REF, getMeasPath(str,\
 					    sliceList[i].networkSliceIdentifier.sd,\
 					    sliceList[i].networkSliceIdentifier.sst).c_str()) == 0)
-	    {
+	         {
                ret = false;
             }
 
             cJSON_AddItemToObject(arr,"value", value);
 
-            cJSON *unit = cJSON_CreateString(THROUGHPUT_UNIT);
+            cJSON *unit;
+            if(j==0){
+               unit = cJSON_CreateString(THROUGHPUT_UNIT);
+            }else{
+               unit = cJSON_CreateString("");
+            }
             cJSON_AddItemToObject(arr,"unit", unit);
          }
       }
