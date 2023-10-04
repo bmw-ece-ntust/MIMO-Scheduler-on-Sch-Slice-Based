@@ -2096,7 +2096,7 @@ uint8_t DuProcMacUeMcsIdxRpt(Pst *pst, MacUeMcsIndexRpt *MacMcsIdxRpt)
       mcsBuff1.sum += MacMcsIdxRpt->mcsIndex;
       mcsBuff1.count++;
 
-      DU_FREE_SHRABL_BUF(DU_APP_MEM_REGION, DU_POOL, MacMcsIdxRpt, sizeof(MacUeMcsIndexRpt));
+      DU_FREE_SHRABL_BUF(pst->region, pst->pool, MacMcsIdxRpt, sizeof(MacUeMcsIndexRpt));
    }
    return ROK;
 }
