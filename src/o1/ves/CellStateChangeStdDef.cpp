@@ -212,13 +212,20 @@ bool CellStateChangeStdDef::prepareEventFields(const Message* msg) {
       ret = false;
    }
 
-   cJSON*  stateChangeDefinitionArr= cJSON_CreateArray();
+   /*cJSON*  stateChangeDefinitionArr= cJSON_CreateArray();
    if (stateChangeDefinitionArr == NULL)
    {
       ret = false;
    }
-   cJSON_AddItemToObject(data, "stateChangeDefinition", stateChangeDefinitionArr);
+   cJSON_AddItemToObject(data, "stateChangeDefinition", stateChangeDefinitionArr);*/
 
+   cJSON*  stateChangeDefinitionObj= cJSON_CreateObject();
+   if (stateChangeDefinitionObj == NULL)
+   {
+      ret = false;
+   }
+   cJSON_AddItemToObject(data, "stateChangeDefinition", stateChangeDefinitionObj);
+   
    cJSON* monitoredAttributes = JsonHelper::createNode();
    if( monitoredAttributes == 0) {
       O1_LOG("\nO1 CellStateChange : could not create monitoredAttributes JSON object");

@@ -90,7 +90,7 @@ cJSON* JsonHelper::addNodeToObject(cJSON * parent, \
 cJSON* JsonHelper::addNodeToObject(cJSON * parent, \
                                           const char * nodeName, double value)
 {
-   return cJSON_AddNumberToObject(parent, nodeName, (double) value);
+   return cJSON_AddNumberToObject(parent, nodeName, (int) value);
 }
 
 
