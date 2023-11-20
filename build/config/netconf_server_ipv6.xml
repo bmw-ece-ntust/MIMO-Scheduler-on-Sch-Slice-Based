@@ -4,7 +4,7 @@
       <name>default-ssh</name>
       <ssh>
         <tcp-server-parameters>
-          <local-address>::</local-address>
+          <local-address>127.0.0.1</local-address>
           <keepalives>
             <idle-time>1</idle-time>
             <max-probes>10</max-probes>

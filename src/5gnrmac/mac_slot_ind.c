@@ -177,6 +177,31 @@ uint8_t MacProcDlAlloc(Pst *pst, DlSchedInfo *dlSchedInfo)
          currDlSlot = &macCb.macCell[cellIdx]->dlSlot[dlSchedInfo->schSlotValue.ulDciTime.slot];
          currDlSlot->dlInfo.ulGrant = dlSchedInfo->ulGrant;
       }
+
+      /* Assume for Single UE */
+      /* Sending MCS Index Report For UE 1*/
+      MacUeMcsIndexRpt      *macMcsIdxRpt = NULLP;
+      MAC_ALLOC_SHRABL_BUF(macMcsIdxRpt, sizeof(macMcsIdxRpt));
+      if(macMcsIdxRpt == NULLP)
+      {
+          DU_LOG("\nERROR  -->  MAC : Failed to allocate memory in MacProcDlAlloc");
+          return RFAILED;
+      }
+      if(dlSchedInfo){
+         if(dlSchedInfo->dlMsgAlloc){
+            if(dlSchedInfo->dlMsgAlloc[0]){
+               if(dlSchedInfo->dlMsgAlloc[0]->dlMsgPdschCfg){
+                  /*For UE 1*/
+                  macMcsIdxRpt->cellId = dlSchedInfo->cellId;
+                  macMcsIdxRpt->ueId = 0; // Assume Single UE
+                  macMcsIdxRpt->mcsIndex = dlSchedInfo->dlMsgAlloc[0]->dlMsgPdschCfg->codeword[0].mcsIndex;
+                  macSendMcsIdxRptToDu(macMcsIdxRpt);
+               }
+            }
+            
+         }
+         
+      }
    }
    return ROK;
 }

@@ -29,7 +29,7 @@ ifeq ($(NODE),TEST_STUB)
 PLTFRM_FLAGS+=-DODU_TEST_STUB
 endif
 
-lib: $(LIB_DIR)/libo1.a
+lib: $(LIB_DIR)/libo1.a $(LIB_DIR)/libsysrepo_extend.so
 include $(COM_BUILD_DIR)/compile.mak
 
 L_OPTS=-lsysrepo -lyang
@@ -45,6 +45,9 @@ I_OPTS+=-I$(ROOT_DIR)/src/o1/ves/
 $(LIB_DIR)/libo1.a:$(CPP_OBJS)
 		  @echo -e "Creating Archive $(COLOR) $@ $(REVERT_COLOR)"
 		  $(Q)ar -cr $(LIB_DIR)/libo1.a $(CPP_OBJS)
+$(OBJ_DIR)/sysrepo_extend.o: $(SRC_DIR)/sysrepo_extend.cpp
+	$(LINK.c) $(LDFLAGS) $(L_OPTS) $(I_OPTS) -fPIC -c $^ -o $@
+$(LIB_DIR)/libsysrepo_extend.so: $(OBJ_DIR)/sysrepo_extend.o; $(LINK.c) $(LDFLAGS) $(L_OPTS) $(I_OPTS) -shared $^ -o $@
 
 #-------------------------------------------------------------#
 #Clean macros

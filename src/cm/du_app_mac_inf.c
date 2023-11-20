@@ -2279,6 +2279,41 @@ uint8_t packDuMacUeMcsIdxRpt(Pst *pst, MacUeMcsIndexRpt *MacMcsIdxRpt)
    return ODU_POST_TASK(pst,mBuf);
 }
 
+/*******************************************************************
+ *
+ * @brief Unpack MCS Index Rpt from MAC to DU APP
+ *
+ * @details
+ *
+ *    Function :unpackDuMacUeMcsIdxRpt 
+ *
+ *    Functionality: Unpack MCS Index Rpt from MAC to DU APP
+ *
+ * @params[in] 
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ * ****************************************************************/
+uint8_t unpackDuMacUeMcsIdxRpt(MacDuMcsIdxRptFunc func, Pst *pst, Buffer *mBuf)
+{
+   if(pst->selector == ODU_SELECTOR_LWLC)
+   {
+      MacUeMcsIndexRpt *MacMcsIdxRpt = NULLP;
+
+      /* unpack the address of the structure */
+      CMCHKUNPK(oduUnpackPointer, (PTR *)&MacMcsIdxRpt, mBuf);
+      ODU_PUT_MSG_BUF(mBuf);
+      return (*func)(pst, MacMcsIdxRpt);
+   }
+   else{
+      /* Nothing to do for other selectors */
+       DU_LOG("\nERROR  -->  MAC: Only LWLC supported for PRB Metrics ");
+       ODU_PUT_MSG_BUF(mBuf);
+   }
+
+   return RFAILED;
+}
+
 /**********************************************************************
   End of file
  **********************************************************************/

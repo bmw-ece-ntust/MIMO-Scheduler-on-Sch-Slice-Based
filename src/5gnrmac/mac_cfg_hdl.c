@@ -968,6 +968,31 @@ uint8_t MacProcDlPcchInd(Pst *pst, DlPcchInd *pcchInd)
    }
    return ret;
 }
+
+/**
+ * @brief Sending MCS Index value to DU APP
+ *
+ * @details
+ *
+ *     Function : sendMcsIdxRptToDu
+ * 
+ *      This API is invoked by MAC to send MCS Index Report to DU App.
+ *           
+ *  @param[in]  SlotTimingInfo    *slotInd
+ *  @return  
+ *      -# ROK 
+ *      -# RFAILED 
+ **/
+int macSendMcsIdxRptToDu(MacUeMcsIndexRpt *MacMcsIdxRpt)
+{
+   /* fill Pst structure to send to lwr_mac to MAC */
+   Pst pst;
+
+   memset(&pst, 0, sizeof(Pst));
+   FILL_PST_MAC_TO_DUAPP(pst, EVENT_MAC_UE_MCS_IDX_REPORT);
+   
+   return((*macDuMcsIdxRptRspOpts[pst.selector])(&pst, (void *)MacMcsIdxRpt));
+}
 /**********************************************************************
   End of file
  **********************************************************************/
