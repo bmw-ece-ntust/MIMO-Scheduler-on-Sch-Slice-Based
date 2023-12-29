@@ -66,6 +66,14 @@
 #include "PhysicalCellGroupConfig.h"
 #include "SpCellConfig.h"
 #include "ServingCellConfig.h"
+#include <stdio.h>
+#include "CSI-MeasConfig.h"
+#include "NZP-CSI-RS-Resource.h"
+#include "CSI-RS-ResourceMapping.h"
+#include "NZP-CSI-RS-ResourceSet.h"
+#include "NZP-CSI-RS-ResourceId.h"
+#include "CSI-ResourceConfig.h"
+#include "CSI-ResourcePeriodicityAndOffset.h"
 #include "ControlResourceSet.h"
 #include "SearchSpace.h"
 #include "PDCCH-Config.h"
@@ -5154,7 +5162,248 @@ uint8_t BuildPdschSrvCellCfg(struct ServingCellConfig__pdsch_ServingCellConfig *
  * @brief Builds CSI Meas config
  * @details
  *
- *    Function : BuildCsiMeasCfg 
+ *    Function : BuildNzpCsiRsRsrcSetToAddModList
+ *
+ *    Functionality: Builds NZP CSI RS Config in CSI Meas Config
+ *
+ * @params[in] struct CSI_MeasConfig__nzp_CSI_RS_ResourceToAddModList *nzpCsiRsToAddModList
+ *
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ * ****************************************************************/
+uint8_t BuildNzpCsiRsRsrcSetToAddModList(struct CSI_MeasConfig__nzp_CSI_RS_ResourceSetToAddModList *nzpCsiRsRsrcSetToAddModList)
+{
+   uint8_t elementCnt, idx;
+   struct NZP_CSI_RS_ResourceSet *resourceSetItem;
+   NZP_CSI_RS_ResourceId_t *resourceIdItem;
+   
+   // temporary hardcode
+   elementCnt = 1;
+   // ToDo Real Implementation to get real element count of the nzp csi rs to add mod list
+
+   for (idx = 0; idx < elementCnt; idx++)
+   {
+      resourceSetItem = NULLP;
+      CU_ALLOC(resourceSetItem, sizeof(struct NZP_CSI_RS_ResourceSet));
+      if (!resourceSetItem)
+      {
+         DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsRsrcSetToAddModList");
+         return RFAILED;
+         if (resourceSetItem == NULLP)
+         {
+            DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsRsrcSetToAddModList");
+            return RFAILED;
+         }
+      }
+
+      // Default value assignments
+      resourceSetItem->nzp_CSI_ResourceSetId = 1;
+
+      /*========Resource Set=========*/
+      for (int i = 0; i < elementCnt; i++)
+      {
+         resourceIdItem = NULLP;
+         CU_ALLOC(resourceIdItem, sizeof(NZP_CSI_RS_ResourceId_t));
+
+         if (resourceIdItem == NULLP)
+         {
+            DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsRsrcSetToAddModList");
+            return RFAILED;
+         }
+
+         *resourceIdItem = 1;
+
+         ASN_SEQUENCE_ADD(&resourceSetItem->nzp_CSI_RS_Resources.list, resourceIdItem);
+         resourceSetItem->repetition = NULL;
+         resourceSetItem->aperiodicTriggeringOffset = NULL;
+         resourceSetItem->trs_Info = NULL;
+      }
+
+      ASN_SEQUENCE_ADD(&nzpCsiRsRsrcSetToAddModList->list, resourceSetItem);
+   }
+
+   return ROK;
+}
+
+
+/*******************************************************************
+ *
+ * @brief Builds CSI RS To Add Mod List
+ * @details
+ *
+ *    Function : BuildNzpCsiRsToAddModList
+ *
+ *    Functionality: Builds NZP CSI RS Config in CSI Meas Config
+ *
+ * @params[in] struct CSI_MeasConfig__nzp_CSI_RS_ResourceToAddModList *nzpCsiRsToAddModList
+ *
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ * ****************************************************************/
+uint8_t BuildNzpCsiRsToAddModList(struct CSI_MeasConfig__nzp_CSI_RS_ResourceToAddModList *nzpCsiRsToAddModList)
+{
+   uint8_t elementCnt, idx;
+   struct NZP_CSI_RS_Resource *item;
+
+   // temporary hardcode
+   elementCnt = 1;
+   // ToDo Real Implementation to get real element count of the nzp csi rs to add mod list
+
+   // Initial Default Allocation for nzp csi rs to add mod list
+
+   for (idx = 0; idx < elementCnt; idx++)
+   {
+      item = NULLP;
+      CU_ALLOC(item, sizeof(struct NZP_CSI_RS_Resource));
+      if (item == NULLP)
+      {
+         DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsToAddModList");
+         return RFAILED;
+      }
+
+      // Default value assignments
+      item->nzp_CSI_RS_ResourceId = (long)1;
+
+      /*========RESOURCE MAPPING=========*/
+      // Temporary Hardcode of frequency domain allocation with row2 following OAI configuration
+      item->resourceMapping.frequencyDomainAllocation.present = CSI_RS_ResourceMapping__frequencyDomainAllocation_PR_row2;
+      item->resourceMapping.frequencyDomainAllocation.choice.row2.size = 2 * sizeof(uint8_t);
+      CU_ALLOC(item->resourceMapping.frequencyDomainAllocation.choice.row2.buf, item->resourceMapping.frequencyDomainAllocation.choice.row2.size);
+      item->resourceMapping.frequencyDomainAllocation.choice.row2.bits_unused = 4;
+      if (!item->resourceMapping.frequencyDomainAllocation.choice.row2.buf)
+      {
+         DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsToAddModList for freq domain alloc buf");
+         return RFAILED;
+      }
+
+      fillBitString(&item->resourceMapping.frequencyDomainAllocation.choice.row2, 4, 1, 4);
+
+      // Temporary Hardcode of density with one density
+      item->resourceMapping.density.present = CSI_RS_ResourceMapping__density_PR_one;
+      item->resourceMapping.density.choice.one = (NULL_t)0;
+      // Temporary Hardcode of number of ports
+      item->resourceMapping.nrofPorts = CSI_RS_ResourceMapping__nrofPorts_p1;
+      // Temporary Hardcode of first symbol in time domain
+      item->resourceMapping.firstOFDMSymbolInTimeDomain = (long)10;
+      CU_ALLOC(item->resourceMapping.firstOFDMSymbolInTimeDomain2,sizeof(long));
+      *(item->resourceMapping.firstOFDMSymbolInTimeDomain2) = 2;
+      // Temporary Hardcode of cdm type
+      item->resourceMapping.cdm_Type = CSI_RS_ResourceMapping__cdm_Type_noCDM; // No CDM
+      // Temporary Hardcode of Frequency Band Occupation
+      item->resourceMapping.freqBand.startingRB = (long)0; // dummy
+      item->resourceMapping.freqBand.nrofRBs = (long)25;
+
+      /*=======POWER CONTROL OFFSET======*/
+      item->powerControlOffset = (long)1;
+
+      /*=======POWER CONTROL OFFSETSS======*/
+      CU_ALLOC(item->powerControlOffsetSS, sizeof(*item->powerControlOffsetSS));
+      *item->powerControlOffsetSS = NZP_CSI_RS_Resource__powerControlOffsetSS_db0;
+
+      /*=======SCRAMBLING ID=======*/
+      item->scramblingID = (long)2;
+
+      CU_ALLOC(item->periodicityAndOffset, sizeof(CSI_ResourcePeriodicityAndOffset_t));
+      if (!item->periodicityAndOffset)
+      {
+         DU_LOG("\nERROR --> DU APP : Memory allocation failure in BuildNzpCsiRsToAddModList for periodicity and offset");
+         return RFAILED;
+      }
+
+      item->periodicityAndOffset->present = CSI_ResourcePeriodicityAndOffset_PR_slots4;
+      item->periodicityAndOffset->choice.slots4 = (long)2;
+
+      item->qcl_InfoPeriodicCSI_RS = (long)0;
+
+      ASN_SEQUENCE_ADD(&nzpCsiRsToAddModList->list, item);
+   }
+
+   return ROK;
+}
+
+/*******************************************************************
+ *
+ * @brief Builds CSI Resource Config
+ * @details
+ *
+ *    Function : BuildCsiResourceConfigToAddModList
+ *
+ *    Functionality: Builds CSI Resource config in CSI Meas Config
+ *
+ * @params[in] struct ServingCellConfig__csi_MeasConfig *csiMeasCfg
+ *
+ * @return ROK     - success
+ *         RFAILED - failure
+ *
+ * ****************************************************************/
+uint8_t BuildCsiResourceConfigToAddModList(struct CSI_MeasConfig__csi_ResourceConfigToAddModList *csiResourceConfigToAddModList)
+{
+
+   struct CSI_ResourceConfig *item1;
+   NZP_CSI_RS_ResourceSetId_t *nzpCsiResourceSetId;
+   struct CSI_ResourceConfig__csi_RS_ResourceSetList__nzp_CSI_RS_SSB__nzp_CSI_RS_ResourceSetList *resourceSetList;
+   
+   int elmntCnt = 1;
+
+   for (int i = 0; i < elmntCnt; i++)
+   {
+      item1 = NULLP;
+      CU_ALLOC(item1, sizeof(struct CSI_ResourceConfig));
+      if (item1 == NULLP)
+      {
+         DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiResourceConfigToAddModList");
+         return RFAILED;
+      }
+
+
+      item1->csi_ResourceConfigId = (CSI_ResourceConfigId_t)1;
+      item1->bwp_Id = ACTIVE_DL_BWP_ID;
+
+      item1->csi_RS_ResourceSetList.present = CSI_ResourceConfig__csi_RS_ResourceSetList_PR_nzp_CSI_RS_SSB;
+      item1->resourceType = CSI_ResourceConfig__resourceType_periodic;
+      item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB = NULLP;
+
+      CU_ALLOC(item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB, sizeof(*item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB));
+      if (item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB == NULLP)
+      {
+         DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiResourceConfigToAddModList");
+         return RFAILED;
+      }
+
+      CU_ALLOC(item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB->nzp_CSI_RS_ResourceSetList, sizeof(*item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB->nzp_CSI_RS_ResourceSetList));
+      if (!item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB->nzp_CSI_RS_ResourceSetList)
+      {
+         DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiResourceConfigToAddModList");
+         return RFAILED;
+      }
+
+      nzpCsiResourceSetId = NULLP;
+      CU_ALLOC(nzpCsiResourceSetId, sizeof(NZP_CSI_RS_ResourceSetId_t));
+      if (nzpCsiResourceSetId == NULLP)
+      {
+         DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiResourceConfigToAddModList");
+         return RFAILED;
+      }
+      *nzpCsiResourceSetId = 0;
+
+      // ASN_SEQUENCE_ADD(&resourceSetList->list,nzpCsiResourceSetId);
+      ASN_SEQUENCE_ADD(&item1->csi_RS_ResourceSetList.choice.nzp_CSI_RS_SSB->nzp_CSI_RS_ResourceSetList->list, nzpCsiResourceSetId);
+
+   }
+
+   ASN_SEQUENCE_ADD(&csiResourceConfigToAddModList->list, item1);
+
+   return ROK;
+}
+
+/*******************************************************************
+ *
+ * @brief Builds CSI Meas config
+ * @details
+ *
+ *    Function : BuildCsiMeasCfg
  *
  *    Functionality: Builds CSI Meas config in spCellCfgDed
  *
@@ -5166,6 +5415,60 @@ uint8_t BuildPdschSrvCellCfg(struct ServingCellConfig__pdsch_ServingCellConfig *
  * ****************************************************************/
 uint8_t BuildCsiMeasCfg(struct ServingCellConfig__csi_MeasConfig *csiMeasCfg)
 {
+   csiMeasCfg->present = ServingCellConfig__csi_MeasConfig_PR_setup;
+   csiMeasCfg->choice.setup = NULLP;
+   CU_ALLOC(csiMeasCfg->choice.setup, sizeof(struct CSI_MeasConfig));
+   if (!csiMeasCfg->choice.setup)
+   {
+      DU_LOG("\nERROR --> F1AP : Memory allocation failed in BuildCsiMeasCfg");
+      return RFAILED;
+   }
+
+   /* CSI Resource Config */
+   csiMeasCfg->choice.setup->csi_ResourceConfigToAddModList = NULLP;
+   CU_ALLOC(csiMeasCfg->choice.setup->csi_ResourceConfigToAddModList, sizeof(struct CSI_MeasConfig__csi_ResourceConfigToAddModList));
+   if (!csiMeasCfg->choice.setup->csi_ResourceConfigToAddModList)
+   {
+      DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiMeasCfg");
+      return RFAILED;
+   }
+
+   if (BuildCsiResourceConfigToAddModList(csiMeasCfg->choice.setup->csi_ResourceConfigToAddModList))
+   {
+      DU_LOG("\nERROR --> F1AP : BuildCsiResourceConfigToAddModList failed");
+      return RFAILED;
+   }
+
+   /* NZP CSI RS Resource Set List */
+   csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceSetToAddModList = NULLP;
+   CU_ALLOC(csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceSetToAddModList, sizeof(struct CSI_MeasConfig__nzp_CSI_RS_ResourceSetToAddModList));
+   if (!csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceSetToAddModList)
+   {
+      DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiMeasCfg");
+      return RFAILED;
+   }
+
+   if (BuildNzpCsiRsRsrcSetToAddModList(csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceSetToAddModList) != ROK)
+   {
+      DU_LOG("\nERROR --> F1AP : BuildNzpCsiRsRsrcSetToAddModList failed");
+      return RFAILED;
+   }
+
+   /* CSI Meas Cfg Resource to AddMod List */
+   csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceToAddModList = NULLP;
+   CU_ALLOC(csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceToAddModList, sizeof(struct CSI_MeasConfig__nzp_CSI_RS_ResourceToAddModList));
+   if (!csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceToAddModList)
+   {
+      DU_LOG("\nERROR --> F1AP : Memory allocation failure in BuildCsiMeasCfg");
+      return RFAILED;
+   }
+
+   // TODO
+   if (BuildNzpCsiRsToAddModList(csiMeasCfg->choice.setup->nzp_CSI_RS_ResourceToAddModList) != ROK)
+   {
+      DU_LOG("\nERROR --> F1AP : BuildNzpCsiRsToAddModList failed");
+      return RFAILED;
+   }
 
    return ROK;
 }
@@ -5256,7 +5559,7 @@ uint8_t BuildSpCellCfgDed(ServingCellConfig_t *srvCellCfg)
    }
 
    srvCellCfg->csi_MeasConfig = NULLP;
-#if 0
+#if 1
    CU_ALLOC(srvCellCfg->csi_MeasConfig, sizeof(struct	ServingCellConfig__csi_MeasConfig))
       if(!srvCellCfg->csi_MeasConfig)
       {

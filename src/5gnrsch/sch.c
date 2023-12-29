@@ -2405,7 +2405,7 @@ uint8_t SchProcDlCqiInd(Pst *pst, SchDlCqiInd *dlCqiInd)
             else
             {
                /*TODO: complete the processing of DL CQI Ind*/ 
-               // DU_LOG("\nINFO   -->   SCH : Processing DL CQI Ind. CQI Value = %d, Updated MCS = %d",dlCqiInd->dlCqiRpt.cqi,mcsMappingTable[dlCqiInd->dlCqiRpt.cqi-1]);   
+               DU_LOG("\nINFO   -->   SCH : Processing DL CQI Ind. CQI Value = %d, Updated MCS = %d",dlCqiInd->dlCqiRpt.cqi,mcsMappingTable[dlCqiInd->dlCqiRpt.cqi-1]);   
                //Updating MCS value
                ueCb->ueCfg.dlModInfo.mcsIndex = mcsMappingTable[dlCqiInd->dlCqiRpt.cqi-1];
                // ueCb->ueCfg.dlModInfo.mcsIndex = 4;
