@@ -686,30 +686,31 @@ uint8_t fillNzpCsiRsPeriodicityAndOffset(CsiResourcePeriodicityAndOffset *period
 
    if(periodAndOffset)
    {
-      idealPeriod = slotsPerFrame * maxNumUE;
-      if(idealPeriod < 5){
-         periodAndOffset->choice = SLOTS4;
-      }else if(idealPeriod < 6){
-         periodAndOffset->choice = SLOTS5;
-      }else if(idealPeriod < 9){
-         periodAndOffset->choice = SLOTS8;
-      }else if(idealPeriod < 11){
-         periodAndOffset->choice = SLOTS10;
-      }else if(idealPeriod < 17){
-         periodAndOffset->choice = SLOTS16;
-      }else if(idealPeriod < 21){
-         periodAndOffset->choice = SLOTS20;
-      }else if(idealPeriod < 41){
-         periodAndOffset->choice = SLOTS40;
-      }else if(idealPeriod < 81){
-         periodAndOffset->choice = SLOTS80;
-      }else if(idealPeriod < 161){
-         periodAndOffset->choice = SLOTS160;
-      }else{
-         periodAndOffset->choice = SLOTS320;
-      }
+      // idealPeriod = slotsPerFrame * maxNumUE;
+      // if(idealPeriod < 5){
+      //    periodAndOffset->choice = SLOTS4;
+      // }else if(idealPeriod < 6){
+      //    periodAndOffset->choice = SLOTS5;
+      // }else if(idealPeriod < 9){
+      //    periodAndOffset->choice = SLOTS8;
+      // }else if(idealPeriod < 11){
+      //    periodAndOffset->choice = SLOTS10;
+      // }else if(idealPeriod < 17){
+      //    periodAndOffset->choice = SLOTS16;
+      // }else if(idealPeriod < 21){
+      //    periodAndOffset->choice = SLOTS20;
+      // }else if(idealPeriod < 41){
+      //    periodAndOffset->choice = SLOTS40;
+      // }else if(idealPeriod < 81){
+      //    periodAndOffset->choice = SLOTS80;
+      // }else if(idealPeriod < 161){
+      //    periodAndOffset->choice = SLOTS160;
+      // }else{
+      //    periodAndOffset->choice = SLOTS320;
+      // }
 
-      periodAndOffset->offset = slotsPerFrame * ueId;
+      periodAndOffset->choice = SLOTS16;
+      periodAndOffset->offset = ueId;
    }
 
    return ROK;
