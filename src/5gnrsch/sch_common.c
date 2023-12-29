@@ -283,6 +283,51 @@ void fillPucchFormat2(SchPucchInfo *ulSchedPucch, SchPucchResrcInfo *resrcInfo)
   }
 }
 
+/*******************************************************************
+ *
+ * @brief Checks if a slot is to be scheduled for CSI-RS transmission
+ *
+ * @details
+ *
+ *    Function : schCheckCsiRsOcc 
+ *
+ *    Functionality:
+ *       Checks if a slot is to be scheduled for CSI-RS transmission
+ *
+ * @params[in] SlotTimingInfo slotTime
+ *             SchCellCb *cell 
+ * @return  boolean whether CSI need to be transmitted 
+ *
+ * ****************************************************************/
+bool schCheckCsiRsOcc(SchUeCb ueCb, SlotTimingInfo slotTime, uint32_t numslots)
+{
+   SchResourcePeriodicityAndOffsetChoice periodicity;
+   uint8_t offset;
+   uint16_t period;
+
+   DU_LOG("\nAKMAL PRINT CHECK CSI RS OCC");
+   if(ueCb.ueCfg.spCellCfgPres){
+      if(ueCb.ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].nzpCsiRsResourceId>=0){
+         periodicity = ueCb.ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].periodicityAndOffset.choice;
+         offset = ueCb.ueCfg.spCellCfg.servCellRecfg.csiMeasCfg.nzpCsiRsRsrcToAddModList[0].periodicityAndOffset.offset;
+         period = getCsiPeriod(periodicity);
+
+         DU_LOG("\nAKMAL PRINT CHECK CSI RS OCC slot %d, sfn %d, numslots %d, offset %d, period %d, val %d",slotTime.slot, slotTime.sfn, numslots,offset,period, (slotTime.sfn*numslots + slotTime.slot - offset) % period);
+         if((slotTime.sfn*numslots + slotTime.slot - offset) % period == 0){
+            return true;
+         }else{
+            return false;
+         }
+
+      }else{
+         return false;
+      }      
+   }else{
+      return false;
+   }
+
+}
+
 /**
  * @brief Function to fill Pucch format for UL Sched Info
  *
@@ -353,7 +398,7 @@ uint8_t fillUlSchedPucchFormat(uint8_t pucchFormat, SchPucchInfo *ulSchedPucch,\
  *  @return  void
  **/
 
-uint8_t fillUlSchedPucchDedicatedCfg(SchCellCb *cell, SchPucchCfg *pucchDedCfg,\
+uint8_t fillUlSchedPucchDedicatedCfg(uint8_t ueId, SchCellCb *cell, SchPucchCfg *pucchDedCfg,\
    SlotTimingInfo *slotInfo, SchPucchInfo *ulSchedPucch)
 {
    uint8_t ret, format1Alloc, format2Alloc, resrcSetIdx,resrcSetRsrcIdx, resrcIdx, schedReqIdx, srPeriodicity = 0;
@@ -362,6 +407,10 @@ uint8_t fillUlSchedPucchDedicatedCfg(SchCellCb *cell, SchPucchCfg *pucchDedCfg,\
    bool isAllocated = false;
    uint16_t pucchStartPrb;
    uint8_t pucchCount = 0;
+   SlotTimingInfo csiReportTiming;
+   memset(&csiReportTiming,0,sizeof(csiReportTiming));
+   ADD_DELTA_TO_TIME((*slotInfo),csiReportTiming,PHY_DELTA_DL + SCHED_DELTA + 2/* Delay Between CSI-RS and CSI Report */, cell->numSlots);
+
    ret = ROK;
    if(pucchDedCfg->resrcSet && pucchDedCfg->resrc)
    {
@@ -376,6 +425,18 @@ uint8_t fillUlSchedPucchDedicatedCfg(SchCellCb *cell, SchPucchCfg *pucchDedCfg,\
                      pucchDedCfg->resrc->resrcToAddModList[resrcIdx].resrcId)
                {
                   DU_LOG("\nPUCCH COUNT = %d",pucchCount);
+                  /* Check whether now need to schedule CSI Report*/
+                  if(pucchDedCfg->resrc->resrcToAddModList[resrcIdx].SchPucchFormat.format2->numPrbs>0){ /* When the numPrbs format 2 is more than 0 then it is assumed as CSI Report Resource */
+                     /* If not the correct slot, skip the PUCCH format 2/CSI Report */
+                     if(!schCheckCsiRsOcc(cell->ueCb[ueId],csiReportTiming,cell->numSlots)){
+                        format2Alloc=ROK;
+                        if(format1Alloc==ROK){
+                           isAllocated=true;
+                        }
+                        continue;
+                     }
+                  }
+
                   ret=RFAILED;
                   ulSchedPucch[pucchCount].intraFreqHop = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].intraFreqHop;
                   ulSchedPucch[pucchCount].secondPrbHop = pucchDedCfg->resrc->resrcToAddModList[resrcIdx].secondPrbHop;
@@ -393,6 +454,8 @@ uint8_t fillUlSchedPucchDedicatedCfg(SchCellCb *cell, SchPucchCfg *pucchDedCfg,\
                      format1Alloc = allocatePrbUl(cell, *slotInfo, ulSchedPucch[pucchCount].tdAlloc.startSymb, ulSchedPucch[pucchCount].tdAlloc.numSymb, &pucchStartPrb, PUCCH_NUM_PRB_FORMAT_0_1_4);
                   }
                   pucchCount++;
+
+
                   if(format1Alloc == ROK && format2Alloc == ROK)
                   {
                      isAllocated = true;
@@ -472,7 +535,7 @@ uint16_t fillPucchResourceInfo(uint8_t ueId, SchPucchInfo *schPucchInfo, Inst in
    {
       DU_LOG("\nAKMAL PRINT --> DEDICATED PUCCH SCHEDULING");
       /* fill pucch dedicated cfg */
-      ret = fillUlSchedPucchDedicatedCfg(cell,\
+      ret = fillUlSchedPucchDedicatedCfg(ueIdx, cell,\
        &cell->ueCb[ueIdx].ueCfg.spCellCfg.servCellRecfg.initUlBwp.pucchCfg, &slotInfo, schPucchInfo);
       if(ret == RFAILED)
       {
@@ -565,7 +628,7 @@ uint8_t schUlResAlloc(SchCellCb *cell, Inst schInst)
    if(schUlSlotInfo->pucchPres)
    {
       GET_CRNTI(ulSchedInfo.crnti, schUlSlotInfo->pucchUe);
-      ret = fillPucchResourceInfo(schUlSlotInfo->pucchUe, &schUlSlotInfo->schPucchInfo, schInst, ulTimingInfo);
+      ret = fillPucchResourceInfo(schUlSlotInfo->pucchUe, &schUlSlotInfo->schPucchInfo[0], schInst, ulTimingInfo);
       if (ret == ROK)
       {
          ulSchedInfo.dataType |= SCH_DATATYPE_UCI;

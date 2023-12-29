@@ -4286,8 +4286,13 @@ uint8_t getnPdus(fapi_ul_tti_req_t *ulTtiReq, MacUlSlot *currUlSlot)
       }
       if(currUlSlot->ulInfo.dataType & SCH_DATATYPE_UCI)
       {
+         if(currUlSlot->ulInfo.schPucchInfo[1].pucchFormat==PUCCH_FORMAT_2){
 	 pduCount+=2;
 	 ulTtiReq->nUlcch+=2;
+         }else{
+    pduCount+=1;
+	 ulTtiReq->nUlcch++;    
+         }
       }
       if(currUlSlot->ulInfo.dataType & SCH_DATATYPE_SRS)
       {
@@ -4611,9 +4616,11 @@ uint16_t fillUlTtiReq(SlotTimingInfo currTimingInfo, p_fapi_api_queue_elem_t pre
 			      pduIdx++;
 			      fillPucchPdu(&ulTtiReq->pdus[pduIdx], &vendorUlTti->ul_pdus[pduIdx], &macCellCfg, currUlSlot, pucchIdx);
                pucchIdx++;
-               pduIdx++;
-               fillPucchPdu(&ulTtiReq->pdus[pduIdx], &vendorUlTti->ul_pdus[pduIdx], &macCellCfg, currUlSlot, pucchIdx);
-			      ulTtiReq->nUlcch++;
+               if(currUlSlot->ulInfo.schPucchInfo[pucchIdx].pucchFormat==PUCCH_FORMAT_2){
+                  pduIdx++;
+                  fillPucchPdu(&ulTtiReq->pdus[pduIdx], &vendorUlTti->ul_pdus[pduIdx], &macCellCfg, currUlSlot, pucchIdx);
+                  ulTtiReq->nUlcch++;
+               }
 		      }
 	      } 
 
