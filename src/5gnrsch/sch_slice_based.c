@@ -1239,7 +1239,7 @@ uint16_t getCsiPeriod(SchResourcePeriodicityAndOffsetChoice periodicity)
  * @return  boolean whether CSI need to be transmitted 
  *
  * ****************************************************************/
-bool schCheckCsiRsOcc(SchUeCb ueCb, SlotTimingInfo slotTime, uint32_t numslots)
+bool schSliceBasedCheckCsiRsOcc(SchUeCb ueCb, SlotTimingInfo slotTime, uint32_t numslots)
 {
    SchResourcePeriodicityAndOffsetChoice periodicity;
    uint8_t offset;
@@ -1428,7 +1428,7 @@ void schSliceBasedScheduleSlot(SchCellCb *cell, SlotTimingInfo *slotInd, Inst sc
          DU_LOG("\nAKMAL PRINT SCHEDULE SLOT");
          ueId = *(uint8_t *)(pendingUeNode->node);
          schSpcUeCb = (SchSliceBasedUeCb *)cell->ueCb[ueId-1].schSpcUeCb;
-         isScheduleCsiRs = schCheckCsiRsOcc(cell->ueCb[ueId-1],csiRsTiming,cell->numSlots);
+         isScheduleCsiRs = schSliceBasedCheckCsiRsOcc(cell->ueCb[ueId-1],csiRsTiming,cell->numSlots);
 
          /* If RAR is pending for this UE, schedule PDCCH,PDSCH to send RAR and 
           * PUSCH to receive MSG3 as per k0-k2 configuration*/

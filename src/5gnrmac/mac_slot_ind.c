@@ -181,7 +181,7 @@ uint8_t MacProcDlAlloc(Pst *pst, DlSchedInfo *dlSchedInfo)
       /* Assume for Single UE */
       /* Sending MCS Index Report For UE 1*/
       MacUeMcsIndexRpt      *macMcsIdxRpt = NULLP;
-      MAC_ALLOC_SHRABL_BUF(macMcsIdxRpt, sizeof(macMcsIdxRpt));
+      MAC_ALLOC_SHRABL_BUF(macMcsIdxRpt, sizeof(MacUeMcsIndexRpt));
       if(macMcsIdxRpt == NULLP)
       {
           DU_LOG("\nERROR  -->  MAC : Failed to allocate memory in MacProcDlAlloc");
